@@ -28,7 +28,7 @@ export function parseSystemBackupJson(jsonString: string): { strategies: Strateg
     throw new Error('Empty backup file. Please provide a valid TradeGate JSON export.');
   }
 
-  let parsed: any;
+  let parsed: unknown;
   try {
     parsed = JSON.parse(jsonString);
   } catch {
@@ -39,27 +39,29 @@ export function parseSystemBackupJson(jsonString: string): { strategies: Strateg
     throw new Error('Invalid backup format: root must be a JSON object.');
   }
 
+  const root = parsed as Record<string, unknown>;
+
   // Validate strategies array defensively
-  const rawStrategies = Array.isArray(parsed.strategies) ? parsed.strategies : [];
-  const strategies: StrategyProfile[] = rawStrategies.filter((s: any) => {
-    return (
-      s &&
-      typeof s === 'object' &&
-      typeof s.id === 'string' &&
-      typeof s.name === 'string' &&
-      typeof s.executionMode === 'string'
+    const rawStrategies = Array.isArray(root.strategies) ? root.strategies : [];
+    const strategies: StrategyProfile[] = rawStrategies.filter((s: unknown): s is StrategyProfile => {
+      if (!s || typeof s !== 'object') return false;
+      const item = s as Record<string, unknown>;
+      return (
+      typeof item.id === 'string' &&
+        typeof item.name === 'string' &&
+        typeof item.executionMode === 'string'
     );
   });
 
   // Validate trades array defensively
-  const rawTrades = Array.isArray(parsed.trades) ? parsed.trades : [];
-  const trades: TradeRecord[] = rawTrades.filter((t: any) => {
-    return (
-      t &&
-      typeof t === 'object' &&
-      typeof t.id === 'string' &&
-      typeof t.symbol === 'string' &&
-      (typeof t.timestamp === 'number' || typeof t.entryTimestamp === 'string')
+    const rawTrades = Array.isArray(root.trades) ? root.trades : [];
+    const trades: TradeRecord[] = rawTrades.filter((t: unknown): t is TradeRecord => {
+      if (!t || typeof t !== 'object') return false;
+      const item = t as Record<string, unknown>;
+      return (
+      typeof item.id === 'string' &&
+        typeof item.symbol === 'string' &&
+        (typeof item.timestamp === 'number' || typeof item.entryTimestamp === 'string')
     );
   });
 

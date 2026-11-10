@@ -5,6 +5,7 @@ import { TradeGateLogo } from '../common/TradeGateLogo';
 import { getGradeStyle } from '../../utils/gradeStyles';
 import { useToast } from '../../context/ToastContext';
 import { useModalA11y } from '../../hooks/useModalA11y';
+import { getErrorMessage } from '../../utils/errors';
 import { Download, Copy, X, Check, ShieldCheck, TrendingUp, TrendingDown, Image as ImageIcon } from 'lucide-react';
 
 interface ShareTradeModalProps {
@@ -38,8 +39,8 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
         new ClipboardItem({ 'image/png': blob })
       ]);
       toast.success('Image Copied!', 'Trade card copied to clipboard as PNG.');
-    } catch (err: any) {
-      toast.error('Copy Failed', err.message || 'Clipboard access denied.');
+    } catch (err: unknown) {
+      toast.error('Copy Failed', getErrorMessage(err));
     } finally {
       setIsCopying(false);
     }
@@ -56,8 +57,8 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
       a.download = `TradeGate_${trade.symbol}_${trade.setupGrade}_${Date.now()}.png`;
       a.click();
       toast.success('Downloaded!', 'Trade card PNG saved to downloads.');
-    } catch (err: any) {
-      toast.error('Download Failed', err.message || 'Failed to render image.');
+    } catch (err: unknown) {
+      toast.error('Download Failed', getErrorMessage(err));
     } finally {
       setIsDownloading(false);
     }

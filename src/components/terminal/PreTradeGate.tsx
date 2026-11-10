@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { StrategyProfile } from '../../types/strategy';
+import { StrategyProfile, SessionTag } from '../../types/strategy';
+import { getErrorMessage } from '../../utils/errors';
 import {
   TradeDirection,
   MarginType,
@@ -127,11 +128,11 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
   const [timeframe, setTimeframe] = useState<string>(strategy?.timeframes[0] || '15m');
   const [session, setSession] = useState<string>(() => {
     const active = getCurrentActiveSession();
-    if (active && strategy?.sessions.includes(active.name as any)) {
-      return active.name;
-    }
-    return strategy?.sessions[0] || 'London';
-  });
+      if (active && strategy?.sessions.includes(active.name as SessionTag)) {
+        return active.name;
+      }
+      return strategy?.sessions[0] || 'London';
+    });
   const [selectedErrors, setSelectedErrors] = useState<ExecutionErrorTag[]>(['None']);
   const [notes, setNotes] = useState<string>('');
 
@@ -194,13 +195,13 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
     setRiskPercentage(strategy.defaultRiskValue || 1.0);
     setTimeframe(strategy.timeframes[0] || '15m');
     const active = getCurrentActiveSession();
-    if (active && strategy.sessions.includes(active.name as any)) {
-      setSession(active.name);
-    } else {
-      setSession(strategy.sessions[0] || 'London');
-    }
-    setActiveExecutionType(strategy.executionMode === 'spot' ? 'spot' : 'futures');
-  }, [strategy?.id]);
+      if (active && strategy.sessions.includes(active.name as SessionTag)) {
+        setSession(active.name);
+      } else {
+        setSession(strategy.sessions[0] || 'London');
+      }
+      setActiveExecutionType(strategy.executionMode === 'spot' ? 'spot' : 'futures');
+    }, [strategy?.id]);
 
   // Persist trade plan draft on change (debounced 300ms)
   useEffect(() => {
@@ -408,8 +409,8 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
               const compressed = await compressImageFile(file);
               setScreenshotData(compressed);
               toast.success('Screenshot Attached', 'Pasted image from clipboard.');
-            } catch (err: any) {
-              toast.error('Image Error', err?.message || 'Failed to compress pasted screenshot.');
+            } catch (err: unknown) {
+              toast.error('Image Error', getErrorMessage(err));
             }
           }
         }
@@ -433,8 +434,8 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
         const compressed = await compressImageFile(file);
         setScreenshotData(compressed);
         toast.success('Screenshot Attached', 'Chart screenshot uploaded.');
-      } catch (err: any) {
-        toast.error('Upload Error', err?.message || 'Failed to process image file.');
+      } catch (err: unknown) {
+        toast.error('Upload Error', getErrorMessage(err));
       } finally {
         e.target.value = '';
       }
@@ -641,8 +642,8 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
       setEntryOutcome('Active');
       setExitPriceInput(0);
       setSelectedErrors(['None']);
-    } catch (err: any) {
-      toast.error('Logging Failed', err.message || 'Could not save trade.');
+    } catch (err: unknown) {
+      toast.error('Logging Failed', getErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }

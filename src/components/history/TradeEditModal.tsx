@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TradeRecord, TradeResult, ExecutionErrorTag, isFuturesTrade, isSpotTrade } from '../../types/trade';
 import { useToast } from '../../context/ToastContext';
 import { useModalA11y } from '../../hooks/useModalA11y';
+import { getErrorMessage } from '../../utils/errors';
 import { ConfirmDeleteModal } from '../common/ConfirmDeleteModal';
 import { X, Save, Edit3, DollarSign, Check, Trash2 } from 'lucide-react';
 
@@ -9,8 +10,8 @@ interface TradeEditModalProps {
   trade: TradeRecord | null;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (id: string, updates: Partial<TradeRecord>) => Promise<any>;
-  onDelete?: (id: string) => Promise<any>;
+  onSave: (id: string, updates: Partial<TradeRecord>) => Promise<unknown>;
+  onDelete?: (id: string) => Promise<unknown>;
   currencySymbol?: string;
 }
 
@@ -129,8 +130,8 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
       await onSave(trade.id, updates);
       toast.success('Trade Updated', `Saved updates for ${trade.symbol}.`);
       onClose();
-    } catch (err: any) {
-      toast.error('Update Failed', err.message);
+    } catch (err: unknown) {
+      toast.error('Update Failed', getErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
@@ -330,35 +331,35 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
           </div>
 
           {/* Footer */}
-            <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
-              {onDelete ? (
-                <button
-                  type="button"
-                  onClick={() => setIsConfirmDeleteOpen(true)}
-                  className="px-3 py-1.5 text-xs font-semibold text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors flex items-center gap-1.5"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Delete Trade
-                </button>
-              ) : <div />}
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-3.5 py-1.5 text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-card-hover rounded-xl"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-4 py-1.5 rounded-xl bg-brand text-black font-bold text-xs hover:bg-brand-hover shadow-xs flex items-center gap-1.5"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  Save Changes
-                </button>
-              </div>
+          <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
+            {onDelete ? (
+              <button
+                type="button"
+                onClick={() => setIsConfirmDeleteOpen(true)}
+                className="px-3 py-1.5 text-xs font-semibold text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors flex items-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete Trade
+              </button>
+            ) : <div />}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-3.5 py-1.5 text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-card-hover rounded-xl"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-4 py-1.5 rounded-xl bg-brand text-black font-bold text-xs hover:bg-brand-hover shadow-xs flex items-center gap-1.5"
+              >
+                <Save className="w-3.5 h-3.5" />
+                Save Changes
+              </button>
             </div>
+          </div>
         </form>
       </div>
 
@@ -372,8 +373,8 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
               toast.success('Trade Deleted', `Removed ${trade.symbol} entry from ledger.`);
               setIsConfirmDeleteOpen(false);
               onClose();
-            } catch (err: any) {
-              toast.error('Delete Failed', err.message);
+            } catch (err: unknown) {
+              toast.error('Delete Failed', getErrorMessage(err));
             }
           }}
           itemName={trade.symbol}
