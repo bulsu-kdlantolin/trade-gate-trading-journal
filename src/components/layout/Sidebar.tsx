@@ -9,6 +9,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { TradeGateLogo } from '../common/TradeGateLogo';
+import { playTabSwitch, playMicroTick } from '../../utils/audioTelemetry';
 
 export type TabKey = 'terminal' | 'history' | 'dashboard' | 'strategies' | 'settings';
 
@@ -77,7 +78,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           return (
             <button
               key={item.key}
-              onClick={() => setActiveTab(item.key)}
+              onClick={() => {
+                playTabSwitch();
+                setActiveTab(item.key);
+              }}
               title={isCollapsed ? item.label : undefined}
               aria-label={item.label}
               aria-current={isActive ? 'page' : undefined}
@@ -96,23 +100,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </nav>
 
-        {/* Sidebar Footer: Minimal Collapse Trigger (Containerless) */}
-        <div className="p-2">
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className={`w-full flex items-center gap-2 p-2 rounded-xl text-xs text-text-muted hover:text-text-primary hover:bg-card-hover transition-colors ${isCollapsed ? 'justify-center' : 'justify-between px-2.5'
-              }`}
-          >
-            {!isCollapsed && <span className="text-[11px] font-medium">Collapse</span>}
-            {isCollapsed ? (
-              <ChevronRight className="w-4 h-4 shrink-0" />
-            ) : (
-              <ChevronLeft className="w-4 h-4 shrink-0" />
-            )}
-          </button>
-        </div>
+      {/* Sidebar Footer: Minimal Collapse Trigger (Containerless) */}
+      <div className="p-2">
+        <button
+          onClick={() => {
+            playMicroTick();
+            setIsCollapsed(!isCollapsed);
+          }}
+          title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className={`w-full flex items-center gap-2 p-2 rounded-xl text-xs text-text-muted hover:text-text-primary hover:bg-card-hover transition-colors ${isCollapsed ? 'justify-center' : 'justify-between px-2.5'
+            }`}
+        >
+          {!isCollapsed && <span className="text-[11px] font-medium">Collapse</span>}
+          {isCollapsed ? (
+            <ChevronRight className="w-4 h-4 shrink-0" />
+          ) : (
+            <ChevronLeft className="w-4 h-4 shrink-0" />
+          )}
+        </button>
+      </div>
     </aside>
   );
 };

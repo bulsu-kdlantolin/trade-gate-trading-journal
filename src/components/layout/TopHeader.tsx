@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { StrategyProfile } from '../../types/strategy';
 import { getCurrentActiveSession, formatDeviceClock } from '../../utils/sessionClock';
 import { SessionStatus } from '../../types/session';
-import { getCurrencySymbol, isCryptoCurrency, formatCurrencyAmount } from '../../utils/currency';
+import { getCurrencySymbol, isCryptoCurrency, formatCurrencyAmount, formatNumberOnly } from '../../utils/currency';
 import { CryptoIcon } from '../common/CryptoIcon';
 import { ThemeToggleButton } from './ThemeToggleButton';
+import { AudioToggleButton } from './AudioToggleButton';
+import { playMicroTick, playSuccessChime, playModalOpen } from '../../utils/audioTelemetry';
 import {
   ChevronDown,
   Wallet,
@@ -50,15 +52,24 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
     };
   }, []);
 
-  // Close dropdown on outside click
+  // Close dropdown on outside click or Escape key
   useEffect(() => {
     const handleOutside = (e: MouseEvent) => {
       if (stratRef.current && !stratRef.current.contains(e.target as Node)) {
         setIsStratOpen(false);
       }
     };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsStratOpen(false);
+      }
+    };
     document.addEventListener('mousedown', handleOutside);
-    return () => document.removeEventListener('mousedown', handleOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const currencySymbol = getCurrencySymbol(activeStrategy?.baseCurrency);
@@ -93,11 +104,15 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           {/* Strategy Profile Selector */}
           <div className="relative" ref={stratRef}>
             <button
-              onClick={() => setIsStratOpen(!isStratOpen)}
+              onClick={() => {
+                playMicroTick();
+                setIsStratOpen(!isStratOpen);
+              }}
               aria-haspopup="listbox"
               aria-expanded={isStratOpen}
+              aria-controls="strategy-listbox"
               aria-label={`Active strategy: ${activeStrategy?.name || 'Select Strategy'}`}
-              className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-canvas border border-border hover:border-brand/40 text-left transition-all duration-150 ${isStratOpen ? 'border-brand/60 ring-2 ring-brand/15' : ''
+              className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-canvas border border-border hover:border-brand/40 text-left transition-all duration-150 ${isStratOpen ? 'border-brand' : ''
                 }`}
             >
               <div className="w-2 h-2 rounded-full bg-brand shrink-0" />
@@ -113,19 +128,27 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
             {/* Strategy Popover Menu */}
             {isStratOpen && (
-              <div className="absolute top-full left-0 mt-1.5 w-72 bg-card border border-border rounded-2xl shadow-2xl p-1.5 z-50 animate-dropdown backdrop-blur-md">
+              <div className="absolute top-full left-0 mt-1.5 w-72 max-w-[calc(100vw-24px)] bg-card border border-border rounded-2xl shadow-2xl p-1.5 z-50 animate-dropdown backdrop-blur-md">
                 <div className="px-3 py-1.5 border-b border-border mb-1">
                   <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
                     Isolated Strategies
                   </span>
                 </div>
-                <div className="space-y-1 max-h-64 overflow-y-auto">
+                <div
+                  id="strategy-listbox"
+                  role="listbox"
+                  aria-label="Strategy profiles"
+                  className="space-y-1 max-h-64 overflow-y-auto"
+                >
                   {strategies.map((strat) => {
                     const isSelected = strat.id === activeStrategy?.id;
                     return (
                       <button
                         key={strat.id}
+                        role="option"
+                        aria-selected={isSelected}
                         onClick={() => {
+                          playSuccessChime();
                           onSelectStrategy(strat.id);
                           setIsStratOpen(false);
                         }}
@@ -157,21 +180,22 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             <div className="flex items-center gap-1.5 font-mono text-xs">
               <Wallet className="w-3.5 h-3.5 text-text-muted shrink-0" />
               <span className="text-[11px] text-text-muted font-sans hidden sm:inline">Balance:</span>
-              <span className="font-bold tabular-nums text-text-primary inline-flex items-center gap-1">
-                {isCryptoCurrency(activeStrategy?.baseCurrency) && (
-                  <CryptoIcon symbol={activeStrategy!.baseCurrency} size="xs" />
+              <span className="font-bold tabular-nums text-text-primary inline-flex items-center gap-1.5">
+                {isCryptoCurrency(activeStrategy?.baseCurrency) ? (
+                  <>
+                    <CryptoIcon symbol={activeStrategy!.baseCurrency} size="xs" />
+                    <span>{formatNumberOnly(liveBalance, activeStrategy!.baseCurrency)}</span>
+                  </>
+                ) : (
+                  <span>{formatCurrencyAmount(liveBalance, activeStrategy?.baseCurrency || 'USD')}</span>
                 )}
-                {formatCurrencyAmount(liveBalance, activeStrategy?.baseCurrency || 'USD')}
-              </span>
-              <span className="text-[10px] font-bold text-text-muted px-1.5 py-0.5 rounded bg-canvas border border-border hidden md:inline-flex items-center gap-1">
-                {isCryptoCurrency(activeStrategy?.baseCurrency) && (
-                  <CryptoIcon symbol={activeStrategy!.baseCurrency} size="xs" />
-                )}
-                {activeStrategy?.baseCurrency || 'USD'}
               </span>
             </div>
             <button
-              onClick={onOpenDepositModal}
+              onClick={() => {
+                playModalOpen();
+                onOpenDepositModal();
+              }}
               title="Deposit or adjust capital"
               aria-label="Deposit or adjust capital"
               className="relative after:absolute after:-inset-2 p-1 rounded-lg text-brand hover:text-brand-hover hover:bg-card-hover transition-colors shrink-0"
@@ -181,46 +205,49 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           </div>
         </div>
 
-        {/* Right Side: Trading Session, Market Clock, Theme Toggle */}
-        <div className="flex items-center gap-3 sm:gap-4 shrink-0 ml-auto">
-          {/* Trading Session (Beside time) */}
-          <div
-            title={activeSession ? `Active Trading Session: ${activeSession.name} (${activeSession.localRangeStr})` : 'All trading sessions are currently closed'}
-            className="flex items-center gap-1.5 font-mono text-xs select-none"
-          >
-            <span className="text-[11px] text-text-muted font-sans hidden sm:inline">
-              Trading Session:
-            </span>
-            <div className="flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2 shrink-0">
-                <span
-                  className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                  style={{ backgroundColor: activeSession?.color || '#3B82F6' }}
-                />
-                <span
-                  className="relative inline-flex rounded-full h-2 w-2 border border-slate-400/50"
-                  style={{ backgroundColor: activeSession?.color || '#3B82F6' }}
-                />
+          {/* Right Side: Trading Session, Market Clock, Theme Toggle */}
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0 ml-auto">
+            {/* Trading Session (Beside time) */}
+            <div
+              title={activeSession ? `Active Trading Session: ${activeSession.name} (${activeSession.localRangeStr})` : 'All trading sessions are currently closed'}
+              className="flex items-center gap-1.5 font-mono text-xs select-none"
+            >
+              <span className="text-[11px] text-text-muted font-sans hidden sm:inline">
+                Trading Session:
               </span>
-              <span className="font-bold text-text-primary text-[11px]">
-                {activeSession ? activeSession.name : 'Closed'}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span
+                    className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                    style={{ backgroundColor: activeSession?.color || '#3B82F6' }}
+                  />
+                  <span
+                    className="relative inline-flex rounded-full h-2 w-2 border border-slate-400/50"
+                    style={{ backgroundColor: activeSession?.color || '#3B82F6' }}
+                  />
+                </span>
+                <span className="font-bold text-text-primary text-[11px] max-w-[72px] xs:max-w-none truncate">
+                  {activeSession ? activeSession.name : 'Closed'}
+                </span>
+              </div>
             </div>
-          </div>
 
-          {/* Device Local Time (Containerless) */}
-          <div
-            title="Auto-detected device local time"
-            className="hidden sm:flex items-center gap-1.5 text-xs font-mono tabular-nums text-text-secondary select-none px-1"
-          >
-            <Clock className="w-3.5 h-3.5 text-text-muted shrink-0" />
-            <span className="font-semibold text-text-primary text-[11px]">{formatDeviceClock(currentTime)}</span>
-          </div>
+            {/* Device Local Time (Containerless) */}
+            <div
+              title="Auto-detected device local time"
+              className="hidden sm:flex items-center gap-1.5 text-xs font-mono tabular-nums text-text-secondary select-none px-1"
+            >
+              <Clock className="w-3.5 h-3.5 text-text-muted shrink-0" />
+              <span className="font-semibold text-text-primary text-[11px]">{formatDeviceClock(currentTime)}</span>
+            </div>
 
-          {/* Theme Toggle Button with Scattering & Spread Effect */}
-          <ThemeToggleButton />
+            {/* Audio Feedback Toggle */}
+            <AudioToggleButton />
+
+            {/* Theme Toggle Button with Scattering & Spread Effect */}
+            <ThemeToggleButton />
+          </div>
         </div>
-      </div>
     </header >
   );
 };

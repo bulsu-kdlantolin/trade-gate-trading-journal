@@ -7,10 +7,13 @@ import {
   VenueCustodyTag,
 } from '../../types/trade';
 import { CryptoIcon } from '../common/CryptoIcon';
+import { CurrencyBadge } from '../common/CurrencyDisplay';
 import { searchCryptoAssets, CryptoAsset } from '../../data/cryptoAssets';
 import { calculateFuturesMetrics, calculateSpotMetrics } from '../../utils/cryptoMath';
-import { getCurrencySymbol } from '../../utils/currency';
+import { getCurrencySymbol, isCryptoCurrency } from '../../utils/currency';
 import { getFavoriteTickers, toggleFavoriteTicker, isFavoriteTicker } from '../../utils/cryptoFavorites';
+import { playMicroTick, playDirectionToggle } from '../../utils/audioTelemetry';
+import { useLivePrices } from '../../hooks/useLivePrices';
 import {
   ArrowUpRight,
   ArrowDownRight,
@@ -115,6 +118,9 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
   const [isAssetDropdownOpen, setIsAssetDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Live market price feed
+  const { getPrice, formatLivePrice } = useLivePrices();
+
   // Favorites & category filter state
   const [favoriteTickers, setFavoriteTickers] = useState<string[]>(() => getFavoriteTickers());
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<'All' | 'Favorites'>('All');
@@ -212,10 +218,19 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
   }, [spotEntryPrice, spotStopLossPrice]);
 
   const handleSelectAsset = (asset: CryptoAsset) => {
+    playMicroTick();
     if (activeExecutionType === 'futures') {
       setFuturesSymbol(asset.symbol);
+      const liveP = getPrice(asset.baseTicker);
+      if (liveP && (!entryPrice || entryPrice === 0)) {
+        setEntryPrice(liveP);
+      }
     } else {
       setSpotSymbol(asset.baseTicker);
+      const liveP = getPrice(asset.baseTicker);
+      if (liveP && (!spotEntryPrice || spotEntryPrice === 0)) {
+        setSpotEntryPrice(liveP);
+      }
     }
     setIsAssetDropdownOpen(false);
     setAssetSearchQuery('');
@@ -229,31 +244,34 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
       {isHybrid && (
         <div className="relative grid grid-cols-2 p-1 bg-canvas border border-border rounded-xl select-none">
           <div
-            className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-lg transition-all duration-200 ease-out shadow-xs pointer-events-none ${
-              activeExecutionType === 'futures'
-                ? 'left-1 bg-blue-500/20'
-                : 'left-[calc(50%+3px)] bg-emerald-500/20'
-            }`}
+            className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-lg transition-all duration-200 ease-out shadow-xs pointer-events-none ${activeExecutionType === 'futures'
+              ? 'left-1 bg-blue-500/20'
+              : 'left-[calc(50%+3px)] bg-emerald-500/20'
+              }`}
           />
           <button
             type="button"
-            onClick={() => setActiveExecutionType('futures')}
-            className={`relative z-10 py-1.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center ${
-              activeExecutionType === 'futures'
-                ? 'text-blue-400'
+            onClick={() => {
+              playMicroTick();
+              setActiveExecutionType('futures');
+            }}
+            className={`relative z-10 py-1.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center ${activeExecutionType === 'futures'
+                ? 'text-blue-700 dark:text-blue-400'
                 : 'text-text-muted hover:text-text-primary'
-            }`}
+              }`}
           >
             Perpetual Futures (Perps)
           </button>
           <button
             type="button"
-            onClick={() => setActiveExecutionType('spot')}
-            className={`relative z-10 py-1.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center ${
-              activeExecutionType === 'spot'
-                ? 'text-emerald-400'
+            onClick={() => {
+              playMicroTick();
+              setActiveExecutionType('spot');
+            }}
+            className={`relative z-10 py-1.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center ${activeExecutionType === 'spot'
+                ? 'text-emerald-700 dark:text-emerald-400'
                 : 'text-text-muted hover:text-text-primary'
-            }`}
+              }`}
           >
             Spot Holdings
           </button>
@@ -270,23 +288,27 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
             </label>
             <div
               onClick={() => setIsAssetDropdownOpen(!isAssetDropdownOpen)}
-              className={`flex items-center justify-between bg-canvas border border-border hover:border-brand/40 rounded-xl px-3 py-2 cursor-pointer transition-all duration-150 ${
-                isAssetDropdownOpen ? 'border-brand/60 ring-2 ring-brand/15 shadow-xs' : ''
-              }`}
+              className={`flex items-center justify-between bg-canvas border border-border hover:border-brand/40 rounded-xl px-3 py-2 cursor-pointer transition-all duration-150 ${isAssetDropdownOpen ? 'border-brand shadow-xs' : ''
+                }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <CryptoIcon symbol={futuresSymbol || 'BTC'} size="sm" />
                 <span className="font-mono font-bold text-xs sm:text-sm text-text-primary">
                   {futuresSymbol || 'Select Crypto Perp Pair'}
                 </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-blue-500/15 text-blue-400 font-mono">
+                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-blue-500/15 text-blue-600 dark:text-blue-400 font-mono">
                   PERP
                 </span>
+                {getPrice(futuresSymbol) ? (
+                  <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400 tabular-nums inline-flex items-center gap-1">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    ${formatLivePrice(futuresSymbol)}
+                  </span>
+                ) : null}
               </div>
               <ChevronDown
-                className={`w-4 h-4 text-text-muted transition-transform duration-200 ${
-                  isAssetDropdownOpen ? 'rotate-180 text-brand' : ''
-                }`}
+                className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isAssetDropdownOpen ? 'rotate-180 text-brand' : ''
+                  }`}
               />
             </div>
 
@@ -299,33 +321,32 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                     type="text"
                     value={assetSearchQuery}
                     onChange={(e) => setAssetSearchQuery(e.target.value)}
+                    aria-label="Search top 100 crypto perpetual pairs"
                     placeholder="Search top 100 perps (BTC, ETH, SOL, XRP)..."
-                    className="w-full bg-canvas border border-border rounded-lg pl-8 pr-3 py-1.5 text-xs text-text-primary placeholder:text-text-muted focus:border-brand"
+                    className="w-full bg-canvas border border-border rounded-lg pl-8 pr-3 py-1.5 text-xs text-text-primary placeholder:text-text-muted outline-hidden focus:outline-none focus:ring-0 focus:border-brand"
                     autoFocus
                   />
                 </div>
 
                 {/* Filter Pills (All vs Favorites) */}
-                <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b border-border/60">
+                <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b border-border">
                   <button
                     type="button"
                     onClick={() => setActiveCategoryFilter('All')}
-                    className={`px-2 py-0.5 rounded-md text-[10.5px] font-semibold transition-colors ${
-                      activeCategoryFilter === 'All'
-                        ? 'bg-brand text-black font-bold'
-                        : 'bg-canvas text-text-muted hover:text-text-primary'
-                    }`}
+                    className={`px-2 py-0.5 rounded-md text-[10.5px] font-semibold transition-colors ${activeCategoryFilter === 'All'
+                      ? 'bg-brand text-black font-bold'
+                      : 'bg-canvas text-text-muted hover:text-text-primary'
+                      }`}
                   >
                     Top 100 Perps
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveCategoryFilter('Favorites')}
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-semibold transition-colors ${
-                      activeCategoryFilter === 'Favorites'
-                        ? 'bg-amber-400 text-black font-bold'
-                        : 'bg-canvas text-text-muted hover:text-amber-400'
-                    }`}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-semibold transition-colors ${activeCategoryFilter === 'Favorites'
+                      ? 'bg-amber-400 text-black font-bold'
+                      : 'bg-canvas text-text-muted hover:text-amber-400'
+                      }`}
                   >
                     <Star className={`w-3 h-3 ${favoriteTickers.length > 0 ? 'fill-amber-400 text-amber-400' : ''}`} />
                     Favorites ({favoriteTickers.length})
@@ -361,9 +382,8 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                               className="p-1 rounded-md text-text-muted hover:text-amber-400 transition-colors shrink-0"
                             >
                               <Star
-                                className={`w-3.5 h-3.5 transition-colors ${
-                                  isFav ? 'text-amber-400 fill-amber-400' : 'text-text-muted group-hover:text-amber-300'
-                                }`}
+                                className={`w-3.5 h-3.5 transition-colors ${isFav ? 'text-amber-400 fill-amber-400' : 'text-text-muted group-hover:text-amber-300'
+                                  }`}
                               />
                             </button>
                             <CryptoIcon symbol={asset.baseTicker} size="sm" />
@@ -378,7 +398,12 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                               </span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1.5 shrink-0 pl-2">
+                          <div className="flex items-center gap-2 shrink-0 pl-2">
+                            {getPrice(asset.baseTicker) ? (
+                              <span className="font-mono font-bold text-xs text-emerald-400 tabular-nums">
+                                ${formatLivePrice(asset.baseTicker)}
+                              </span>
+                            ) : null}
                             <span className="text-[10px] font-mono font-bold text-text-muted">
                               #{asset.rank}
                             </span>
@@ -403,24 +428,28 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => setDirection('Long')}
-                  className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold border transition-all ${
-                    direction === 'Long'
-                      ? 'bg-trade-green/15 border-trade-green text-trade-green ring-1 ring-trade-green/30 shadow-xs'
-                      : 'bg-canvas border-border text-text-muted hover:border-trade-green/40 hover:text-trade-green'
-                  }`}
+                  onClick={() => {
+                    playDirectionToggle('Long');
+                    setDirection('Long');
+                  }}
+                  className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold border transition-all ${direction === 'Long'
+                    ? 'bg-trade-green/15 border-trade-green text-trade-green ring-1 ring-trade-green/30 shadow-xs'
+                    : 'bg-canvas border-border text-text-muted hover:border-trade-green/40 hover:text-trade-green'
+                    }`}
                 >
                   <ArrowUpRight className="w-4 h-4" />
                   Long
                 </button>
                 <button
                   type="button"
-                  onClick={() => setDirection('Short')}
-                  className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold border transition-all ${
-                    direction === 'Short'
-                      ? 'bg-rose-500/15 border-rose-500 text-rose-500 ring-1 ring-rose-500/30 shadow-xs'
-                      : 'bg-canvas border-border text-text-muted hover:border-rose-500/40 hover:text-rose-500'
-                  }`}
+                  onClick={() => {
+                    playDirectionToggle('Short');
+                    setDirection('Short');
+                  }}
+                  className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold border transition-all ${direction === 'Short'
+                    ? 'bg-rose-500/15 border-rose-500 text-rose-500 ring-1 ring-rose-500/30 shadow-xs'
+                    : 'bg-canvas border-border text-text-muted hover:border-rose-500/40 hover:text-rose-500'
+                    }`}
                 >
                   <ArrowDownRight className="w-4 h-4" />
                   Short
@@ -433,31 +462,34 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
               <label className="block text-xs font-medium text-text-secondary mb-1">Margin Type</label>
               <div className="relative grid grid-cols-2 p-1 bg-canvas rounded-xl border border-border select-none">
                 <div
-                  className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-lg bg-card border border-border transition-all duration-200 ease-out shadow-xs pointer-events-none ${
-                    marginType === 'Isolated'
-                      ? 'left-1'
-                      : 'left-[calc(50%+3px)]'
-                  }`}
+                  className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-lg bg-card border border-border transition-all duration-200 ease-out shadow-xs pointer-events-none ${marginType === 'Isolated'
+                    ? 'left-1'
+                    : 'left-[calc(50%+3px)]'
+                    }`}
                 />
                 <button
                   type="button"
-                  onClick={() => setMarginType('Isolated')}
-                  className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 text-center ${
-                    marginType === 'Isolated'
-                      ? 'text-text-primary'
-                      : 'text-text-muted hover:text-text-primary'
-                  }`}
+                  onClick={() => {
+                    playMicroTick();
+                    setMarginType('Isolated');
+                  }}
+                  className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 text-center ${marginType === 'Isolated'
+                    ? 'text-text-primary'
+                    : 'text-text-muted hover:text-text-primary'
+                    }`}
                 >
                   Isolated
                 </button>
                 <button
                   type="button"
-                  onClick={() => setMarginType('Cross')}
-                  className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 text-center ${
-                    marginType === 'Cross'
-                      ? 'text-text-primary'
-                      : 'text-text-muted hover:text-text-primary'
-                  }`}
+                  onClick={() => {
+                    playMicroTick();
+                    setMarginType('Cross');
+                  }}
+                  className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 text-center ${marginType === 'Cross'
+                    ? 'text-text-primary'
+                    : 'text-text-muted hover:text-text-primary'
+                    }`}
                 >
                   Cross
                 </button>
@@ -468,7 +500,9 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
           {/* Leverage Selector Pills */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-medium text-text-secondary">Leverage</label>
+              <label htmlFor="custom-leverage-input" className="block text-xs font-medium text-text-secondary">
+                Leverage
+              </label>
               <span className="font-mono font-bold text-xs text-brand">{leverage}x</span>
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
@@ -476,12 +510,14 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                 <button
                   key={lev}
                   type="button"
-                  onClick={() => setLeverage(lev)}
-                  className={`px-3 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all ${
-                    leverage === lev
-                      ? 'bg-brand/15 border-brand text-brand ring-1 ring-brand/30 shadow-xs'
-                      : 'bg-canvas border-border text-text-muted hover:border-brand/40 hover:text-text-primary'
-                  }`}
+                  onClick={() => {
+                    playMicroTick();
+                    setLeverage(lev);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all ${leverage === lev
+                    ? 'bg-brand/15 border-brand text-brand ring-1 ring-brand/30 shadow-xs'
+                    : 'bg-canvas border-border text-text-muted hover:border-brand/40 hover:text-text-primary'
+                    }`}
                 >
                   {lev}x
                 </button>
@@ -495,7 +531,8 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                   value={leverage}
                   onChange={(e) => setLeverage(Math.min(125, Math.max(1, parseInt(e.target.value, 10) || 1)))}
                   placeholder="Custom"
-                  className="w-full h-[30px] min-h-[30px] bg-canvas border border-border hover:border-border-muted rounded-lg px-2 text-xs font-mono font-bold text-center text-text-primary outline-hidden focus:outline-hidden focus:ring-0 focus:border-border-muted transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  aria-label="Custom leverage multiplier"
+                  className="w-full h-[32px] sm:h-[30px] min-h-[30px] bg-canvas border border-border hover:border-border-muted rounded-xl px-2 text-xs font-mono font-bold text-center text-text-primary outline-hidden focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
               </div>
             </div>
@@ -504,9 +541,27 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
           {/* Execution Inputs */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <div>
-              <label htmlFor="futures-entry-price" className="block text-xs font-medium text-text-secondary mb-1">
-                Entry Price ({currencySymbol.trim()})
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label htmlFor="futures-entry-price" className="text-xs font-medium text-text-secondary flex items-center gap-1.5 whitespace-nowrap">
+                  <span>Entry Price</span>
+                  <CurrencyBadge currency={strategy.baseCurrency} />
+                </label>
+                {getPrice(futuresSymbol) ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playMicroTick();
+                      const p = getPrice(futuresSymbol);
+                      if (p) setEntryPrice(p);
+                    }}
+                    title={`Click to snap live price: $${formatLivePrice(futuresSymbol)}`}
+                    className="text-[10.5px] font-mono font-bold text-emerald-400 hover:text-emerald-300 transition-colors inline-flex items-center gap-1 active:scale-95"
+                  >
+                    <span>${formatLivePrice(futuresSymbol)}</span>
+                    <span className="text-[9px] uppercase px-1 py-0.2 rounded bg-emerald-500/15 text-emerald-400 font-sans font-bold">Snap</span>
+                  </button>
+                ) : null}
+              </div>
               <input
                 id="futures-entry-price"
                 type="number"
@@ -520,8 +575,9 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
             </div>
 
             <div>
-              <label htmlFor="futures-stop-loss" className="block text-xs font-medium text-text-secondary mb-1">
-                Stop Loss ({currencySymbol.trim()})
+              <label htmlFor="futures-stop-loss" className="text-xs font-medium text-text-secondary mb-1 flex items-center gap-1.5 whitespace-nowrap">
+                <span>Stop Loss</span>
+                <CurrencyBadge currency={strategy.baseCurrency} />
               </label>
               <input
                 id="futures-stop-loss"
@@ -531,9 +587,8 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                 value={stopLossPrice || ''}
                 onChange={(e) => setStopLossPrice(Math.max(0, parseFloat(e.target.value) || 0))}
                 placeholder="0.00"
-                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${
-                  isSlInverted ? 'border-rose-500/80 ring-1 ring-rose-500/30 text-rose-300' : 'border-border'
-                }`}
+                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isSlInverted ? 'border-rose-500 text-rose-300' : 'border-border'
+                  }`}
               />
               {isSlInverted && (
                 <p className="text-[11px] text-rose-400 font-medium mt-1">
@@ -543,8 +598,9 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
             </div>
 
             <div>
-              <label htmlFor="futures-take-profit" className="block text-xs font-medium text-text-secondary mb-1">
-                Take Profit ({currencySymbol.trim()})
+              <label htmlFor="futures-take-profit" className="text-xs font-medium text-text-secondary mb-1 flex items-center gap-1.5 whitespace-nowrap">
+                <span>Take Profit</span>
+                <CurrencyBadge currency={strategy.baseCurrency} />
               </label>
               <input
                 id="futures-take-profit"
@@ -554,9 +610,8 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                 value={takeProfitPrice || ''}
                 onChange={(e) => setTakeProfitPrice(Math.max(0, parseFloat(e.target.value) || 0))}
                 placeholder="0.00"
-                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${
-                  isTpInverted ? 'border-rose-500/80 ring-1 ring-rose-500/30 text-rose-300' : 'border-border'
-                }`}
+                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isTpInverted ? 'border-rose-500 text-rose-300' : 'border-border'
+                  }`}
               />
               {isTpInverted && (
                 <p className="text-[11px] text-rose-400 font-medium mt-1">
@@ -587,15 +642,29 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
           <div className="bg-canvas border border-border rounded-xl p-3 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             <div>
               <span className="text-[10px] text-text-muted uppercase font-bold block">Margin Required</span>
-              <span className="font-mono font-bold text-sm text-text-primary tabular-nums">
-                {currencySymbol.trim()}{futuresMetrics.marginRequiredDollar.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span className="font-mono font-bold text-sm text-text-primary tabular-nums inline-flex items-center gap-1">
+                {isCryptoCurrency(strategy.baseCurrency) ? (
+                  <>
+                    <CryptoIcon symbol={strategy.baseCurrency} size="xs" />
+                    <span>{futuresMetrics.marginRequiredDollar.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </>
+                ) : (
+                  <span>{currencySymbol.trim()}{futuresMetrics.marginRequiredDollar.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                )}
               </span>
             </div>
 
             <div>
               <span className="text-[10px] text-text-muted uppercase font-bold block">Risk Amount</span>
-              <span className="font-mono font-bold text-sm text-rose-400 tabular-nums">
-                {currencySymbol.trim()}{futuresMetrics.riskAmountDollar.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{' '}
+              <span className="font-mono font-bold text-sm text-rose-400 tabular-nums inline-flex items-center gap-1">
+                {isCryptoCurrency(strategy.baseCurrency) ? (
+                  <>
+                    <CryptoIcon symbol={strategy.baseCurrency} size="xs" />
+                    <span>{futuresMetrics.riskAmountDollar.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </>
+                ) : (
+                  <span>{currencySymbol.trim()}{futuresMetrics.riskAmountDollar.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                )}
                 <span className="text-[11px] text-text-muted">({riskPercentage}%)</span>
               </span>
             </div>
@@ -610,19 +679,36 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
             <div>
               <span className="text-[10px] text-text-muted uppercase font-bold block">Est. Liquidation</span>
               <span
-                className={`font-mono font-bold text-sm tabular-nums ${
-                  isLiquidationBeforeSL ? 'text-rose-500' : 'text-amber-500'
-                }`}
+                className={`font-mono font-bold text-sm tabular-nums inline-flex items-center gap-1 ${isLiquidationBeforeSL ? 'text-rose-500' : 'text-amber-500'
+                  }`}
               >
-                {futuresMetrics.estLiquidationPrice > 0 ? `${currencySymbol.trim()}${futuresMetrics.estLiquidationPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
+                {futuresMetrics.estLiquidationPrice > 0 ? (
+                  isCryptoCurrency(strategy.baseCurrency) ? (
+                    <>
+                      <CryptoIcon symbol={strategy.baseCurrency} size="xs" />
+                      <span>{futuresMetrics.estLiquidationPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </>
+                  ) : (
+                    <span>{currencySymbol.trim()}{futuresMetrics.estLiquidationPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  )
+                ) : (
+                  '—'
+                )}
               </span>
             </div>
 
-            <div className="col-span-2 sm:col-span-4 pt-2 border-t border-border/50 flex items-center justify-between">
+            <div className="col-span-2 sm:col-span-4 pt-2 border-t border-border flex items-center justify-between">
               <span className="text-[10px] text-text-muted uppercase font-bold">Notional Size</span>
               <div className="font-mono text-xs tabular-nums text-right">
-                <span className="font-bold text-text-primary">
-                  {currencySymbol.trim()}{futuresMetrics.notionalPositionDollar.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                <span className="font-bold text-text-primary inline-flex items-center gap-1">
+                  {isCryptoCurrency(strategy.baseCurrency) ? (
+                    <>
+                      <CryptoIcon symbol={strategy.baseCurrency} size="xs" />
+                      <span>{futuresMetrics.notionalPositionDollar.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </>
+                  ) : (
+                    <span>{currencySymbol.trim()}{futuresMetrics.notionalPositionDollar.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  )}
                 </span>{' '}
                 <span className="text-[10px] text-text-muted">
                   ({futuresMetrics.positionSizeTokens} {futuresSymbol.replace(/USDT.*$/i, '') || 'units'})
@@ -641,12 +727,26 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                 </span>
                 <p className="text-[11px] text-text-secondary leading-relaxed text-pretty">
                   At {leverage}x leverage, estimated liquidation is{' '}
-                  <strong className="text-rose-400 font-mono tabular-nums">
-                    {currencySymbol.trim()}{futuresMetrics.estLiquidationPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  <strong className="text-rose-400 font-mono tabular-nums inline-flex items-center gap-0.5">
+                    {isCryptoCurrency(strategy.baseCurrency) ? (
+                      <>
+                        <CryptoIcon symbol={strategy.baseCurrency} size="xs" />
+                        <span>{futuresMetrics.estLiquidationPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </>
+                    ) : (
+                      <span>{currencySymbol.trim()}{futuresMetrics.estLiquidationPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    )}
                   </strong>
                   , which triggers before your stop loss at{' '}
-                  <strong className="text-text-primary font-mono tabular-nums">
-                    {currencySymbol.trim()}{stopLossPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  <strong className="text-text-primary font-mono tabular-nums inline-flex items-center gap-0.5">
+                    {isCryptoCurrency(strategy.baseCurrency) ? (
+                      <>
+                        <CryptoIcon symbol={strategy.baseCurrency} size="xs" />
+                        <span>{stopLossPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </>
+                    ) : (
+                      <span>{currencySymbol.trim()}{stopLossPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    )}
                   </strong>. Lower
                   your leverage to ensure your stop loss protects your capital first.
                 </p>
@@ -666,23 +766,27 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
             </label>
             <div
               onClick={() => setIsAssetDropdownOpen(!isAssetDropdownOpen)}
-              className={`flex items-center justify-between bg-canvas border border-border hover:border-brand/40 rounded-xl px-3 py-2 cursor-pointer transition-all duration-150 ${
-                isAssetDropdownOpen ? 'border-brand/60 ring-2 ring-brand/15 shadow-xs' : ''
-              }`}
+              className={`flex items-center justify-between bg-canvas border border-border hover:border-brand/40 rounded-xl px-3 py-2 cursor-pointer transition-all duration-150 ${isAssetDropdownOpen ? 'border-brand shadow-xs' : ''
+                }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <CryptoIcon symbol={spotSymbol || 'SOL'} size="sm" />
                 <span className="font-mono font-bold text-xs sm:text-sm text-text-primary">
                   {spotSymbol || 'Select Spot Asset'}
                 </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 font-mono">
+                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono">
                   SPOT
                 </span>
+                {getPrice(spotSymbol) ? (
+                  <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400 tabular-nums inline-flex items-center gap-1">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    ${formatLivePrice(spotSymbol)}
+                  </span>
+                ) : null}
               </div>
               <ChevronDown
-                className={`w-4 h-4 text-text-muted transition-transform duration-200 ${
-                  isAssetDropdownOpen ? 'rotate-180 text-brand' : ''
-                }`}
+                className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isAssetDropdownOpen ? 'rotate-180 text-brand' : ''
+                  }`}
               />
             </div>
 
@@ -695,33 +799,32 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                     type="text"
                     value={assetSearchQuery}
                     onChange={(e) => setAssetSearchQuery(e.target.value)}
+                    aria-label="Search top 100 crypto spot assets"
                     placeholder="Search top 100 spot crypto (BTC, ETH, SOL, XRP)..."
-                    className="w-full bg-canvas border border-border rounded-lg pl-8 pr-3 py-1.5 text-xs text-text-primary placeholder:text-text-muted focus:border-brand"
+                    className="w-full bg-canvas border border-border rounded-lg pl-8 pr-3 py-1.5 text-xs text-text-primary placeholder:text-text-muted outline-hidden focus:outline-none focus:ring-0 focus:border-brand"
                     autoFocus
                   />
                 </div>
 
                 {/* Filter Pills (All vs Favorites) */}
-                <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b border-border/60">
+                <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b border-border">
                   <button
                     type="button"
                     onClick={() => setActiveCategoryFilter('All')}
-                    className={`px-2 py-0.5 rounded-md text-[10.5px] font-semibold transition-colors ${
-                      activeCategoryFilter === 'All'
-                        ? 'bg-brand text-black font-bold'
-                        : 'bg-canvas text-text-muted hover:text-text-primary'
-                    }`}
+                    className={`px-2 py-0.5 rounded-md text-[10.5px] font-semibold transition-colors ${activeCategoryFilter === 'All'
+                      ? 'bg-brand text-black font-bold'
+                      : 'bg-canvas text-text-muted hover:text-text-primary'
+                      }`}
                   >
                     Top 100 Spot
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveCategoryFilter('Favorites')}
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-semibold transition-colors ${
-                      activeCategoryFilter === 'Favorites'
-                        ? 'bg-amber-400 text-black font-bold'
-                        : 'bg-canvas text-text-muted hover:text-amber-400'
-                    }`}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-semibold transition-colors ${activeCategoryFilter === 'Favorites'
+                      ? 'bg-amber-400 text-black font-bold'
+                      : 'bg-canvas text-text-muted hover:text-amber-400'
+                      }`}
                   >
                     <Star className={`w-3 h-3 ${favoriteTickers.length > 0 ? 'fill-amber-400 text-amber-400' : ''}`} />
                     Favorites ({favoriteTickers.length})
@@ -757,9 +860,8 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                               className="p-1 rounded-md text-text-muted hover:text-amber-400 transition-colors shrink-0"
                             >
                               <Star
-                                className={`w-3.5 h-3.5 transition-colors ${
-                                  isFav ? 'text-amber-400 fill-amber-400' : 'text-text-muted group-hover:text-amber-300'
-                                }`}
+                                className={`w-3.5 h-3.5 transition-colors ${isFav ? 'text-amber-400 fill-amber-400' : 'text-text-muted group-hover:text-amber-300'
+                                  }`}
                               />
                             </button>
                             <CryptoIcon symbol={asset.baseTicker} size="sm" />
@@ -774,7 +876,12 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                               </span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1.5 shrink-0 pl-2">
+                          <div className="flex items-center gap-2 shrink-0 pl-2">
+                            {getPrice(asset.baseTicker) ? (
+                              <span className="font-mono font-bold text-xs text-emerald-400 tabular-nums">
+                                ${formatLivePrice(asset.baseTicker)}
+                              </span>
+                            ) : null}
                             <span className="text-[10px] font-mono font-bold text-text-muted">
                               #{asset.rank}
                             </span>
@@ -799,12 +906,14 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                 <button
                   key={action}
                   type="button"
-                  onClick={() => setSpotAction(action)}
-                  className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center truncate ${
-                    spotAction === action
-                      ? 'bg-emerald-500/15 border-emerald-500 text-emerald-400 ring-1 ring-emerald-500/30 shadow-xs'
-                      : 'bg-canvas border-border text-text-muted hover:border-emerald-500/40 hover:text-emerald-400'
-                  }`}
+                  onClick={() => {
+                    playMicroTick();
+                    setSpotAction(action);
+                  }}
+                  className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center truncate ${spotAction === action
+                    ? 'bg-emerald-500/15 border-emerald-500 text-emerald-400 ring-1 ring-emerald-500/30 shadow-xs'
+                    : 'bg-canvas border-border text-text-muted hover:border-emerald-500/40 hover:text-emerald-400'
+                    }`}
                 >
                   {action}
                 </button>
@@ -822,12 +931,14 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                 <button
                   key={venue}
                   type="button"
-                  onClick={() => setSpotVenue(venue)}
-                  className={`px-3 py-1.5 rounded-xl border text-xs font-medium transition-all ${
-                    spotVenue === venue
-                      ? 'bg-card border-brand text-brand font-bold shadow-xs'
-                      : 'bg-canvas border-border text-text-muted hover:text-text-primary'
-                  }`}
+                  onClick={() => {
+                    playMicroTick();
+                    setSpotVenue(venue);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl border text-xs font-medium transition-all ${spotVenue === venue
+                    ? 'bg-card border-brand text-brand font-bold shadow-xs'
+                    : 'bg-canvas border-border text-text-muted hover:text-text-primary'
+                    }`}
                 >
                   {venue}
                 </button>
@@ -838,9 +949,27 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
           {/* Spot Execution Inputs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
             <div>
-              <label htmlFor="spot-entry-price" className="block text-xs font-medium text-text-secondary mb-1">
-                Entry Price ({currencySymbol.trim()})
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label htmlFor="spot-entry-price" className="text-xs font-medium text-text-secondary flex items-center gap-1.5 whitespace-nowrap">
+                  <span>Entry Price</span>
+                  <CurrencyBadge currency={strategy.baseCurrency} />
+                </label>
+                {getPrice(spotSymbol) ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playMicroTick();
+                      const p = getPrice(spotSymbol);
+                      if (p) setSpotEntryPrice(p);
+                    }}
+                    title={`Click to snap live price: $${formatLivePrice(spotSymbol)}`}
+                    className="text-[10.5px] font-mono font-bold text-emerald-400 hover:text-emerald-300 transition-colors inline-flex items-center gap-1 active:scale-95"
+                  >
+                    <span>${formatLivePrice(spotSymbol)}</span>
+                    <span className="text-[9px] uppercase px-1 py-0.2 rounded bg-emerald-500/15 text-emerald-400 font-sans font-bold">Snap</span>
+                  </button>
+                ) : null}
+              </div>
               <input
                 id="spot-entry-price"
                 type="number"
@@ -854,8 +983,9 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
             </div>
 
             <div>
-              <label htmlFor="spot-capital-allocation" className="block text-xs font-medium text-text-secondary mb-1">
-                Allocation ({currencySymbol.trim()})
+              <label htmlFor="spot-capital-allocation" className="text-xs font-medium text-text-secondary mb-1 flex items-center gap-1.5 whitespace-nowrap">
+                <span>Allocation</span>
+                <CurrencyBadge currency={strategy.baseCurrency} />
               </label>
               <input
                 id="spot-capital-allocation"
@@ -870,8 +1000,9 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
             </div>
 
             <div>
-              <label htmlFor="spot-target-sell" className="block text-xs font-medium text-text-secondary mb-1">
-                Target Sell Price ({currencySymbol.trim()})
+              <label htmlFor="spot-target-sell" className="text-xs font-medium text-text-secondary mb-1 flex items-center gap-1.5 whitespace-nowrap">
+                <span>Target Sell Price</span>
+                <CurrencyBadge currency={strategy.baseCurrency} />
               </label>
               <input
                 id="spot-target-sell"
@@ -881,9 +1012,8 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                 value={spotTargetSellPrice || ''}
                 onChange={(e) => setSpotTargetSellPrice(Math.max(0, parseFloat(e.target.value) || 0))}
                 placeholder="0.00"
-                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${
-                  isSpotTargetInverted ? 'border-rose-500/80 ring-1 ring-rose-500/30 text-rose-300' : 'border-border'
-                }`}
+                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isSpotTargetInverted ? 'border-rose-500 text-rose-300' : 'border-border'
+                  }`}
               />
               {isSpotTargetInverted && (
                 <p className="text-[11px] text-rose-400 font-medium mt-1">
@@ -893,8 +1023,10 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
             </div>
 
             <div>
-              <label htmlFor="spot-stop-loss" className="block text-xs font-medium text-text-secondary mb-1">
-                Invalidation SL ({currencySymbol.trim()}) <span className="text-text-muted font-normal">(Optional)</span>
+              <label htmlFor="spot-stop-loss" className="text-xs font-medium text-text-secondary mb-1 flex items-center gap-1.5 whitespace-nowrap">
+                <span>Invalidation SL</span>
+                <CurrencyBadge currency={strategy.baseCurrency} />
+                <span className="text-text-muted font-normal text-[11px]">(Optional)</span>
               </label>
               <input
                 id="spot-stop-loss"
@@ -904,9 +1036,8 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
                 value={spotStopLossPrice || ''}
                 onChange={(e) => setSpotStopLossPrice(Math.max(0, parseFloat(e.target.value) || 0))}
                 placeholder="0.00"
-                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${
-                  isSpotSlInverted ? 'border-rose-500/80 ring-1 ring-rose-500/30 text-rose-300' : 'border-border'
-                }`}
+                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isSpotSlInverted ? 'border-rose-500 text-rose-300' : 'border-border'
+                  }`}
               />
               {isSpotSlInverted && (
                 <p className="text-[11px] text-rose-400 font-medium mt-1">
@@ -923,7 +1054,10 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
               <button
                 key={pct}
                 type="button"
-                onClick={() => setSpotAllocation(Number(((liveBalance * pct) / 100).toFixed(2)))}
+                onClick={() => {
+                  playMicroTick();
+                  setSpotAllocation(Number(((liveBalance * pct) / 100).toFixed(2)));
+                }}
                 className="px-2 py-0.5 rounded-lg border border-border bg-canvas hover:border-brand/40 text-text-muted hover:text-text-primary text-[10px] font-mono font-bold transition-all"
               >
                 {pct}%
@@ -961,7 +1095,7 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = ({
               </span>
             </div>
 
-            <div className="col-span-2 sm:col-span-4 pt-2 border-t border-border/50 flex items-center justify-between">
+            <div className="col-span-2 sm:col-span-4 pt-2 border-t border-border flex items-center justify-between">
               <span className="text-[10px] text-text-muted uppercase font-bold">Target R:R</span>
               <span className="font-mono font-bold text-sm text-trade-green tabular-nums">
                 {spotMetrics.targetRiskReward ? `1 : ${spotMetrics.targetRiskReward}R` : 'Uncapped / Open Target'}

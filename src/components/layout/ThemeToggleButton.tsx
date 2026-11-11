@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { useTheme } from '../../context/ThemeContext';
+import { playMicroTick } from '../../utils/audioTelemetry';
 import { Sun, Moon } from 'lucide-react';
 
 interface ScatterParticle {
@@ -21,6 +22,7 @@ export const ThemeToggleButton: React.FC = () => {
 
   const handleToggle = async (event: React.MouseEvent<HTMLButtonElement>) => {
     if (isTransitioningRef.current) return;
+    playMicroTick();
 
     // Determine the exact origin coordinates from the button center
     const rect = buttonRef.current?.getBoundingClientRect();

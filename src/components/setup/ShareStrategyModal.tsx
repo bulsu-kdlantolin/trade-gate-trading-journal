@@ -3,6 +3,7 @@ import { StrategyProfile } from '../../types/strategy';
 import { useToast } from '../../context/ToastContext';
 import { useModalA11y } from '../../hooks/useModalA11y';
 import { getErrorMessage } from '../../utils/errors';
+import { playSuccessChime, playModalClose } from '../../utils/audioTelemetry';
 import { Download, Copy, X, Check, ShieldCheck, FileText, Sparkles, Layers } from 'lucide-react';
 import { TradeGateLogo } from '../common/TradeGateLogo';
 
@@ -52,6 +53,7 @@ export const ShareStrategyModal: React.FC<ShareStrategyModalProps> = ({ strategy
 
     navigator.clipboard.writeText(md);
     setHasCopiedMd(true);
+    playSuccessChime();
     toast.success('Markdown Copied', 'Strategy playbook formatted in Markdown.');
     setTimeout(() => setHasCopiedMd(false), 2500);
   };
@@ -64,6 +66,7 @@ export const ShareStrategyModal: React.FC<ShareStrategyModalProps> = ({ strategy
       const blob = await toBlob(cardRef.current, { quality: 0.95 });
       if (!blob) throw new Error('Blob creation failed');
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      playSuccessChime();
       toast.success('Playbook Image Copied', 'PNG copied to clipboard.');
     } catch (err: unknown) {
       toast.error('Copy Failed', getErrorMessage(err));
@@ -82,6 +85,7 @@ export const ShareStrategyModal: React.FC<ShareStrategyModalProps> = ({ strategy
       a.href = dataUrl;
       a.download = `Playbook_${strategy.name.replace(/\s+/g, '_')}.png`;
       a.click();
+      playSuccessChime();
       toast.success('PNG Downloaded', 'Playbook image saved to disk.');
     } catch (err: unknown) {
       toast.error('Download Failed', getErrorMessage(err));
@@ -110,6 +114,7 @@ export const ShareStrategyModal: React.FC<ShareStrategyModalProps> = ({ strategy
 
       pdf.addImage(dataUrl, 'PNG', 0, 20, pdfWidth, pdfHeight);
       pdf.save(`Playbook_${strategy.name.replace(/\s+/g, '_')}.pdf`);
+      playSuccessChime();
       toast.success('PDF Exported', 'Playbook PDF document saved.');
     } catch (err: unknown) {
       toast.error('PDF Failed', getErrorMessage(err));
@@ -121,7 +126,10 @@ export const ShareStrategyModal: React.FC<ShareStrategyModalProps> = ({ strategy
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-modal-backdrop"
-      onClick={onClose}
+      onClick={() => {
+        playModalClose();
+        onClose();
+      }}
     >
       <div
         ref={modalRef}
@@ -132,7 +140,10 @@ export const ShareStrategyModal: React.FC<ShareStrategyModalProps> = ({ strategy
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          onClick={onClose}
+          onClick={() => {
+            playModalClose();
+            onClose();
+          }}
           aria-label="Close strategy playbook modal"
           className="absolute top-4 right-4 text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-card-hover transition-colors"
         >

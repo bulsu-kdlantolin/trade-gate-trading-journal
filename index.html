@@ -1,17 +1,117 @@
 <!doctype html>
 <html lang="en" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none'><rect width='100' height='100' rx='24' fill='%23141721'/><path d='M22 26H78' stroke='%23F59E0B' stroke-width='9' stroke-linecap='round'/><path d='M42 26V74H68C73.5 74 78 69.5 78 64V52H56' stroke='%23F59E0B' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'/><circle cx='56' cy='39' r='4' fill='%23FBBF24'/></svg>" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TradeGate Crypto — Institutional Trading Journal & Execution Terminal</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  </head>
-  <body class="bg-canvas text-text-primary antialiased selection:bg-brand/20 selection:text-brand">
-    <div id="root"></div>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none'><rect width='100' height='100' rx='24' fill='%23141721'/><path d='M22 26H78' stroke='%23F59E0B' stroke-width='9' stroke-linecap='round'/><path d='M42 26V74H68C73.5 74 78 69.5 78 64V52H56' stroke='%23F59E0B' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'/><circle cx='56' cy='39' r='4' fill='%23FBBF24'/></svg>" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>TradeGate Crypto — Institutional Trading Journal & Execution Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+</head>
+
+
+  <body class="bg-canvas text-text-primary antialiased selection:bg-brand/20 selection:text-brand"
+    style="margin: 0; background-color: #090A0F;">
+    <div id="root">
+      <!-- Instant First-Paint Branded Splash Screen (Zero White Flash) -->
+      <div
+        style="position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #090A0F; color: #F8FAFC; font-family: Inter, -apple-system, sans-serif; user-select: none; z-index: 9999;">
+        <style>
+          @keyframes tgBeamSweep {
+            0% {
+              transform: translateX(-100%);
+            }
+
+            100% {
+              transform: translateX(250%);
+            }
+          }
+
+          @keyframes tgPulseRing {
+
+            0%,
+            100% {
+              opacity: 0.2;
+              transform: scale(0.96);
+            }
+
+            50% {
+              opacity: 0.45;
+              transform: scale(1.04);
+            }
+          }
+
+          .tg-beam {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 45%;
+            background: linear-gradient(90deg, transparent, #F59E0B, #10B981, transparent);
+            border-radius: 9999px;
+            animation: tgBeamSweep 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          }
+
+          .tg-glow {
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+            border-radius: 9999px;
+            pointer-events: none;
+            animation: tgPulseRing 2.8s ease-in-out infinite;
+          }
+        </style>
+        <div class="tg-glow"></div>
+        <div
+          style="position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 20px; max-width: 320px;">
+          <!-- Squircle Logo -->
+          <div
+            style="position: relative; width: 80px; height: 80px; background-color: #11131A; border: 1px solid #232838; border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);">
+            <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="tg-init-grad" x1="15" y1="15" x2="85" y2="85" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#FDE68A" />
+                  <stop offset="45%" stop-color="#F59E0B" />
+                  <stop offset="100%" stop-color="#D97706" />
+                </linearGradient>
+              </defs>
+              <path d="M22 26H78" stroke="url(#tg-init-grad)" stroke-width="8.5" stroke-linecap="round" />
+              <path d="M42 26V74H68C73.5228 74 78 69.5228 78 64V52H56" stroke="url(#tg-init-grad)" stroke-width="8.5"
+                stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="56" cy="39" r="3.5" fill="#FBBF24" />
+            </svg>
+          </div>
+          <!-- Title & Subtitle -->
+          <div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span style="font-size: 22px; font-weight: 900; letter-spacing: -0.02em; color: #FFFFFF;">TradeGate</span>
+              <span
+                style="font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; padding: 2px 7px; background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px; letter-spacing: 0.05em;">CRYPTO</span>
+            </div>
+            <div
+              style="font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.25em; color: #94A3B8; margin-top: 6px;">
+              Sovereign Execution Terminal
+            </div>
+          </div>
+          <!-- Shimmer Progress Bar -->
+          <div
+            style="width: 240px; height: 5px; background: #161A24; border: 1px solid #232838; border-radius: 9999px; overflow: hidden; position: relative;">
+            <div class="tg-beam"></div>
+          </div>
+          <!-- Security Tag -->
+          <div
+            style="font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: #64748B;">
+            Pre-Trade Discipline Gate • Armed
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
-</html>
 
+</html>

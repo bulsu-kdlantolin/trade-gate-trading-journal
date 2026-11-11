@@ -19,7 +19,18 @@ import { compressImageFile } from '../../utils/imageCompressor';
 import { calculateFuturesMetrics, calculateSpotMetrics } from '../../utils/cryptoMath';
 import { getCurrentActiveSession } from '../../utils/sessionClock';
 import { getGradeStyle } from '../../utils/gradeStyles';
-import { getCurrencySymbol } from '../../utils/currency';
+import { getCurrencySymbol, isCryptoCurrency, formatNumberOnly } from '../../utils/currency';
+import { CryptoIcon } from '../common/CryptoIcon';
+import { CurrencyBadge } from '../common/CurrencyDisplay';
+import { getRuleCategoryStyle, SESSION_STYLES } from '../../utils/badgeStyles';
+import {
+  playGateUnlockSound,
+  playGateLockSound,
+  playTradeLoggedSound,
+  playCheckboxTick,
+  playMicroTick,
+  playDangerAction,
+} from '../../utils/audioTelemetry';
 import { useToast } from '../../context/ToastContext';
 import {
   ShieldCheck,
@@ -41,8 +52,9 @@ import {
 interface PreTradeGateProps {
   strategy: StrategyProfile | null;
   liveBalance: number;
-  onTradeLogged: (trade: TradeRecord) => Promise<any>;
+  onTradeLogged: (trade: TradeRecord) => Promise<unknown>;
   onNavigateToProfiles: () => void;
+  isActive?: boolean;
 }
 
 const ERROR_TAG_OPTIONS: ExecutionErrorTag[] = [
@@ -58,30 +70,12 @@ const ERROR_TAG_OPTIONS: ExecutionErrorTag[] = [
   'No Invalidation',
 ];
 
-const SESSION_PILL_STYLES: Record<string, { active: string; dot: string }> = {
-  Asia: {
-    active: 'bg-white text-slate-950 font-bold shadow-xs',
-    dot: 'bg-white border border-slate-300 dark:border-white/50',
-  },
-  London: {
-    active: 'bg-[#3B82F6] text-white font-bold shadow-xs',
-    dot: 'bg-[#3B82F6]',
-  },
-  'NY AM': {
-    active: 'bg-[#EF4444] text-white font-bold shadow-xs',
-    dot: 'bg-[#EF4444]',
-  },
-  'NY PM': {
-    active: 'bg-[#F87171] text-white font-bold shadow-xs',
-    dot: 'bg-[#F87171]',
-  },
-};
-
 export const PreTradeGate: React.FC<PreTradeGateProps> = ({
   strategy,
   liveBalance,
   onTradeLogged,
   onNavigateToProfiles,
+  isActive = true,
 }) => {
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -128,11 +122,11 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
   const [timeframe, setTimeframe] = useState<string>(strategy?.timeframes[0] || '15m');
   const [session, setSession] = useState<string>(() => {
     const active = getCurrentActiveSession();
-      if (active && strategy?.sessions.includes(active.name as SessionTag)) {
-        return active.name;
-      }
-      return strategy?.sessions[0] || 'London';
-    });
+    if (active && strategy?.sessions.includes(active.name as SessionTag)) {
+      return active.name;
+    }
+    return strategy?.sessions[0] || 'London';
+  });
   const [selectedErrors, setSelectedErrors] = useState<ExecutionErrorTag[]>(['None']);
   const [notes, setNotes] = useState<string>('');
 
@@ -141,6 +135,27 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
   const [screenshotData, setScreenshotData] = useState<string | null>(null);
   const [isZoomModalOpen, setIsZoomModalOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // 8. Execution Commitment Receipt State (Acoustic / Visual Closure)
+  const [committedReceipt, setCommittedReceipt] = useState<{
+    id: string;
+    symbol: string;
+    actionLabel: string;
+    grade: TradeGrade;
+    riskAmount?: number;
+    notional?: number;
+    pnl?: number;
+    timestamp: string;
+  } | null>(null);
+  const [justCommittedId, setJustCommittedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!committedReceipt) return;
+    const timer = setTimeout(() => {
+      setCommittedReceipt(null);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [committedReceipt]);
 
   // Storage key generator for safe draft persistence
   const getDraftStorageKey = (strategyId?: string) => `tradegate_draft_${strategyId || 'default'}`;
@@ -153,7 +168,15 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
       const savedDraft = localStorage.getItem(getDraftStorageKey(strategy.id));
       if (savedDraft) {
         const parsed = JSON.parse(savedDraft);
-        if (parsed.activeExecutionType) setActiveExecutionType(parsed.activeExecutionType);
+        if (parsed.activeExecutionType) {
+          if (strategy.executionMode === 'futures') {
+            setActiveExecutionType('futures');
+          } else if (strategy.executionMode === 'spot') {
+            setActiveExecutionType('spot');
+          } else {
+            setActiveExecutionType(parsed.activeExecutionType);
+          }
+        }
         if (parsed.futuresSymbol) setFuturesSymbol(parsed.futuresSymbol);
         if (parsed.direction) setDirection(parsed.direction);
         if (typeof parsed.leverage === 'number') setLeverage(parsed.leverage);
@@ -195,13 +218,13 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
     setRiskPercentage(strategy.defaultRiskValue || 1.0);
     setTimeframe(strategy.timeframes[0] || '15m');
     const active = getCurrentActiveSession();
-      if (active && strategy.sessions.includes(active.name as SessionTag)) {
-        setSession(active.name);
-      } else {
-        setSession(strategy.sessions[0] || 'London');
-      }
-      setActiveExecutionType(strategy.executionMode === 'spot' ? 'spot' : 'futures');
-    }, [strategy?.id]);
+    if (active && strategy.sessions.includes(active.name as SessionTag)) {
+      setSession(active.name);
+    } else {
+      setSession(strategy.sessions[0] || 'London');
+    }
+    setActiveExecutionType(strategy.executionMode === 'spot' ? 'spot' : 'futures');
+  }, [strategy?.id]);
 
   // Persist trade plan draft on change (debounced 300ms)
   useEffect(() => {
@@ -271,6 +294,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
 
   const handleClearDraft = () => {
     if (!strategy) return;
+    playDangerAction();
     try {
       localStorage.removeItem(getDraftStorageKey(strategy.id));
     } catch { }
@@ -358,9 +382,11 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
   const handleToggleAllRules = () => {
     if (!strategy || strategy.rules.length === 0) return;
     if (allRulesChecked) {
+      playDangerAction();
       setCheckedRules({});
       toast.error('Checklist Cleared', 'All rules unchecked.');
     } else {
+      playGateUnlockSound();
       const all: Record<string, boolean> = {};
       strategy.rules.forEach((r) => {
         all[r.id] = true;
@@ -371,13 +397,26 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
   };
 
   const toggleRuleCheck = (ruleId: string) => {
-    setCheckedRules((prev) => ({
-      ...prev,
-      [ruleId]: !prev[ruleId],
-    }));
+    playCheckboxTick();
+    setCheckedRules((prev) => {
+      const willBeTicked = !prev[ruleId];
+      const next = { ...prev, [ruleId]: willBeTicked };
+      if (strategy) {
+        const mandatoryRules = strategy.rules.filter((r) => r.type === 'Mandatory');
+        const wasUnlocked = mandatoryRules.every((r) => !!prev[r.id]);
+        const nowUnlocked = mandatoryRules.every((r) => !!next[r.id]);
+        if (!wasUnlocked && nowUnlocked) {
+          playGateUnlockSound();
+        } else if (wasUnlocked && !nowUnlocked) {
+          playGateLockSound();
+        }
+      }
+      return next;
+    });
   };
 
   const toggleExecutionError = (tag: ExecutionErrorTag) => {
+    playMicroTick();
     if (tag === 'None') {
       setSelectedErrors(['None']);
       return;
@@ -394,6 +433,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
   // Clipboard Paste handler for chart screenshots
   useEffect(() => {
     const handlePaste = async (e: ClipboardEvent) => {
+      if (!isActive) return;
       const items = e.clipboardData?.items;
       if (!items) return;
 
@@ -419,7 +459,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
 
     window.addEventListener('paste', handlePaste);
     return () => window.removeEventListener('paste', handlePaste);
-  }, [toast]);
+  }, [isActive, toast]);
 
   // File upload handler
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -565,6 +605,17 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
         };
 
         await onTradeLogged(futuresRecord);
+
+        setCommittedReceipt({
+          id: commonData.id,
+          symbol: futuresSymbol,
+          actionLabel: `${leverage}x ${direction}`,
+          grade: forceOverride && !mandatoryPassed ? 'C' : setupGrade,
+          riskAmount: metrics.riskAmountDollar,
+          notional: metrics.notionalPositionDollar,
+          pnl: pnlDollar,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        });
       } else {
         const metrics = calculateSpotMetrics({
           accountBalance: liveBalance,
@@ -622,11 +673,29 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
         };
 
         await onTradeLogged(spotRecord);
+
+        setCommittedReceipt({
+          id: commonData.id,
+          symbol: spotSymbol,
+          actionLabel: spotAction,
+          grade: forceOverride && !mandatoryPassed ? 'C' : setupGrade,
+          riskAmount: metrics.dollarRisk,
+          notional: spotAllocation,
+          pnl: pnlDollar,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        });
       }
 
+      setJustCommittedId(commonData.id);
+      setTimeout(() => setJustCommittedId(null), 1800);
+      playTradeLoggedSound();
+      const safePnl = pnlDollar ?? 0;
+      const formattedPnlToast = isCryptoCurrency(strategy?.baseCurrency)
+        ? `${safePnl >= 0 ? '+' : ''}${formatNumberOnly(safePnl, strategy?.baseCurrency)} ${strategy?.baseCurrency}`
+        : `${safePnl >= 0 ? '+' : ''}${currencySymbol}${Math.abs(safePnl).toLocaleString()}`;
       toast.success(
         `Trade Logged: ${activeExecutionType === 'futures' ? futuresSymbol : spotSymbol}`,
-        `${setupGrade} Setup • ${session} • ${isClosedNow ? `Realized PnL: ${currencySymbol}${pnlDollar}` : 'Active Position'}`
+        `${setupGrade} Setup • ${session} • ${isClosedNow ? `Realized PnL: ${formattedPnlToast}` : 'Active Position'}`
       );
 
       // Clean up saved draft upon trade commitment
@@ -705,7 +774,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                 <div className="flex items-center gap-2">
                   {mandatoryPassed ? (
                     <span className="flex items-center gap-1.5 text-trade-green font-bold text-xs transition-colors duration-200">
-                      <Unlock className="w-3.5 h-3.5" /> Gate Unlocked
+                      <Unlock className="w-3.5 h-3.5" /> Protocol Cleared
                     </span>
                   ) : (
                     <span className="flex items-center gap-1.5 text-trade-red font-bold text-xs transition-colors duration-200">
@@ -723,37 +792,42 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono text-text-muted">
-                    Confluence: <strong className="text-text-primary">{confluenceScore}</strong>/{maxConfluenceScore} pts
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleToggleAllRules}
-                    title={allRulesChecked ? 'Uncheck All Rules' : 'Check All Rules'}
-                    aria-label={allRulesChecked ? 'Uncheck All Rules' : 'Check All Rules'}
-                    className={`relative after:absolute after:-inset-1.5 p-1 rounded-md transition-colors ${allRulesChecked
-                      ? 'text-trade-green hover:bg-trade-green/10'
-                      : 'text-text-muted hover:text-text-primary hover:bg-card'
-                      }`}
-                  >
-                    {allRulesChecked ? (
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="w-4 h-4 text-trade-green"
-                        aria-hidden="true"
-                      >
-                        <path d="M20 6 9 17l-5-5" />
-                        <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" strokeWidth="2.5" />
-                      </svg>
-                    ) : (
-                      <Check className="w-4 h-4" />
-                    )}
-                  </button>
+                    <span className="text-[11px] font-mono text-text-muted flex items-center gap-1">
+                      Confluence: <strong className="text-text-primary">{confluenceScore}</strong>/{maxConfluenceScore} pts
+                      {allRulesChecked && (
+                        <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-400">
+                          100%
+                        </span>
+                      )}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleToggleAllRules}
+                      title={allRulesChecked ? 'Uncheck All Rules' : 'Check All Rules'}
+                      aria-label={allRulesChecked ? 'Uncheck All Rules' : 'Check All Rules'}
+                      className={`relative after:absolute after:-inset-1.5 p-1 rounded-md transition-colors ${allRulesChecked
+                        ? 'text-trade-green hover:bg-trade-green/10'
+                        : 'text-text-muted hover:text-text-primary hover:bg-card'
+                        }`}
+                    >
+                      {allRulesChecked ? (
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="w-4 h-4 text-trade-green"
+                          aria-hidden="true"
+                        >
+                          <path d="M20 6 9 17l-5-5" />
+                          <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" strokeWidth="2.5" />
+                        </svg>
+                      ) : (
+                        <Check className="w-4 h-4" />
+                      )}
+                    </button>
                 </div>
               </div>
 
@@ -761,7 +835,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
               {strategy.rules.length > 0 && (
                 <div className="w-full bg-card-hover h-2 rounded-full overflow-hidden">
                   <div
-                    className={`h-full transition-all duration-300 rounded-full ${mandatoryPassed ? getGradeStyle(setupGrade).progress : 'bg-rose-500'
+                    className={`h-full transition-all duration-300 rounded-full ${mandatoryPassed ? getGradeStyle(setupGrade).progress : 'bg-amber-500'
                       }`}
                     style={{
                       width: `${Math.max(
@@ -811,7 +885,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                           toggleRuleCheck(rule.id);
                         }
                       }}
-                      className={`p-3 rounded-xl border cursor-pointer select-none transition-all flex items-start gap-2.5 focus:outline-hidden ${isChecked
+                      className={`p-3 rounded-xl border cursor-pointer select-none transition-all flex items-start gap-2.5 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-card ${isChecked
                         ? 'bg-emerald-500/10 border-emerald-500/40 text-text-primary shadow-xs'
                         : 'bg-canvas border-border text-text-secondary hover:border-border-muted hover:bg-card-hover'
                         }`}
@@ -835,8 +909,8 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                           {isMandatory ? (
                             <span
                               className={`inline-flex items-center justify-center text-[9.5px] font-bold px-2.5 py-0.5 rounded-full uppercase font-mono tracking-wider min-h-[20px] ${isChecked
-                                ? 'bg-emerald-500/15 text-emerald-400'
-                                : 'bg-rose-500/15 text-rose-400'
+                                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
+                                : 'bg-rose-500/15 text-rose-700 dark:text-rose-400'
                                 }`}
                             >
                               REQUIRED
@@ -876,6 +950,46 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
 
         {/* ─── RIGHT COLUMN (7 cols): TRADE EXECUTION & DETAILS ─── */}
         <div className="md:col-span-7 space-y-4">
+          {/* Tactical Execution Commitment Receipt */}
+          {committedReceipt && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="card-glass border border-emerald-500/40 bg-emerald-500/10 rounded-2xl p-3.5 flex items-center justify-between text-xs animate-in fade-in slide-in-from-top-2 duration-200"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0">
+                  <Check className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-text-primary tracking-wide text-xs">
+                      ORDER JOURNALED
+                    </span>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">
+                      #{committedReceipt.id.slice(-6).toUpperCase()}
+                    </span>
+                    <span className="text-[10px] font-mono text-text-muted">
+                      {committedReceipt.timestamp}
+                    </span>
+                  </div>
+                  <p className="text-[11px] font-mono text-text-secondary truncate mt-0.5">
+                    {committedReceipt.symbol} • {committedReceipt.actionLabel} • Grade {committedReceipt.grade}
+                    {committedReceipt.riskAmount ? ` • Risk $${committedReceipt.riskAmount.toLocaleString()}` : ''}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCommittedReceipt(null)}
+                className="text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-card-hover shrink-0 ml-2 transition-colors"
+                aria-label="Dismiss order receipt"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
           <div className="card-glass rounded-2xl p-4 sm:p-5 space-y-4">
             {/* Trade Execution Inputs */}
             <TradeEntryForm
@@ -928,7 +1042,10 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                       <button
                         key={tf}
                         type="button"
-                        onClick={() => setTimeframe(tf)}
+                        onClick={() => {
+                          playMicroTick();
+                          setTimeframe(tf);
+                        }}
                         className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all ${timeframe === tf
                           ? 'bg-brand text-black shadow-xs'
                           : 'bg-canvas border border-border text-text-secondary hover:text-text-primary'
@@ -954,7 +1071,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                       })
                       .map((sess) => {
                         const isSelected = session === sess;
-                        const styleConfig = SESSION_PILL_STYLES[sess] || {
+                        const styleConfig = SESSION_STYLES[sess] || {
                           active: 'bg-brand text-black font-bold shadow-xs',
                           dot: 'bg-brand',
                         };
@@ -962,7 +1079,10 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                           <button
                             key={sess}
                             type="button"
-                            onClick={() => setSession(sess)}
+                            onClick={() => {
+                              playMicroTick();
+                              setSession(sess);
+                            }}
                             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shrink-0 ${isSelected
                               ? styleConfig.active
                               : 'bg-canvas border border-border text-text-secondary hover:text-text-primary'
@@ -971,7 +1091,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                             <span
                               className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSelected
                                 ? sess === 'Asia'
-                                  ? 'bg-slate-950'
+                                  ? 'bg-white dark:bg-slate-950'
                                   : 'bg-white'
                                 : styleConfig.dot
                                 }`}
@@ -1003,7 +1123,10 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                   />
                   <button
                     type="button"
-                    onClick={() => setEntryOutcome('Active')}
+                    onClick={() => {
+                      playMicroTick();
+                      setEntryOutcome('Active');
+                    }}
                     className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Active'
                       ? 'text-text-primary bg-card sm:bg-transparent shadow-xs sm:shadow-none font-extrabold'
                       : 'text-text-muted hover:text-text-primary'
@@ -1013,7 +1136,10 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                   </button>
                   <button
                     type="button"
-                    onClick={() => setEntryOutcome('Win')}
+                    onClick={() => {
+                      playMicroTick();
+                      setEntryOutcome('Win');
+                    }}
                     className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Win'
                       ? 'text-white bg-trade-green sm:bg-transparent shadow-xs sm:shadow-none'
                       : 'text-text-muted hover:text-text-primary'
@@ -1023,7 +1149,10 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                   </button>
                   <button
                     type="button"
-                    onClick={() => setEntryOutcome('Loss')}
+                    onClick={() => {
+                      playMicroTick();
+                      setEntryOutcome('Loss');
+                    }}
                     className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Loss'
                       ? 'text-white bg-trade-red sm:bg-transparent shadow-xs sm:shadow-none'
                       : 'text-text-muted hover:text-text-primary'
@@ -1033,7 +1162,10 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                   </button>
                   <button
                     type="button"
-                    onClick={() => setEntryOutcome('Breakeven')}
+                    onClick={() => {
+                      playMicroTick();
+                      setEntryOutcome('Breakeven');
+                    }}
                     className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Breakeven'
                       ? 'text-white bg-blue-500 sm:bg-transparent shadow-xs sm:shadow-none'
                       : 'text-text-muted hover:text-text-primary'
@@ -1047,8 +1179,10 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                 {entryOutcome !== 'Active' && (
                   <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-canvas border border-border">
                     <div>
-                      <label className="block text-[11px] font-medium text-text-secondary mb-1">
-                        Exit Price ({currencySymbol.trim()}) <span className="text-text-muted">(Optional override)</span>
+                      <label className="text-[11px] font-medium text-text-secondary mb-1 flex items-center gap-1.5 whitespace-nowrap">
+                        <span>Exit Price</span>
+                        <CurrencyBadge currency={strategy?.baseCurrency} />
+                        <span className="text-text-muted font-normal text-[11px]">(Optional override)</span>
                       </label>
                       <input
                         type="number"
@@ -1184,7 +1318,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                         key={tag}
                         type="button"
                         onClick={() => toggleExecutionError(tag)}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all focus:outline-hidden ${isSelected
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-card ${isSelected
                           ? isNone
                             ? 'bg-emerald-100 dark:bg-emerald-500/30 text-emerald-800 dark:text-emerald-200 font-bold shadow-xs hover:bg-emerald-200 dark:hover:bg-emerald-500/40'
                             : 'bg-rose-100 dark:bg-rose-500/30 text-rose-800 dark:text-rose-200 font-bold shadow-xs hover:bg-rose-200 dark:hover:bg-rose-500/40'
@@ -1225,13 +1359,20 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                   type="button"
                   onClick={() => executeLogTrade(false)}
                   disabled={!isUnlocked || isSubmitting}
-                  className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all duration-200 ${isUnlocked
-                    ? 'bg-brand text-black hover:bg-brand-hover cursor-pointer active:scale-[0.99] ring-2 ring-brand/20'
-                    : 'bg-card border border-border text-text-muted opacity-40 cursor-not-allowed'
+                  className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all duration-200 ${justCommittedId
+                    ? 'bg-emerald-400 text-black shadow-md ring-2 ring-emerald-500/40'
+                    : isUnlocked
+                      ? 'bg-brand text-black hover:bg-brand-hover cursor-pointer active:scale-[0.99] ring-2 ring-brand/20'
+                      : 'bg-card border border-border text-text-muted opacity-40 cursor-not-allowed'
                     }`}
                 >
                   {isSubmitting ? (
                     'Logging Entry...'
+                  ) : justCommittedId ? (
+                    <>
+                      <Check className="w-4 h-4 text-black font-extrabold" />
+                      <span>Order Committed (#{justCommittedId.slice(-6).toUpperCase()})</span>
+                    </>
                   ) : isUnlocked ? (
                     activeExecutionType === 'futures' ? (
                       <>
@@ -1251,6 +1392,19 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                     </>
                   )}
                 </button>
+
+                {!isUnlocked && (
+                  <div className="text-center pt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => executeLogTrade(true)}
+                      className="text-[11px] font-mono text-text-muted hover:text-rose-400 underline decoration-rose-500/30 hover:decoration-rose-400 transition-colors"
+                      title="Record an executed trade where rules were broken (logged as Grade C Violation)"
+                    >
+                      Record as Discipline Violation Override
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

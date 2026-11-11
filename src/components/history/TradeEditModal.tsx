@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { TradeRecord, TradeResult, ExecutionErrorTag, isFuturesTrade, isSpotTrade } from '../../types/trade';
+import { CryptoIcon } from '../common/CryptoIcon';
+import { CurrencyBadge } from '../common/CurrencyDisplay';
+import { isCryptoCurrency } from '../../utils/currency';
 import { useToast } from '../../context/ToastContext';
 import { useModalA11y } from '../../hooks/useModalA11y';
 import { getErrorMessage } from '../../utils/errors';
 import { ConfirmDeleteModal } from '../common/ConfirmDeleteModal';
+import { playMicroTick, playModalClose, playDangerAction, playSuccessChime } from '../../utils/audioTelemetry';
 import { X, Save, Edit3, DollarSign, Check, Trash2 } from 'lucide-react';
 
 interface TradeEditModalProps {
@@ -13,6 +17,7 @@ interface TradeEditModalProps {
   onSave: (id: string, updates: Partial<TradeRecord>) => Promise<unknown>;
   onDelete?: (id: string) => Promise<unknown>;
   currencySymbol?: string;
+  baseCurrency?: string;
 }
 
 const ERROR_TAG_OPTIONS: ExecutionErrorTag[] = [
@@ -35,6 +40,7 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
   onSave,
   onDelete,
   currencySymbol = '$',
+  baseCurrency = 'USD',
 }) => {
   const toast = useToast();
   const modalRef = useModalA11y(isOpen, onClose);
@@ -67,6 +73,7 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
   const isSp = isSpotTrade(trade);
 
   const toggleErrorTag = (tag: ExecutionErrorTag) => {
+    playMicroTick();
     if (tag === 'None') {
       setSelectedErrors(['None']);
       return;
@@ -128,6 +135,7 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
       };
 
       await onSave(trade.id, updates);
+      playSuccessChime();
       toast.success('Trade Updated', `Saved updates for ${trade.symbol}.`);
       onClose();
     } catch (err: unknown) {
@@ -140,7 +148,10 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-modal-backdrop"
-      onClick={onClose}
+      onClick={() => {
+        playModalClose();
+        onClose();
+      }}
     >
       <div
         ref={modalRef}
@@ -151,7 +162,10 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          onClick={onClose}
+          onClick={() => {
+            playModalClose();
+            onClose();
+          }}
           aria-label="Close edit trade modal"
           className="absolute top-4 right-4 text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-card-hover"
         >
@@ -162,7 +176,17 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
           <Edit3 className="w-5 h-5 text-brand shrink-0" />
           <div>
             <h3 id="trade-edit-modal-title" className="text-sm font-bold text-text-primary text-balance">Edit Trade Record</h3>
-            <p className="text-xs text-text-secondary">{trade.symbol} • Entry: <span className="font-mono tabular-nums">{currencySymbol}{trade.entryPrice}</span></p>
+            <p className="text-xs text-text-secondary inline-flex items-center gap-1">
+              <span>{trade.symbol} • Entry:</span>
+              <span className="font-mono tabular-nums inline-flex items-center gap-0.5">
+                {isCryptoCurrency(baseCurrency) ? (
+                  <CryptoIcon symbol={baseCurrency} size="xs" />
+                ) : (
+                  <span>{currencySymbol}</span>
+                )}
+                <span>{trade.entryPrice}</span>
+              </span>
+            </p>
           </div>
         </div>
 
@@ -180,7 +204,10 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
               />
               <button
                 type="button"
-                onClick={() => setStatus('Open')}
+                onClick={() => {
+                  playMicroTick();
+                  setStatus('Open');
+                }}
                 className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] ${status === 'Open'
                   ? 'text-black font-extrabold'
                   : 'text-text-muted hover:text-text-primary'
@@ -190,7 +217,10 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => setStatus('Closed')}
+                onClick={() => {
+                  playMicroTick();
+                  setStatus('Closed');
+                }}
                 className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] ${status === 'Closed'
                   ? 'text-black font-extrabold'
                   : 'text-text-muted hover:text-text-primary'
@@ -222,7 +252,10 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
                     <button
                       key={res}
                       type="button"
-                      onClick={() => setOutcome(res)}
+                      onClick={() => {
+                        playMicroTick();
+                        setOutcome(res);
+                      }}
                       className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${outcome === res
                         ? 'text-white'
                         : 'text-text-muted hover:text-text-primary'
@@ -236,8 +269,9 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                 <div>
-                  <label htmlFor="edit-exit-price" className="block text-[10px] font-medium text-text-secondary mb-1">
-                    Exit Price ({currencySymbol})
+                  <label htmlFor="edit-exit-price" className="text-[10px] font-medium text-text-secondary mb-1 flex items-center gap-1.5 whitespace-nowrap">
+                    <span>Exit Price</span>
+                    <CurrencyBadge currency={baseCurrency} />
                   </label>
                   <input
                     id="edit-exit-price"
@@ -250,8 +284,9 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
                   />
                 </div>
                 <div>
-                  <label htmlFor="edit-pnl-dollar" className="block text-[10px] font-medium text-text-secondary mb-1">
-                    Realized P&L ({currencySymbol})
+                  <label htmlFor="edit-pnl-dollar" className="text-[10px] font-medium text-text-secondary mb-1 flex items-center gap-1.5 whitespace-nowrap">
+                    <span>Realized P&L</span>
+                    <CurrencyBadge currency={baseCurrency} />
                   </label>
                   <input
                     id="edit-pnl-dollar"
@@ -295,7 +330,7 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
                     key={tag}
                     type="button"
                     onClick={() => toggleErrorTag(tag)}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all focus:outline-hidden ${isSelected
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-card ${isSelected
                       ? isNone
                         ? 'bg-emerald-100 dark:bg-emerald-500/30 text-emerald-800 dark:text-emerald-200 font-bold shadow-xs hover:bg-emerald-200 dark:hover:bg-emerald-500/40'
                         : 'bg-rose-100 dark:bg-rose-500/30 text-rose-800 dark:text-rose-200 font-bold shadow-xs hover:bg-rose-200 dark:hover:bg-rose-500/40'
@@ -335,7 +370,10 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
             {onDelete ? (
               <button
                 type="button"
-                onClick={() => setIsConfirmDeleteOpen(true)}
+                onClick={() => {
+                  playDangerAction();
+                  setIsConfirmDeleteOpen(true);
+                }}
                 className="px-3 py-1.5 text-xs font-semibold text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors flex items-center gap-1.5"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -345,7 +383,10 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={onClose}
+                onClick={() => {
+                  playModalClose();
+                  onClose();
+                }}
                 className="px-3.5 py-1.5 text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-card-hover rounded-xl"
               >
                 Cancel
@@ -366,9 +407,13 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
       {onDelete && (
         <ConfirmDeleteModal
           isOpen={isConfirmDeleteOpen}
-          onClose={() => setIsConfirmDeleteOpen(false)}
+          onClose={() => {
+            playModalClose();
+            setIsConfirmDeleteOpen(false);
+          }}
           onConfirm={async () => {
             try {
+              playDangerAction();
               await onDelete(trade.id);
               toast.success('Trade Deleted', `Removed ${trade.symbol} entry from ledger.`);
               setIsConfirmDeleteOpen(false);

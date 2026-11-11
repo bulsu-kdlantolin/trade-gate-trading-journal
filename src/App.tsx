@@ -7,8 +7,11 @@ import { TopHeader } from './components/layout/TopHeader';
 import { PreTradeGate } from './components/terminal/PreTradeGate';
 import { StrategyProfile, BaseCurrency, BalanceAdjustment } from './types/strategy';
 import { TradeRecord, isFuturesTrade } from './types/trade';
-import { convertCurrency, refreshLiveExchangeRates } from './utils/currency';
+import { convertCurrency } from './utils/currency';
+import { initLivePriceService } from './services/livePriceService';
 import { storage } from './utils/storage';
+import { playTabSwitch, playCommandPaletteOpen } from './utils/audioTelemetry';
+import { LoadingScreen } from './components/common/LoadingScreen';
 import {
   ShieldAlert,
   BookOpen,
@@ -32,6 +35,9 @@ const SettingsHub = lazy(() =>
 );
 const DepositWithdrawModal = lazy(() =>
   import('./components/common/DepositWithdrawModal').then((m) => ({ default: m.DepositWithdrawModal }))
+);
+const TerminalCommandPalette = lazy(() =>
+  import('./components/common/TerminalCommandPalette').then((m) => ({ default: m.TerminalCommandPalette }))
 );
 
 const ViewSkeleton = () => (
@@ -65,6 +71,7 @@ export function App() {
     deleteStrategy,
     resetToDefaultStrategies,
     importBackupStrategies,
+    isLoading: isStrategiesLoading,
   } = useStrategies();
 
   const {
@@ -77,19 +84,86 @@ export function App() {
     clearAllTrades,
     resetToDefaultTrades,
     importTrades,
+    isLoading: isTradesLoading,
   } = useTradeJournal(activeStrategyId);
 
   const { netAdjustments, addAdjustment, reloadAdjustments } = useBalanceAdjustments(activeStrategy?.id);
 
-  // Background refresh of live market exchange rates
+  // App initialization boot screen state
+  const [isInitialBoot, setIsInitialBoot] = useState(true);
+
+  // Continuous background synchronization of live market exchange rates and crypto prices
   useEffect(() => {
-    refreshLiveExchangeRates();
+    initLivePriceService(30000);
   }, []);
 
   // App Layout States
   const [activeTab, setActiveTab] = useState<TabKey>('terminal');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  // Global Tactical Keyboard Shortcuts (Cockpit Ergonomics)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isInput =
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable);
+
+      // 1. Cockpit Command Palette Hotkey: Cmd+K / Ctrl+K or "?" (when not in input)
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        playCommandPaletteOpen();
+        setIsCommandPaletteOpen((prev) => !prev);
+        return;
+      }
+
+      if (!isInput && e.key === '?' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        playCommandPaletteOpen();
+        setIsCommandPaletteOpen(true);
+        return;
+      }
+
+      // If Command Palette or other modal is open, defer to modal handlers
+      if (isCommandPaletteOpen || isDepositModalOpen) return;
+
+      // 2. Direct Tab Switching via number keys [1] - [5] (when not in input)
+      if (!isInput && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        const tabMap: Record<string, TabKey> = {
+          '1': 'terminal',
+          '2': 'history',
+          '3': 'dashboard',
+          '4': 'strategies',
+          '5': 'settings',
+        };
+        if (tabMap[e.key]) {
+          e.preventDefault();
+          playTabSwitch();
+          setActiveTab(tabMap[e.key]);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [isCommandPaletteOpen, isDepositModalOpen]);
+
+  // Keep visited tabs mounted so form state, filters, scroll positions, and selected items
+  // are never lost when navigating between views (only resetting upon full site reload)
+  const [visitedTabs, setVisitedTabs] = useState<Set<TabKey>>(() => new Set<TabKey>(['terminal']));
+
+  useEffect(() => {
+    setVisitedTabs((prev) => {
+      if (prev.has(activeTab)) return prev;
+      const next = new Set(prev);
+      next.add(activeTab);
+      return next;
+    });
+  }, [activeTab]);
 
   // Real-time live adjusted strategy capital: Initial Balance + Realized P&L + Net Adjustments
   const liveBalance = (activeStrategy?.accountBalance || 0) + (metrics.netPnlDollar || 0) + netAdjustments;
@@ -229,68 +303,81 @@ export function App() {
           className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-24 md:pb-12 focus:outline-none"
         >
           <div className="max-w-[1600px] mx-auto">
-            {activeTab === 'terminal' && (
-              <PreTradeGate
-                strategy={activeStrategy}
-                liveBalance={liveBalance}
-                onTradeLogged={logTrade}
-                onNavigateToProfiles={() => setActiveTab('strategies')}
-              />
+            {visitedTabs.has('terminal') && (
+              <div className={activeTab === 'terminal' ? 'block' : 'hidden'}>
+                <PreTradeGate
+                  strategy={activeStrategy}
+                  liveBalance={liveBalance}
+                  onTradeLogged={logTrade}
+                  onNavigateToProfiles={() => setActiveTab('strategies')}
+                  isActive={activeTab === 'terminal'}
+                />
+              </div>
             )}
 
-            {activeTab === 'history' && (
-              <Suspense fallback={<ViewSkeleton />}>
-                <TradeTable
-                  trades={trades}
-                  activeStrategy={activeStrategy}
-                  onDeleteTrade={deleteTrade}
-                  onUpdateTrade={updateTrade}
-                  onNavigateToTerminal={() => setActiveTab('terminal')}
-                />
-              </Suspense>
+            {visitedTabs.has('history') && (
+              <div className={activeTab === 'history' ? 'block' : 'hidden'}>
+                <Suspense fallback={<ViewSkeleton />}>
+                  <TradeTable
+                    trades={trades}
+                    activeStrategy={activeStrategy}
+                    onDeleteTrade={deleteTrade}
+                    onUpdateTrade={updateTrade}
+                    onNavigateToTerminal={() => setActiveTab('terminal')}
+                    onLoadSampleTrades={resetToDefaultTrades}
+                  />
+                </Suspense>
+              </div>
             )}
 
-            {activeTab === 'dashboard' && (
-              <Suspense fallback={<ViewSkeleton />}>
-                <AnalyticsDashboard
-                  trades={trades}
-                  activeStrategy={activeStrategy}
-                  onNavigateToTerminal={() => setActiveTab('terminal')}
-                />
-              </Suspense>
+            {visitedTabs.has('dashboard') && (
+              <div className={activeTab === 'dashboard' ? 'block' : 'hidden'}>
+                <Suspense fallback={<ViewSkeleton />}>
+                  <AnalyticsDashboard
+                    trades={trades}
+                    activeStrategy={activeStrategy}
+                    onNavigateToTerminal={() => setActiveTab('terminal')}
+                    onLoadSampleTrades={resetToDefaultTrades}
+                  />
+                </Suspense>
+              </div>
             )}
 
-            {activeTab === 'strategies' && (
-              <Suspense fallback={<ViewSkeleton />}>
-                <StrategiesHub
-                  strategies={strategies}
-                  activeStrategy={activeStrategy}
-                  onSelectStrategy={setActiveStrategyId}
-                  onSaveStrategy={async (data) => {
-                    if ('id' in data && data.id) {
-                      await updateStrategy(data.id, data);
-                    } else {
-                      await addStrategy(data as Omit<StrategyProfile, 'id' | 'createdAt' | 'updatedAt'>);
-                    }
-                  }}
-                  onDeleteStrategy={deleteStrategy}
-                  onResetDefaultStrategies={resetToDefaultStrategies}
-                />
-              </Suspense>
+            {visitedTabs.has('strategies') && (
+              <div className={activeTab === 'strategies' ? 'block' : 'hidden'}>
+                <Suspense fallback={<ViewSkeleton />}>
+                  <StrategiesHub
+                    strategies={strategies}
+                    activeStrategy={activeStrategy}
+                    onSelectStrategy={setActiveStrategyId}
+                    onSaveStrategy={async (data) => {
+                      if ('id' in data && data.id) {
+                        await updateStrategy(data.id, data);
+                      } else {
+                        await addStrategy(data as Omit<StrategyProfile, 'id' | 'createdAt' | 'updatedAt'>);
+                      }
+                    }}
+                    onDeleteStrategy={deleteStrategy}
+                    onResetDefaultStrategies={resetToDefaultStrategies}
+                  />
+                </Suspense>
+              </div>
             )}
 
-            {activeTab === 'settings' && (
-              <Suspense fallback={<ViewSkeleton />}>
-                <SettingsHub
-                  strategies={strategies}
-                  allTrades={allTrades}
-                  activeStrategy={activeStrategy}
-                  onImportBackup={handleImportBackup}
-                  onResetAllData={handleResetAllData}
-                  onClearAllTrades={clearAllTrades}
-                  onUpdateStrategyCurrency={handleUpdateStrategyCurrency}
-                />
-              </Suspense>
+            {visitedTabs.has('settings') && (
+              <div className={activeTab === 'settings' ? 'block' : 'hidden'}>
+                <Suspense fallback={<ViewSkeleton />}>
+                  <SettingsHub
+                    strategies={strategies}
+                    allTrades={allTrades}
+                    activeStrategy={activeStrategy}
+                    onImportBackup={handleImportBackup}
+                    onResetAllData={handleResetAllData}
+                    onClearAllTrades={clearAllTrades}
+                    onUpdateStrategyCurrency={handleUpdateStrategyCurrency}
+                  />
+                </Suspense>
+              </div>
             )}
           </div>
         </main>
@@ -307,7 +394,10 @@ export function App() {
           return (
             <button
               key={item.key}
-              onClick={() => setActiveTab(item.key)}
+              onClick={() => {
+                playTabSwitch();
+                setActiveTab(item.key);
+              }}
               aria-label={item.label}
               aria-current={isActive ? 'page' : undefined}
               className={`flex-1 flex flex-col items-center justify-center h-full py-1 min-h-[44px] transition-colors relative ${isActive
@@ -343,6 +433,30 @@ export function App() {
             }}
           />
         </Suspense>
+      )}
+
+      {/* Cockpit Command Palette HUD (⌘K or ?) */}
+      {isCommandPaletteOpen && (
+        <Suspense fallback={null}>
+          <TerminalCommandPalette
+            isOpen={isCommandPaletteOpen}
+            onClose={() => setIsCommandPaletteOpen(false)}
+            activeTab={activeTab}
+            onSelectTab={setActiveTab}
+            strategies={strategies}
+            activeStrategy={activeStrategy}
+            onSelectStrategy={setActiveStrategyId}
+            onOpenDepositModal={() => setIsDepositModalOpen(true)}
+          />
+        </Suspense>
+      )}
+
+      {/* Institutional Boot Loading Screen */}
+      {isInitialBoot && (
+        <LoadingScreen
+          isReady={!isStrategiesLoading && !isTradesLoading}
+          onFinished={() => setIsInitialBoot(false)}
+        />
       )}
     </div>
   );

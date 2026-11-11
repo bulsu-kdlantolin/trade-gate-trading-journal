@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { TradeRecord } from '../../types/trade';
 import { useTheme } from '../../context/ThemeContext';
+import { CurrencyDisplay, CurrencyIconOrSymbol } from '../common/CurrencyDisplay';
+import { isCryptoCurrency } from '../../utils/currency';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -15,6 +17,7 @@ import { TrendingUp, TrendingDown, DollarSign, Percent } from 'lucide-react';
 interface EquityChartProps {
   trades: TradeRecord[];
   currencySymbol?: string;
+  baseCurrency?: string;
 }
 
 interface ChartPoint {
@@ -31,6 +34,7 @@ interface ChartPoint {
 export const EquityChart: React.FC<EquityChartProps> = ({
   trades,
   currencySymbol = '$',
+  baseCurrency = 'USD',
 }) => {
   const { isDark } = useTheme();
   const [chartMode, setChartMode] = useState<'dollar' | 'r'>('dollar');
@@ -118,7 +122,16 @@ export const EquityChart: React.FC<EquityChartProps> = ({
                 }`}
             >
               {isPositive ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-              {chartMode === 'dollar' ? `${isPositive ? '+' : ''}${currencySymbol}${latestVal.toLocaleString()}` : `${isPositive ? '+' : ''}${latestVal}R`}
+              {chartMode === 'dollar' ? (
+                <CurrencyDisplay
+                  amount={latestVal}
+                  currency={baseCurrency}
+                  showSign={true}
+                  size="xs"
+                />
+              ) : (
+                `${isPositive ? '+' : ''}${latestVal}R`
+              )}
             </span>
           </div>
           <p className="text-[11px] text-text-secondary mt-0.5">
@@ -130,13 +143,13 @@ export const EquityChart: React.FC<EquityChartProps> = ({
         <div className="flex items-center gap-1 bg-canvas p-1 rounded-xl border border-border">
           <button
             onClick={() => setChartMode('dollar')}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${chartMode === 'dollar'
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${chartMode === 'dollar'
               ? 'bg-brand text-black shadow-xs'
               : 'text-text-muted hover:text-text-primary'
               }`}
           >
-            <DollarSign className="w-3.5 h-3.5" />
-            Capital ({currencySymbol})
+            <CurrencyIconOrSymbol currency={baseCurrency} size="xs" />
+            <span>Capital</span>
           </button>
           <button
             onClick={() => setChartMode('r')}
@@ -180,7 +193,11 @@ export const EquityChart: React.FC<EquityChartProps> = ({
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(val) =>
-                  chartMode === 'dollar' ? `${currencySymbol}${val}` : `${val}R`
+                  chartMode === 'dollar'
+              ? isCryptoCurrency(baseCurrency)
+              ? `${val}`
+              : `${currencySymbol.trim()}${val}`
+              : `${val}R`
                 }
               />
               <Tooltip
@@ -190,31 +207,39 @@ export const EquityChart: React.FC<EquityChartProps> = ({
                     return (
                       <div className="bg-card border border-border p-2.5 rounded-xl shadow-xl text-xs space-y-1 font-mono">
                         <p className="font-bold text-text-primary font-sans">{data.symbol} ({data.dateStr})</p>
-                        <p className={data.value >= 0 ? 'text-trade-green' : 'text-trade-red'}>
-                          Net Cumulative: {chartMode === 'dollar' ? `${currencySymbol}${data.cumulativeDollar}` : `${data.cumulativeR}R`}
-                        </p>
-                        <p className="text-[10px] text-text-muted">
-                          Trade Return: {data.pnl >= 0 ? '+' : ''}${data.pnl} ({data.r >= 0 ? '+' : ''}{data.r}R)
-                        </p>
-                      </div>
-                    );
+                          <p className={`flex items-center gap-1 font-mono ${data.value >= 0 ? 'text-trade-green' : 'text-trade-red'}`}>
+                            <span>Net Cumulative:</span>
+                            {chartMode === 'dollar' ? (
+                              <CurrencyDisplay amount={data.cumulativeDollar} currency={baseCurrency} size="xs" />
+                            ) : (
+                              <span>{data.cumulativeR}R</span>
+                            )}
+                          </p>
+                            <p className="text-[10px] text-text-muted flex items-center gap-1 font-mono">
+                              <span>Trade Return:</span>
+                              <CurrencyDisplay amount={data.pnl} currency={baseCurrency} showSign={true} size="xs" />
+                              <span>({data.r >= 0 ? '+' : ''}{data.r}R)</span>
+                            </p>
+                          </div>
+                          );
                   }
-                  return null;
+                          return null;
                 }}
               />
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke={strokeColor}
-                strokeWidth={2.5}
-                fillOpacity={1}
-                fill="url(#equityGradient)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        )}
+                          <Area
+                            type="monotone"
+                            dataKey="value"
+                            stroke={strokeColor}
+                            strokeWidth={2.5}
+                            fillOpacity={1}
+                            fill="url(#equityGradient)"
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    )
+                  }
       </div>
-    </div>
-  );
+          </div>
+        );
 };
 

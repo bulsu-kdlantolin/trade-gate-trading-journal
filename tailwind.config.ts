@@ -8,6 +8,9 @@ const config: Config = {
   darkMode: "class",
   theme: {
     extend: {
+      screens: {
+        xs: "420px",
+      },
       colors: {
         canvas: "var(--tg-canvas)",
         card: "var(--tg-card)",

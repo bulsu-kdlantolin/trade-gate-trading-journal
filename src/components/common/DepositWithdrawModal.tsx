@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { StrategyProfile } from '../../types/strategy';
-import { getCurrencySymbol } from '../../utils/currency';
+import { getCurrencySymbol, isCryptoCurrency } from '../../utils/currency';
+import { CryptoIcon } from '../common/CryptoIcon';
 import { useToast } from '../../context/ToastContext';
 import { useModalA11y } from '../../hooks/useModalA11y';
 import { getErrorMessage } from '../../utils/errors';
 import { Wallet, Plus, Minus, RotateCcw, X } from 'lucide-react';
+import { playMicroTick, playSuccessChime, playModalClose } from '../../utils/audioTelemetry';
 
 interface DepositWithdrawModalProps {
   isOpen: boolean;
@@ -67,6 +69,7 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
       }
       setAmountStr('');
       setNote('');
+      playSuccessChime();
       onClose();
     } catch (err: unknown) {
       toast.error('Transaction Failed', getErrorMessage(err));
@@ -75,10 +78,15 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
     }
   };
 
+  const handleCloseModal = () => {
+    playModalClose();
+    onClose();
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-modal-backdrop"
-      onClick={onClose}
+      onClick={handleCloseModal}
     >
       <div
         ref={modalRef}
@@ -89,7 +97,7 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          onClick={onClose}
+          onClick={handleCloseModal}
           aria-label="Close capital adjustment modal"
           className="absolute top-4 right-4 text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-card-hover transition-colors"
         >
@@ -107,9 +115,16 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
         {/* Current Balance Card */}
         <div className="bg-canvas border border-border rounded-xl p-3 mb-4 flex items-center justify-between">
           <span className="text-xs text-text-muted font-medium">Available Strategy Capital</span>
-          <span className="text-base font-bold font-mono tabular-nums text-text-primary">
-            {currencySymbol}{currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
+            <span className="text-base font-bold font-mono tabular-nums text-text-primary inline-flex items-center gap-1.5">
+              {isCryptoCurrency(strategy.baseCurrency) ? (
+                <>
+                  <CryptoIcon symbol={strategy.baseCurrency} size="xs" />
+                  <span>{currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                </>
+              ) : (
+                <span>{currencySymbol}{currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              )}
+            </span>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3.5">
@@ -126,7 +141,10 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
             />
             <button
               type="button"
-              onClick={() => setActionType('deposit')}
+              onClick={() => {
+                playMicroTick();
+                setActionType('deposit');
+              }}
               className={`relative z-10 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition-colors duration-200 active:scale-[0.98] ${actionType === 'deposit'
                 ? 'text-trade-green'
                 : 'text-text-muted hover:text-text-primary'
@@ -137,7 +155,10 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => setActionType('withdraw')}
+              onClick={() => {
+                playMicroTick();
+                setActionType('withdraw');
+              }}
               className={`relative z-10 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition-colors duration-200 active:scale-[0.98] ${actionType === 'withdraw'
                 ? 'text-trade-red'
                 : 'text-text-muted hover:text-text-primary'
@@ -148,7 +169,10 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => setActionType('reset')}
+              onClick={() => {
+                playMicroTick();
+                setActionType('reset');
+              }}
               className={`relative z-10 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition-colors duration-200 active:scale-[0.98] ${actionType === 'reset'
                 ? 'text-brand'
                 : 'text-text-muted hover:text-text-primary'
@@ -165,20 +189,25 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
               {actionType === 'reset' ? 'New Starting Balance' : 'Adjustment Amount'} ({strategy.baseCurrency})
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-text-muted text-xs">
-                {currencySymbol}
-              </span>
-              <input
-                id="capital-adjustment-amount"
-                type="number"
-                step="any"
-                min="0"
-                value={amountStr}
-                onChange={(e) => setAmountStr(e.target.value)}
-                placeholder="0.00"
-                required
-                className="w-full bg-canvas border border-border rounded-xl pl-7 pr-3 py-2 text-xs font-mono font-bold text-text-primary placeholder:text-text-muted focus:border-brand"
-              />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center text-text-muted text-xs pointer-events-none">
+                  {isCryptoCurrency(strategy.baseCurrency) ? (
+                    <CryptoIcon symbol={strategy.baseCurrency} size="xs" />
+                  ) : (
+                    <span className="font-mono">{currencySymbol}</span>
+                  )}
+                </span>
+                <input
+                  id="capital-adjustment-amount"
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={amountStr}
+                  onChange={(e) => setAmountStr(e.target.value)}
+                  placeholder="0.00"
+                  required
+                  className={`w-full bg-canvas border border-border rounded-xl ${isCryptoCurrency(strategy.baseCurrency) ? 'pl-8' : 'pl-7'
+                    } pr-3 py-2 text-xs font-mono font-bold text-text-primary placeholder:text-text-muted focus:border-brand`}
+                />
             </div>
             <p className="text-[11px] text-text-muted mt-1 leading-normal">
               {actionType === 'deposit'

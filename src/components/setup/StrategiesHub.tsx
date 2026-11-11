@@ -1,9 +1,12 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { StrategyProfile } from '../../types/strategy';
-import { getCurrencySymbol } from '../../utils/currency';
+import { getCurrencySymbol, isCryptoCurrency } from '../../utils/currency';
+import { CryptoIcon } from '../common/CryptoIcon';
+import { getSessionStyle, getTimeframeHorizonStyle } from '../../utils/badgeStyles';
 import { useToast } from '../../context/ToastContext';
 import { getErrorMessage } from '../../utils/errors';
 import { ConfirmDeleteModal } from '../common/ConfirmDeleteModal';
+import { playMicroTick, playModalOpen, playModalClose, playSuccessChime, playDangerAction } from '../../utils/audioTelemetry';
 
 // Lazy-load modal dialogs to keep hub bundle minimal
 const StrategyFormModal = lazy(() =>
@@ -18,11 +21,11 @@ import {
   Trash2,
   Edit2,
   Share2,
-  CheckCircle2,
   RotateCcw,
   Layers,
   ArrowRight,
   ShieldCheck,
+  Check,
 } from 'lucide-react';
 
 interface StrategiesHubProps {
@@ -49,13 +52,20 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = ({
   const [strategyToDelete, setStrategyToDelete] = useState<StrategyProfile | null>(null);
 
   const handleOpenCreate = () => {
+    playModalOpen();
     setEditingStrategy(null);
     setIsFormModalOpen(true);
   };
 
   const handleOpenEdit = (strat: StrategyProfile) => {
+    playModalOpen();
     setEditingStrategy(strat);
     setIsFormModalOpen(true);
+  };
+
+  const handleOpenShare = (strat: StrategyProfile) => {
+    playModalOpen();
+    setSelectedStrategyForShare(strat);
   };
 
   const handleDeleteClick = (strat: StrategyProfile) => {
@@ -63,11 +73,13 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = ({
       toast.warning('Action Blocked', 'You must maintain at least one active strategy profile.');
       return;
     }
+    playDangerAction();
     setStrategyToDelete(strat);
   };
 
   const handleConfirmDelete = async () => {
     if (!strategyToDelete) return;
+    playDangerAction();
     try {
       await onDeleteStrategy(strategyToDelete.id);
       toast.success('Strategy Deleted', `Removed profile "${strategyToDelete.name}".`);
@@ -96,7 +108,10 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = ({
 
         <div className="flex items-center gap-2">
           <button
-            onClick={onResetDefaultStrategies}
+            onClick={() => {
+              playDangerAction();
+              onResetDefaultStrategies();
+            }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-canvas border border-border hover:border-brand/40 text-text-muted hover:text-text-primary text-xs font-semibold transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -188,7 +203,14 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = ({
                       Base Capital
                     </span>
                     <span className="font-mono font-bold text-sm text-trade-green block mt-0.5 tabular-nums">
-                      {currencySymbol}{strat.accountBalance.toLocaleString()}
+                      {isCryptoCurrency(strat.baseCurrency) ? (
+                        <span className="inline-flex items-center justify-center gap-1">
+                          <CryptoIcon symbol={strat.baseCurrency} size="xs" />
+                          <span>{strat.accountBalance.toLocaleString()}</span>
+                        </span>
+                      ) : (
+                        `${currencySymbol}${strat.accountBalance.toLocaleString()}`
+                      )}
                     </span>
                   </div>
                   <div>
@@ -210,34 +232,52 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = ({
                 </div>
 
                 {/* Timeframes & Sessions Tagline */}
-                <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-text-muted font-mono">
-                  <span>
-                    TF: <strong className="font-semibold text-text-secondary">{strat.timeframes.join(', ')}</strong>
-                  </span>
-                  <span>
-                    Sessions: <strong className="font-semibold text-text-secondary">{strat.sessions.join(', ')}</strong>
-                  </span>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-text-muted">TF:</span>
+                    {strat.timeframes.map((tf) => (
+                      <span key={tf} className={`font-bold ${getTimeframeHorizonStyle(tf)}`}>
+                        {tf}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-text-muted">Sessions:</span>
+                    {strat.sessions.map((sess) => (
+                      <span
+                        key={sess}
+                        className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.2 rounded ${getSessionStyle(sess).badge}`}
+                      >
+                        <span className={`w-1 h-1 rounded-full shrink-0 ${getSessionStyle(sess).dot}`} />
+                        {sess}
+                      </span>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Action Buttons Strip with Text Labels */}
                 <div className="flex items-center justify-between pt-3 border-t border-border">
                   {!isActive ? (
                     <button
-                      onClick={() => onSelectStrategy(strat.id)}
+                      onClick={() => {
+                        playSuccessChime();
+                        onSelectStrategy(strat.id);
+                      }}
                       className="px-3 py-1.5 rounded-xl bg-canvas border border-border hover:border-brand/40 text-text-primary font-bold text-xs flex items-center gap-1.5 transition-colors"
                     >
                       <span>Select Active</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   ) : (
-                    <span className="text-xs font-semibold text-brand flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4" /> Live Terminal Active
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-brand">
+                      <Check className="w-3.5 h-3.5" />
+                      Active Playbook
                     </span>
                   )}
 
                   <div className="flex items-center gap-1.5">
                     <button
-                      onClick={() => setSelectedStrategyForShare(strat)}
+                      onClick={() => handleOpenShare(strat)}
                       className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-brand hover:bg-card-hover border border-transparent hover:border-border flex items-center gap-1.5 transition-colors"
                     >
                       <Share2 className="w-3.5 h-3.5" />
@@ -273,9 +313,15 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = ({
           <Suspense fallback={null}>
             <StrategyFormModal
               isOpen={isFormModalOpen}
-              onClose={() => setIsFormModalOpen(false)}
+              onClose={() => {
+                playModalClose();
+                setIsFormModalOpen(false);
+              }}
               strategy={editingStrategy}
-              onSave={onSaveStrategy}
+              onSave={async (data) => {
+                playSuccessChime();
+                return onSaveStrategy(data);
+              }}
             />
           </Suspense>
         )
@@ -287,7 +333,10 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = ({
           <Suspense fallback={null}>
             <ShareStrategyModal
               strategy={selectedStrategyForShare}
-              onClose={() => setSelectedStrategyForShare(null)}
+              onClose={() => {
+                playModalClose();
+                setSelectedStrategyForShare(null);
+              }}
             />
           </Suspense>
         )
@@ -296,7 +345,10 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = ({
       {/* Delete Strategy Confirmation Dialog */}
       <ConfirmDeleteModal
         isOpen={!!strategyToDelete}
-        onClose={() => setStrategyToDelete(null)}
+        onClose={() => {
+          playModalClose();
+          setStrategyToDelete(null);
+        }}
         onConfirm={handleConfirmDelete}
         title="Delete Strategy Profile?"
         description="Permanently delete this strategy profile? All trade records logged under this strategy will remain preserved in your historical ledger."

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, lazy, Suspense } from 'react';
+import React, { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { StrategyProfile } from '../../types/strategy';
 import { TradeRecord, isFuturesTrade, isSpotTrade } from '../../types/trade';
 import { CryptoIcon } from '../common/CryptoIcon';
@@ -7,10 +7,13 @@ import { TradeDetailModal } from '../common/TradeDetailModal';
 import { TradeEditModal } from './TradeEditModal';
 import { ConfirmDeleteModal } from '../common/ConfirmDeleteModal';
 import { AnimatedSelect, SelectOption } from '../common/AnimatedSelect';
-import { getCurrencySymbol } from '../../utils/currency';
+import { getCurrencySymbol, isCryptoCurrency } from '../../utils/currency';
+import { CurrencyDisplay, CurrencyBadge } from '../common/CurrencyDisplay';
 import { getGradeStyle } from '../../utils/gradeStyles';
+import { getSessionStyle, getSpotActionStyle, getTimeframeHorizonStyle } from '../../utils/badgeStyles';
 import { useToast } from '../../context/ToastContext';
 import { getErrorMessage } from '../../utils/errors';
+import { playMicroTick, playModalOpen, playModalClose, playSuccessChime, playDangerAction } from '../../utils/audioTelemetry';
 
 // Lazy-load ShareTradeModal so html-to-image is deferred until share action
 const ShareTradeModal = lazy(() =>
@@ -41,6 +44,7 @@ interface TradeTableProps {
   onDeleteTrade: (id: string) => Promise<unknown>;
   onUpdateTrade: (id: string, updates: Partial<TradeRecord>) => Promise<unknown>;
   onNavigateToTerminal?: () => void;
+  onLoadSampleTrades?: () => void;
 }
 
 const OUTCOME_OPTIONS: SelectOption<'all' | 'wins' | 'losses' | 'open'>[] = [
@@ -73,6 +77,7 @@ export const TradeTable: React.FC<TradeTableProps> = ({
   onDeleteTrade,
   onUpdateTrade,
   onNavigateToTerminal,
+  onLoadSampleTrades,
 }) => {
   const toast = useToast();
   const [viewMode, setViewMode] = useState<'table' | 'calendar'>('table');
@@ -80,6 +85,19 @@ export const TradeTable: React.FC<TradeTableProps> = ({
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [tradeTypeFilter, setTradeTypeFilter] = useState<'all' | 'futures' | 'spot'>('all');
+
+  const isPerpsOnly = activeStrategy?.executionMode === 'futures';
+  const isSpotOnly = activeStrategy?.executionMode === 'spot';
+
+  useEffect(() => {
+    if (isPerpsOnly && tradeTypeFilter === 'spot') {
+      setTradeTypeFilter('all');
+      setCurrentPage(1);
+    } else if (isSpotOnly && tradeTypeFilter === 'futures') {
+      setTradeTypeFilter('all');
+      setCurrentPage(1);
+    }
+  }, [isPerpsOnly, isSpotOnly, tradeTypeFilter]);
   const [gradeFilter, setGradeFilter] = useState<string>('all');
   const [outcomeFilter, setOutcomeFilter] = useState<'all' | 'wins' | 'losses' | 'open'>('all');
   const [sessionFilter, setSessionFilter] = useState<string>('all');
@@ -91,6 +109,41 @@ export const TradeTable: React.FC<TradeTableProps> = ({
   const [tradeToDelete, setTradeToDelete] = useState<{ id: string; symbol: string } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 25;
+
+  const handleOpenDetail = (t: TradeRecord) => {
+    playModalOpen();
+    setSelectedTradeForDetail(t);
+  };
+
+  const handleOpenEdit = (t: TradeRecord) => {
+    playModalOpen();
+    setSelectedTradeForEdit(t);
+  };
+
+  const handleOpenShare = (t: TradeRecord) => {
+    playModalOpen();
+    setSelectedTradeForShare(t);
+  };
+
+  const handleCloseDetail = () => {
+    playModalClose();
+    setSelectedTradeForDetail(null);
+  };
+
+  const handleCloseEdit = () => {
+    playModalClose();
+    setSelectedTradeForEdit(null);
+  };
+
+  const handleCloseShare = () => {
+    playModalClose();
+    setSelectedTradeForShare(null);
+  };
+
+  const handleCloseDelete = () => {
+    playModalClose();
+    setTradeToDelete(null);
+  };
 
   const currencySymbol = getCurrencySymbol(activeStrategy?.baseCurrency);
 
@@ -129,6 +182,7 @@ export const TradeTable: React.FC<TradeTableProps> = ({
   }, [filteredTrades, validPage, pageSize]);
 
   const resetAllFilters = () => {
+    playDangerAction();
     setSearchQuery('');
     setTradeTypeFilter('all');
     setGradeFilter('all');
@@ -138,11 +192,13 @@ export const TradeTable: React.FC<TradeTableProps> = ({
   };
 
   const handleDeleteClick = (id: string, symbol: string) => {
+    playDangerAction();
     setTradeToDelete({ id, symbol });
   };
 
   const handleConfirmDelete = async () => {
     if (!tradeToDelete) return;
+    playDangerAction();
     try {
       await onDeleteTrade(tradeToDelete.id);
       toast.success('Trade Deleted', `Removed ${tradeToDelete.symbol} entry from ledger.`);
@@ -159,44 +215,100 @@ export const TradeTable: React.FC<TradeTableProps> = ({
       <div className="card-glass rounded-2xl p-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Mode Segmented Switcher (All / Futures / Spot) with Sliding Indicator */}
-          <div className="relative grid grid-cols-3 p-1 rounded-xl bg-canvas border border-border select-none min-w-[280px] sm:min-w-[320px]">
-            {/* Sliding highlight indicator */}
-            <div
-              className={`absolute top-1 bottom-1 w-[calc(33.333%-4px)] rounded-lg transition-all duration-200 ease-out shadow-xs pointer-events-none ${tradeTypeFilter === 'all'
-                ? 'left-1 bg-card shadow-xs'
-                : tradeTypeFilter === 'futures'
-                  ? 'left-[calc(33.333%+2px)] bg-blue-500/20'
-                  : 'left-[calc(66.666%+3px)] bg-emerald-500/20'
-                }`}
-            />
-            <button
-              onClick={() => { setTradeTypeFilter('all'); setCurrentPage(1); }}
-              className={`relative z-10 py-1.5 px-2.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center active:scale-[0.98] ${tradeTypeFilter === 'all'
-                ? 'text-text-primary'
-                : 'text-text-muted hover:text-text-primary'
-                }`}
-            >
-              All ({trades.length})
-            </button>
-            <button
-              onClick={() => { setTradeTypeFilter('futures'); setCurrentPage(1); }}
-              className={`relative z-10 py-1.5 px-2.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center active:scale-[0.98] ${tradeTypeFilter === 'futures'
-                ? 'text-blue-400'
-                : 'text-text-muted hover:text-text-primary'
-                }`}
-            >
-              Perps
-            </button>
-            <button
-              onClick={() => { setTradeTypeFilter('spot'); setCurrentPage(1); }}
-              className={`relative z-10 py-1.5 px-2.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center active:scale-[0.98] ${tradeTypeFilter === 'spot'
-                ? 'text-emerald-400'
-                : 'text-text-muted hover:text-text-primary'
-                }`}
-            >
-              Spot
-            </button>
-          </div>
+          {isPerpsOnly ? (
+            <div className="relative grid grid-cols-2 p-1 rounded-xl bg-canvas border border-border select-none min-w-[200px] sm:min-w-[240px]">
+              <div
+                className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-lg transition-all duration-200 ease-out shadow-xs pointer-events-none ${tradeTypeFilter === 'all'
+                  ? 'left-1 bg-card shadow-xs'
+                  : 'left-[calc(50%+3px)] bg-blue-500/20'
+                  }`}
+              />
+              <button
+                onClick={() => { playMicroTick(); setTradeTypeFilter('all'); setCurrentPage(1); }}
+                className={`relative z-10 py-1.5 px-2.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center active:scale-[0.98] ${tradeTypeFilter === 'all'
+                  ? 'text-text-primary'
+                  : 'text-text-muted hover:text-text-primary'
+                  }`}
+              >
+                All ({trades.length})
+              </button>
+              <button
+                onClick={() => { playMicroTick(); setTradeTypeFilter('futures'); setCurrentPage(1); }}
+                className={`relative z-10 py-1.5 px-2.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center active:scale-[0.98] ${tradeTypeFilter === 'futures'
+                  ? 'text-blue-400'
+                  : 'text-text-muted hover:text-text-primary'
+                  }`}
+              >
+                Perps
+              </button>
+            </div>
+          ) : isSpotOnly ? (
+            <div className="relative grid grid-cols-2 p-1 rounded-xl bg-canvas border border-border select-none min-w-[200px] sm:min-w-[240px]">
+              <div
+                className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-lg transition-all duration-200 ease-out shadow-xs pointer-events-none ${tradeTypeFilter === 'all'
+                  ? 'left-1 bg-card shadow-xs'
+                  : 'left-[calc(50%+3px)] bg-emerald-500/20'
+                  }`}
+              />
+              <button
+                onClick={() => { playMicroTick(); setTradeTypeFilter('all'); setCurrentPage(1); }}
+                className={`relative z-10 py-1.5 px-2.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center active:scale-[0.98] ${tradeTypeFilter === 'all'
+                  ? 'text-text-primary'
+                  : 'text-text-muted hover:text-text-primary'
+                  }`}
+              >
+                All ({trades.length})
+              </button>
+              <button
+                onClick={() => { playMicroTick(); setTradeTypeFilter('spot'); setCurrentPage(1); }}
+                className={`relative z-10 py-1.5 px-2.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center active:scale-[0.98] ${tradeTypeFilter === 'spot'
+                  ? 'text-emerald-400'
+                  : 'text-text-muted hover:text-text-primary'
+                  }`}
+              >
+                Spot
+              </button>
+            </div>
+          ) : (
+            <div className="relative grid grid-cols-3 p-1 rounded-xl bg-canvas border border-border select-none min-w-[280px] sm:min-w-[320px]">
+              {/* Sliding highlight indicator */}
+              <div
+                className={`absolute top-1 bottom-1 w-[calc(33.333%-4px)] rounded-lg transition-all duration-200 ease-out shadow-xs pointer-events-none ${tradeTypeFilter === 'all'
+                  ? 'left-1 bg-card shadow-xs'
+                  : tradeTypeFilter === 'futures'
+                    ? 'left-[calc(33.333%+2px)] bg-blue-500/20'
+                    : 'left-[calc(66.666%+3px)] bg-emerald-500/20'
+                  }`}
+              />
+              <button
+                onClick={() => { playMicroTick(); setTradeTypeFilter('all'); setCurrentPage(1); }}
+                className={`relative z-10 py-1.5 px-2.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center active:scale-[0.98] ${tradeTypeFilter === 'all'
+                  ? 'text-text-primary'
+                  : 'text-text-muted hover:text-text-primary'
+                  }`}
+              >
+                All ({trades.length})
+              </button>
+              <button
+                onClick={() => { playMicroTick(); setTradeTypeFilter('futures'); setCurrentPage(1); }}
+                className={`relative z-10 py-1.5 px-2.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center active:scale-[0.98] ${tradeTypeFilter === 'futures'
+                  ? 'text-blue-400'
+                  : 'text-text-muted hover:text-text-primary'
+                  }`}
+              >
+                Perps
+              </button>
+              <button
+                onClick={() => { playMicroTick(); setTradeTypeFilter('spot'); setCurrentPage(1); }}
+                className={`relative z-10 py-1.5 px-2.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center active:scale-[0.98] ${tradeTypeFilter === 'spot'
+                  ? 'text-emerald-400'
+                  : 'text-text-muted hover:text-text-primary'
+                  }`}
+              >
+                Spot
+              </button>
+            </div>
+          )}
 
           {/* View Mode Toggle: Table vs Calendar with Sliding Indicator */}
           <div className="relative grid grid-cols-2 p-1 rounded-xl bg-canvas border border-border sm:ml-auto select-none min-w-[200px]">
@@ -206,7 +318,7 @@ export const TradeTable: React.FC<TradeTableProps> = ({
                 }`}
             />
             <button
-              onClick={() => setViewMode('table')}
+              onClick={() => { playMicroTick(); setViewMode('table'); }}
               className={`relative z-10 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors duration-200 active:scale-[0.98] ${viewMode === 'table'
                 ? 'text-black font-extrabold'
                 : 'text-text-muted hover:text-text-primary'
@@ -216,7 +328,7 @@ export const TradeTable: React.FC<TradeTableProps> = ({
               Table
             </button>
             <button
-              onClick={() => setViewMode('calendar')}
+              onClick={() => { playMicroTick(); setViewMode('calendar'); }}
               className={`relative z-10 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors duration-200 active:scale-[0.98] ${viewMode === 'calendar'
                 ? 'text-black font-extrabold'
                 : 'text-text-muted hover:text-text-primary'
@@ -231,7 +343,7 @@ export const TradeTable: React.FC<TradeTableProps> = ({
         {/* Search and Animated Dropdown Filters */}
         <div className="flex flex-wrap items-center gap-2.5 pt-2 border-t border-border">
           {/* Search Box */}
-          <div className="relative min-w-[200px] flex-1 max-w-xs">
+          <div className="relative w-full sm:w-auto sm:min-w-[200px] sm:max-w-xs sm:flex-1">
             <label htmlFor="trade-ledger-search" className="sr-only">
               Search trades by ticker or notes
             </label>
@@ -302,13 +414,15 @@ export const TradeTable: React.FC<TradeTableProps> = ({
         viewMode === 'calendar' ? (
           <TradeCalendar
             trades={filteredTrades}
-            onSelectTrade={(t) => setSelectedTradeForDetail(t)}
-            onEditTrade={(t) => setSelectedTradeForEdit(t)}
+            onSelectTrade={handleOpenDetail}
+            onEditTrade={handleOpenEdit}
             currencySymbol={currencySymbol}
+            baseCurrency={activeStrategy?.baseCurrency}
           />
         ) : (
           <div className="card-glass rounded-2xl overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Desktop / Tablet Tabular Ledger (>= md) */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs whitespace-nowrap">
                 <thead className="bg-canvas/80 border-b border-border text-[11px] font-bold text-text-muted uppercase tracking-wider select-none">
                   <tr>
@@ -318,7 +432,12 @@ export const TradeTable: React.FC<TradeTableProps> = ({
                     <th className="py-3 px-3 text-center">Setup Grade</th>
                     <th className="py-3 px-3 text-right">Entry / Exit</th>
                     <th className="py-3 px-3 text-right">Size / Alloc</th>
-                    <th className="py-3 px-3 text-right">Net P&L ({currencySymbol})</th>
+                    <th className="py-3 px-3 text-right">
+                      <span className="inline-flex items-center gap-1.5 justify-end whitespace-nowrap">
+                        <span>Net P&L</span>
+                        <CurrencyBadge currency={activeStrategy?.baseCurrency} />
+                      </span>
+                    </th>
                     <th className="py-3 px-3 text-right">R-Multiple</th>
                     <th className="py-3 px-3 text-center">Session</th>
                     <th className="py-3 px-3">Discipline & Tags</th>
@@ -338,16 +457,28 @@ export const TradeTable: React.FC<TradeTableProps> = ({
                             <p className="text-xs text-text-muted leading-relaxed text-pretty max-w-xs mx-auto">
                               Your journal is currently empty. Execute trades through the Pre-Trade Discipline Gate to track risk parameters, setup grades, and realized P&L.
                             </p>
-                            {onNavigateToTerminal && (
-                              <button
-                                type="button"
-                                onClick={onNavigateToTerminal}
-                                className="px-3.5 py-1.5 rounded-xl bg-brand text-black hover:bg-brand-hover text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-xs"
-                              >
-                                <Plus className="w-3.5 h-3.5" />
-                                Log First Trade in Gate
-                              </button>
-                            )}
+                            <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                              {onNavigateToTerminal && (
+                                <button
+                                  type="button"
+                                  onClick={onNavigateToTerminal}
+                                  className="px-3.5 py-1.5 rounded-xl bg-brand text-black hover:bg-brand-hover text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-xs"
+                                >
+                                  <Plus className="w-3.5 h-3.5" />
+                                  Log First Trade in Gate
+                                </button>
+                              )}
+                              {onLoadSampleTrades && (
+                                <button
+                                  type="button"
+                                  onClick={onLoadSampleTrades}
+                                  className="px-3.5 py-1.5 rounded-xl bg-canvas border border-border hover:border-brand/40 text-text-primary text-xs font-semibold transition-all inline-flex items-center gap-1.5 shadow-xs"
+                                >
+                                  <RotateCcw className="w-3.5 h-3.5 text-text-muted" />
+                                  Load Sample Trades
+                                </button>
+                              )}
+                            </div>
                           </div>
                         ) : (
                           <div className="max-w-sm mx-auto space-y-2.5">
@@ -398,7 +529,7 @@ export const TradeTable: React.FC<TradeTableProps> = ({
                                       day: 'numeric',
                                     })
                                     : 'Recent'}{' '}
-                                  • {t.timeframe}
+                                  • <span className={`font-semibold ${getTimeframeHorizonStyle(t.timeframe)}`}>{t.timeframe}</span>
                                 </span>
                               </div>
                             </div>
@@ -431,7 +562,7 @@ export const TradeTable: React.FC<TradeTableProps> = ({
                                 {t.direction}
                               </span>
                             ) : isSp ? (
-                              <span className="font-semibold text-text-primary text-[11px]">
+                              <span className={`inline-block font-mono text-[10.5px] font-bold px-2 py-0.5 rounded-md ${getSpotActionStyle(t.spotAction)}`}>
                                 {t.spotAction}
                               </span>
                             ) : (
@@ -498,9 +629,16 @@ export const TradeTable: React.FC<TradeTableProps> = ({
                                 className={`text-xs font-bold ${isWin ? 'text-trade-green' : isLoss ? 'text-trade-red' : 'text-text-primary'
                                   }`}
                               >
-                                {t.pnlDollar !== undefined
-                                  ? `${t.pnlDollar >= 0 ? '+' : ''}$${t.pnlDollar.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                                  : '-'}
+                                {t.pnlDollar !== undefined ? (
+                                  <CurrencyDisplay
+                                    amount={t.pnlDollar}
+                                    currency={activeStrategy?.baseCurrency}
+                                    showSign={true}
+                                    size="xs"
+                                  />
+                                ) : (
+                                  '-'
+                                )}
                               </span>
                             )}
                           </td>
@@ -522,7 +660,14 @@ export const TradeTable: React.FC<TradeTableProps> = ({
 
                           {/* Session */}
                           <td className="py-3 px-3 text-center">
-                            <span className="font-mono text-[11px] font-medium px-2 py-0.5 rounded-md bg-canvas text-text-secondary">
+                            <span
+                              className={`inline-flex items-center gap-1.5 font-mono text-[10.5px] font-bold px-2 py-0.5 rounded-md ${getSessionStyle(t.session).badge
+                                }`}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full shrink-0 ${getSessionStyle(t.session).dot
+                                  }`}
+                              />
                               {t.session}
                             </span>
                           </td>
@@ -568,30 +713,30 @@ export const TradeTable: React.FC<TradeTableProps> = ({
                             <div className="flex items-center justify-end gap-1">
                               {/* Inspect Detail */}
                               <button
-                                onClick={() => setSelectedTradeForDetail(t)}
+                                onClick={() => handleOpenDetail(t)}
                                 title="Inspect full trade execution gate & chart"
                                 aria-label={`Inspect ${t.symbol} trade details`}
-                                className="min-w-[28px] min-h-[28px] flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-card transition-colors"
+                                className="min-w-[30px] min-h-[30px] relative after:absolute after:-inset-1.5 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-card transition-colors"
                               >
                                 <Eye className="w-3.5 h-3.5" />
                               </button>
 
                               {/* Edit / Close Active Trade */}
                               <button
-                                onClick={() => setSelectedTradeForEdit(t)}
+                                onClick={() => handleOpenEdit(t)}
                                 title="Edit trade record / Realize exit"
                                 aria-label={`Edit ${t.symbol} trade entry`}
-                                className="min-w-[28px] min-h-[28px] flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-card transition-colors"
+                                className="min-w-[30px] min-h-[30px] relative after:absolute after:-inset-1.5 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-card transition-colors"
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
 
                               {/* Share Trade Card */}
                               <button
-                                onClick={() => setSelectedTradeForShare(t)}
+                                onClick={() => handleOpenShare(t)}
                                 title="Export verified trade performance card (PNG)"
                                 aria-label={`Share ${t.symbol} trade card`}
-                                className="min-w-[28px] min-h-[28px] flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-card transition-colors"
+                                className="min-w-[30px] min-h-[30px] relative after:absolute after:-inset-1.5 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-card transition-colors"
                               >
                                 <Share2 className="w-3.5 h-3.5" />
                               </button>
@@ -601,7 +746,7 @@ export const TradeTable: React.FC<TradeTableProps> = ({
                                 onClick={() => handleDeleteClick(t.id, t.symbol)}
                                 title="Delete trade"
                                 aria-label={`Delete ${t.symbol} trade record`}
-                                className="min-w-[28px] min-h-[28px] flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-trade-red hover:bg-card transition-colors"
+                                className="min-w-[30px] min-h-[30px] relative after:absolute after:-inset-1.5 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-trade-red hover:bg-card transition-colors"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -615,92 +760,583 @@ export const TradeTable: React.FC<TradeTableProps> = ({
               </table>
             </div>
 
-            {/* Pagination Controls Bar */}
-            {filteredTrades.length > 0 && (
-              <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-canvas/40 border-t border-border text-xs">
-                <span className="text-[11px] text-text-muted font-mono">
-                  Showing <strong className="text-text-primary font-bold">{(validPage - 1) * pageSize + 1}</strong>–<strong className="text-text-primary font-bold">{Math.min(validPage * pageSize, filteredTrades.length)}</strong> of <strong className="text-text-primary font-bold">{filteredTrades.length}</strong> trades
-                </span>
+            {/* Mobile Touch-Optimized Cards (< md) */}
+            <div className="md:hidden">
+              {filteredTrades.length === 0 ? (
+                <div className="py-12 px-4 text-center">
+                  {trades.length === 0 ? (
+                    <div className="max-w-xs mx-auto space-y-3">
+                      <div className="w-10 h-10 rounded-2xl bg-canvas border border-border flex items-center justify-center text-text-muted mx-auto shadow-xs">
+                        <BookOpen className="w-5 h-5 text-brand" />
+                      </div>
+                      <h4 className="text-sm font-bold text-text-primary text-balance">No Trade Records in Ledger</h4>
+                      <p className="text-xs text-text-muted leading-relaxed text-pretty">
+                        Your journal is currently empty. Execute trades through the Pre-Trade Gate to track entries.
+                      </p>
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-1">
+                        {onNavigateToTerminal && (
+                          <button
+                            type="button"
+                            onClick={onNavigateToTerminal}
+                            className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-brand text-black hover:bg-brand-hover text-xs font-bold transition-all inline-flex items-center justify-center gap-1.5 shadow-xs"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            Log First Trade
+                          </button>
+                        )}
+                        {onLoadSampleTrades && (
+                          <button
+                            type="button"
+                            onClick={onLoadSampleTrades}
+                            className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-canvas border border-border hover:border-brand/40 text-text-primary text-xs font-semibold transition-all inline-flex items-center justify-center gap-1.5 shadow-xs"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5 text-text-muted" />
+                            Load Sample Trades
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="max-w-xs mx-auto space-y-2.5">
+                      <div className="w-10 h-10 rounded-2xl bg-canvas border border-border flex items-center justify-center text-text-muted mx-auto shadow-xs">
+                        <Filter className="w-5 h-5 text-text-muted" />
+                      </div>
+                      <h4 className="text-sm font-bold text-text-primary text-balance">No Matching Trades Found</h4>
+                      <p className="text-xs text-text-muted leading-relaxed text-pretty">
+                        No trade entries match your current search query or active filter criteria.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={resetAllFilters}
+                        className="px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-xs font-semibold text-text-primary transition-colors inline-flex items-center gap-1.5 shadow-xs"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 text-brand" />
+                        Reset Filters
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="divide-y divide-border">
+                  {paginatedTrades.map((t) => {
+                    const isFut = isFuturesTrade(t);
+                    const isSp = isSpotTrade(t);
+                    const isWin = t.tradeResult === 'Win' || (t.pnlDollar && t.pnlDollar > 0);
+                    const isLoss = t.tradeResult === 'Loss' || (t.pnlDollar && t.pnlDollar < 0);
+                    const isOpen = t.status === 'Open';
 
-                {totalPages > 1 && (
-                  <div className="flex items-center gap-1.5 ml-auto">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={validPage === 1}
-                      aria-label="Previous page"
-                      className="px-2.5 py-1 rounded-lg bg-card border border-border hover:border-brand/40 text-text-secondary hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed font-medium text-xs transition-colors"
-                    >
-                      Previous
-                    </button>
-                    <span className="text-[11px] font-mono text-text-muted px-2">
-                      Page {validPage} of {totalPages}
+                    return (
+                        <div key={t.id} className="p-3.5 space-y-3 hover:bg-card-hover/40 transition-colors content-visibility-auto">
+                          {/* Top: Asset + Badge + Outcome */}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <CryptoIcon symbol={t.symbol} size="md" />
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="font-mono font-bold text-text-primary text-xs truncate">{t.symbol}</span>
+                                  <span
+                                    className={`font-mono text-[10px] font-bold px-1.5 py-0.2 rounded uppercase tracking-wider ${isFut ? 'bg-blue-500/15 text-blue-400' : 'bg-emerald-500/15 text-emerald-400'
+                                      }`}
+                                  >
+                                    {isFut ? `PERP ${t.leverage}x` : 'SPOT'}
+                                  </span>
+                                  <span className={`font-mono text-[10px] font-black ${getGradeStyle(t.setupGrade).text}`}>
+                                    {t.setupGrade}
+                                  </span>
+                                </div>
+                                <span className="text-[10.5px] font-mono text-text-muted block mt-0.5">
+                                  {typeof t.timestamp === 'number' && Number.isFinite(t.timestamp) && t.timestamp > 0
+                                    ? new Date(t.timestamp).toLocaleDateString(undefined, {
+                                      month: 'short',
+                                      day: 'numeric',
+                                    })
+                                    : 'Recent'}{' '}
+                                  • <span className={`font-semibold ${getTimeframeHorizonStyle(t.timeframe)}`}>{t.timeframe}</span>
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="text-right font-mono tabular-nums shrink-0">
+                              {isOpen ? (
+                                <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-400 inline-block">
+                                  ACTIVE
+                                </span>
+                              ) : (
+                                <>
+                                  <span
+                                    className={`text-xs font-bold block ${isWin ? 'text-trade-green' : isLoss ? 'text-trade-red' : 'text-text-primary'
+                                      }`}
+                                  >
+                                    {t.pnlDollar !== undefined ? (
+                                      <CurrencyDisplay
+                                        amount={t.pnlDollar}
+                                        currency={activeStrategy?.baseCurrency}
+                                        showSign={true}
+                                        size="xs"
+                                      />
+                                    ) : (
+                                      '-'
+                                    )}
+                                  </span>
+                                  {t.pnlR !== undefined && (
+                                    <span
+                                      className={`text-[10px] font-bold block mt-0.5 ${isWin ? 'text-trade-green' : isLoss ? 'text-trade-red' : 'text-text-muted'
+                                        }`}
+                                    >
+                                      {t.pnlR >= 0 ? '+' : ''}{t.pnlR}R
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Mid: 3-Metric Snapshot (Entry, Exit, Size) */}
+                          <div className="grid grid-cols-3 gap-2 bg-canvas/70 border border-border rounded-xl p-2.5 text-xs font-mono">
+                            <div>
+                              <span className="text-[10px] text-text-muted block font-sans">Entry</span>
+                              <span className="font-bold text-text-primary text-[11px] block mt-0.5 tabular-nums truncate">
+                                ${Number(t.entryPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] text-text-muted block font-sans">Exit</span>
+                              <span className="font-bold text-text-primary text-[11px] block mt-0.5 tabular-nums truncate">
+                                {t.exitPrice ? `$${Number(t.exitPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : isOpen ? 'Open' : '-'}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] text-text-muted block font-sans">Size / Alloc</span>
+                              <span className="font-bold text-text-primary text-[11px] block mt-0.5 tabular-nums truncate">
+                                {isFut
+                                  ? `$${t.notionalValue?.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                                  : isSp
+                                    ? `${t.tokenQuantity}`
+                                    : '-'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Bottom Strip: Tags & Touch-friendly Action Buttons */}
+                          <div className="flex items-center justify-between gap-2 pt-0.5">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {isFut ? (
+                                <span
+                                  className={`inline-flex items-center gap-0.5 font-bold text-[10.5px] ${t.direction === 'Long' ? 'text-trade-green' : 'text-trade-red'
+                                    }`}
+                                >
+                                  {t.direction === 'Long' ? (
+                                    <ArrowUpRight className="w-3.5 h-3.5" />
+                                  ) : (
+                                    <ArrowDownRight className="w-3.5 h-3.5" />
+                                  )}
+                                  {t.direction}
+                                </span>
+                              ) : isSp ? (
+                                <span
+                                  className={`inline-block font-mono text-[10px] font-bold px-1.5 py-0.2 rounded-md ${getSpotActionStyle(
+                                    t.spotAction
+                                  )}`}
+                                >
+                                  {t.spotAction}
+                                </span>
+                              ) : null}
+
+                              <span
+                                className={`inline-flex items-center gap-1 font-mono text-[10px] font-bold px-1.5 py-0.2 rounded ${getSessionStyle(t.session).badge
+                                  }`}
+                              >
+                                <span className={`w-1 h-1 rounded-full shrink-0 ${getSessionStyle(t.session).dot}`} />
+                                {t.session}
+                              </span>
+
+                              {t.mandatoryRulesPassed ? (
+                                <span className="text-[10px] font-bold text-trade-green bg-trade-green/15 px-1.5 py-0.2 rounded flex items-center gap-0.5">
+                                  <CheckCircle2 className="w-2.5 h-2.5" /> Pass
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-bold text-rose-400 bg-rose-500/15 px-1.5 py-0.2 rounded flex items-center gap-0.5">
+                                  <AlertTriangle className="w-2.5 h-2.5" /> Violation
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-1 shrink-0">
+                              <button
+                                onClick={() => handleOpenDetail(t)}
+                                aria-label={`Inspect ${t.symbol} trade details`}
+                                className="min-w-[34px] min-h-[34px] flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-card transition-colors"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleOpenEdit(t)}
+                                aria-label={`Edit ${t.symbol} trade entry`}
+                                className="min-w-[34px] min-h-[34px] flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-card transition-colors"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleOpenShare(t)}
+                                aria-label={`Share ${t.symbol} trade card`}
+                                className="min-w-[34px] min-h-[34px] flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-card transition-colors"
+                              >
+                                <Share2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteClick(t.id, t.symbol)}
+                                aria-label={`Delete ${t.symbol} trade record`}
+                                className="min-w-[34px] min-h-[34px] flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-trade-red hover:bg-card transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        );
+                  })}
+                      </div>
+                    )
+                  }
+            </div>
+
+            {/* Mobile Touch-Optimized Cards (< md) */}
+              <div className="md:hidden">
+                {filteredTrades.length === 0 ? (
+                  <div className="py-12 px-4 text-center">
+                    {trades.length === 0 ? (
+                      <div className="max-w-xs mx-auto space-y-3">
+                        <div className="w-10 h-10 rounded-2xl bg-canvas border border-border flex items-center justify-center text-text-muted mx-auto shadow-xs">
+                          <BookOpen className="w-5 h-5 text-brand" />
+                        </div>
+                        <h4 className="text-sm font-bold text-text-primary text-balance">No Trade Records in Ledger</h4>
+                        <p className="text-xs text-text-muted leading-relaxed text-pretty">
+                          Your journal is currently empty. Execute trades through the Pre-Trade Gate to track entries.
+                        </p>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-1">
+                          {onNavigateToTerminal && (
+                            <button
+                              type="button"
+                              onClick={onNavigateToTerminal}
+                              className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-brand text-black hover:bg-brand-hover text-xs font-bold transition-all inline-flex items-center justify-center gap-1.5 shadow-xs"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              Log First Trade
+                            </button>
+                          )}
+                          {onLoadSampleTrades && (
+                            <button
+                              type="button"
+                              onClick={onLoadSampleTrades}
+                              className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-canvas border border-border hover:border-brand/40 text-text-primary text-xs font-semibold transition-all inline-flex items-center justify-center gap-1.5 shadow-xs"
+                            >
+                              <RotateCcw className="w-3.5 h-3.5 text-text-muted" />
+                              Load Sample Trades
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="max-w-xs mx-auto space-y-2.5">
+                        <div className="w-10 h-10 rounded-2xl bg-canvas border border-border flex items-center justify-center text-text-muted mx-auto shadow-xs">
+                          <Filter className="w-5 h-5 text-text-muted" />
+                        </div>
+                        <h4 className="text-sm font-bold text-text-primary text-balance">No Matching Trades Found</h4>
+                        <p className="text-xs text-text-muted leading-relaxed text-pretty">
+                          No trade entries match your current search query or active filter criteria.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={resetAllFilters}
+                          className="px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-xs font-semibold text-text-primary transition-colors inline-flex items-center gap-1.5 shadow-xs"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5 text-brand" />
+                          Reset Filters
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border">
+                    {paginatedTrades.map((t) => {
+                      const isFut = isFuturesTrade(t);
+                      const isSp = isSpotTrade(t);
+                      const isWin = t.tradeResult === 'Win' || (t.pnlDollar && t.pnlDollar > 0);
+                      const isLoss = t.tradeResult === 'Loss' || (t.pnlDollar && t.pnlDollar < 0);
+                      const isOpen = t.status === 'Open';
+
+                      return (
+                          <div key={t.id} className="p-3.5 space-y-3 hover:bg-card-hover/40 transition-colors content-visibility-auto">
+                            {/* Top: Asset + Badge + Outcome */}
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <CryptoIcon symbol={t.symbol} size="md" />
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="font-mono font-bold text-text-primary text-xs truncate">{t.symbol}</span>
+                                    <span
+                                      className={`font-mono text-[10px] font-bold px-1.5 py-0.2 rounded uppercase tracking-wider ${isFut ? 'bg-blue-500/15 text-blue-400' : 'bg-emerald-500/15 text-emerald-400'
+                                        }`}
+                                    >
+                                      {isFut ? `PERP ${t.leverage}x` : 'SPOT'}
+                                    </span>
+                                    <span className={`font-mono text-[10px] font-black ${getGradeStyle(t.setupGrade).text}`}>
+                                      {t.setupGrade}
+                                    </span>
+                                  </div>
+                                  <span className="text-[10.5px] font-mono text-text-muted block mt-0.5">
+                                    {typeof t.timestamp === 'number' && Number.isFinite(t.timestamp) && t.timestamp > 0
+                                      ? new Date(t.timestamp).toLocaleDateString(undefined, {
+                                        month: 'short',
+                                        day: 'numeric',
+                                      })
+                                      : 'Recent'}{' '}
+                                    • <span className={`font-semibold ${getTimeframeHorizonStyle(t.timeframe)}`}>{t.timeframe}</span>
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="text-right font-mono tabular-nums shrink-0">
+                                {isOpen ? (
+                                  <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-400 inline-block">
+                                    ACTIVE
+                                  </span>
+                                ) : (
+                                  <>
+                                    <span
+                                      className={`text-xs font-bold block ${isWin ? 'text-trade-green' : isLoss ? 'text-trade-red' : 'text-text-primary'
+                                        }`}
+                                    >
+                                      {t.pnlDollar !== undefined ? (
+                                        <CurrencyDisplay
+                                          amount={t.pnlDollar}
+                                          currency={activeStrategy?.baseCurrency}
+                                          showSign={true}
+                                          size="xs"
+                                        />
+                                      ) : (
+                                        '-'
+                                      )}
+                                    </span>
+                                    {t.pnlR !== undefined && (
+                                      <span
+                                        className={`text-[10px] font-bold block mt-0.5 ${isWin ? 'text-trade-green' : isLoss ? 'text-trade-red' : 'text-text-muted'
+                                          }`}
+                                      >
+                                        {t.pnlR >= 0 ? '+' : ''}{t.pnlR}R
+                                      </span>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Mid: 3-Metric Snapshot (Entry, Exit, Size) */}
+                            <div className="grid grid-cols-3 gap-2 bg-canvas/70 border border-border rounded-xl p-2.5 text-xs font-mono">
+                              <div>
+                                <span className="text-[10px] text-text-muted block font-sans">Entry</span>
+                                <span className="font-bold text-text-primary text-[11px] block mt-0.5 tabular-nums truncate">
+                                  ${Number(t.entryPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-[10px] text-text-muted block font-sans">Exit</span>
+                                <span className="font-bold text-text-primary text-[11px] block mt-0.5 tabular-nums truncate">
+                                  {t.exitPrice ? `$${Number(t.exitPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : isOpen ? 'Open' : '-'}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-[10px] text-text-muted block font-sans">Size / Alloc</span>
+                                <span className="font-bold text-text-primary text-[11px] block mt-0.5 tabular-nums truncate">
+                                  {isFut
+                                    ? `$${t.notionalValue?.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                                    : isSp
+                                      ? `${t.tokenQuantity}`
+                                      : '-'}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Bottom Strip: Tags & Touch-friendly Action Buttons */}
+                            <div className="flex items-center justify-between gap-2 pt-0.5">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                {isFut ? (
+                                  <span
+                                    className={`inline-flex items-center gap-0.5 font-bold text-[10.5px] ${t.direction === 'Long' ? 'text-trade-green' : 'text-trade-red'
+                                      }`}
+                                  >
+                                    {t.direction === 'Long' ? (
+                                      <ArrowUpRight className="w-3.5 h-3.5" />
+                                    ) : (
+                                      <ArrowDownRight className="w-3.5 h-3.5" />
+                                    )}
+                                    {t.direction}
+                                  </span>
+                                ) : isSp ? (
+                                  <span
+                                    className={`inline-block font-mono text-[10px] font-bold px-1.5 py-0.2 rounded-md ${getSpotActionStyle(
+                                      t.spotAction
+                                    )}`}
+                                  >
+                                    {t.spotAction}
+                                  </span>
+                                ) : null}
+
+                                <span
+                                  className={`inline-flex items-center gap-1 font-mono text-[10px] font-bold px-1.5 py-0.2 rounded ${getSessionStyle(t.session).badge
+                                    }`}
+                                >
+                                  <span className={`w-1 h-1 rounded-full shrink-0 ${getSessionStyle(t.session).dot}`} />
+                                  {t.session}
+                                </span>
+
+                                {t.mandatoryRulesPassed ? (
+                                  <span className="text-[10px] font-bold text-trade-green bg-trade-green/15 px-1.5 py-0.2 rounded flex items-center gap-0.5">
+                                    <CheckCircle2 className="w-2.5 h-2.5" /> Pass
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] font-bold text-rose-400 bg-rose-500/15 px-1.5 py-0.2 rounded flex items-center gap-0.5">
+                                    <AlertTriangle className="w-2.5 h-2.5" /> Violation
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  onClick={() => handleOpenDetail(t)}
+                                  aria-label={`Inspect ${t.symbol} trade details`}
+                                  className="min-w-[34px] min-h-[34px] flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-card transition-colors"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleOpenEdit(t)}
+                                  aria-label={`Edit ${t.symbol} trade entry`}
+                                  className="min-w-[34px] min-h-[34px] flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-card transition-colors"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleOpenShare(t)}
+                                  aria-label={`Share ${t.symbol} trade card`}
+                                  className="min-w-[34px] min-h-[34px] flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-card transition-colors"
+                                >
+                                  <Share2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteClick(t.id, t.symbol)}
+                                  aria-label={`Delete ${t.symbol} trade record`}
+                                  className="min-w-[34px] min-h-[34px] flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-trade-red hover:bg-card transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                          );
+                  })}
+                        </div>
+                      )
+                    }
+            </div>
+
+            {/* Pagination Controls Bar */}
+                {filteredTrades.length > 0 && (
+                  <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-canvas/40 border-t border-border text-xs">
+                    <span className="text-[11px] text-text-muted font-mono">
+                      Showing <strong className="text-text-primary font-bold">{(validPage - 1) * pageSize + 1}</strong>–<strong className="text-text-primary font-bold">{Math.min(validPage * pageSize, filteredTrades.length)}</strong> of <strong className="text-text-primary font-bold">{filteredTrades.length}</strong> trades
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={validPage === totalPages}
-                      aria-label="Next page"
-                      className="px-2.5 py-1 rounded-lg bg-card border border-border hover:border-brand/40 text-text-secondary hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed font-medium text-xs transition-colors"
-                    >
-                      Next
-                    </button>
+
+                    {totalPages > 1 && (
+                      <div className="flex items-center gap-1.5 ml-auto">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            playMicroTick();
+                            setCurrentPage((p) => Math.max(1, p - 1));
+                          }}
+                          disabled={validPage === 1}
+                          aria-label="Previous page"
+                          className="px-2.5 py-1 rounded-lg bg-card border border-border hover:border-brand/40 text-text-secondary hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed font-medium text-xs transition-colors"
+                        >
+                          Previous
+                        </button>
+                        <span className="text-[11px] font-mono text-text-muted px-2">
+                          Page {validPage} of {totalPages}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            playMicroTick();
+                            setCurrentPage((p) => Math.min(totalPages, p + 1));
+                          }}
+                          disabled={validPage === totalPages}
+                          aria-label="Next page"
+                          className="px-2.5 py-1 rounded-lg bg-card border border-border hover:border-brand/40 text-text-secondary hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed font-medium text-xs transition-colors"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            )}
-          </div>
-        )
+              )
       }
 
-      {/* Trade Detail Modal */}
-      {
-        selectedTradeForDetail && (
-          <TradeDetailModal
-            trade={selectedTradeForDetail}
-            onClose={() => setSelectedTradeForDetail(null)}
-            currencySymbol={currencySymbol}
-            onShare={(t) => {
-              setSelectedTradeForDetail(null);
-              setSelectedTradeForShare(t);
-            }}
-          />
-        )
-      }
+              {/* Trade Detail Modal */}
+              {
+                selectedTradeForDetail && (
+                  <TradeDetailModal
+                    trade={selectedTradeForDetail}
+                    onClose={handleCloseDetail}
+                    currencySymbol={currencySymbol}
+                    baseCurrency={activeStrategy?.baseCurrency}
+                    onShare={(t) => {
+                      handleCloseDetail();
+                      handleOpenShare(t);
+                    }}
+                  />
+                )
+              }
 
-      {/* Trade Edit Modal */}
-      {
-        selectedTradeForEdit && (
-          <TradeEditModal
-            isOpen={!!selectedTradeForEdit}
-            trade={selectedTradeForEdit}
-            onClose={() => setSelectedTradeForEdit(null)}
-            onSave={onUpdateTrade}
-            onDelete={onDeleteTrade}
-            currencySymbol={currencySymbol}
-          />
-        )
-      }
+              {/* Trade Edit Modal */}
+              {
+                selectedTradeForEdit && (
+                  <TradeEditModal
+                    isOpen={!!selectedTradeForEdit}
+                    trade={selectedTradeForEdit}
+                    onClose={handleCloseEdit}
+                    onSave={async (id, updates) => {
+                      playSuccessChime();
+                      return onUpdateTrade(id, updates);
+                    }}
+                    onDelete={onDeleteTrade}
+                    currencySymbol={currencySymbol}
+                    baseCurrency={activeStrategy?.baseCurrency}
+                  />
+                )
+              }
 
-      {/* Share Trade Modal (Lazy Loaded) */}
-      {
-        selectedTradeForShare && (
-          <Suspense fallback={null}>
-            <ShareTradeModal
-              trade={selectedTradeForShare}
-              onClose={() => setSelectedTradeForShare(null)}
-            />
-          </Suspense>
-        )
-      }
+              {/* Share Trade Modal (Lazy Loaded) */}
+              {
+                selectedTradeForShare && (
+                  <Suspense fallback={null}>
+                    <ShareTradeModal
+                      trade={selectedTradeForShare}
+                      onClose={handleCloseShare}
+                    />
+                  </Suspense>
+                )
+              }
 
-      {/* Custom Delete Confirmation Modal */}
-      <ConfirmDeleteModal
-        isOpen={!!tradeToDelete}
-        onClose={() => setTradeToDelete(null)}
-        onConfirm={handleConfirmDelete}
-        itemName={tradeToDelete?.symbol}
-      />
-    </div >
-  );
+              {/* Custom Delete Confirmation Modal */}
+              <ConfirmDeleteModal
+                isOpen={!!tradeToDelete}
+                onClose={handleCloseDelete}
+                onConfirm={handleConfirmDelete}
+                itemName={tradeToDelete?.symbol}
+              />
+            </div >
+            );
 };

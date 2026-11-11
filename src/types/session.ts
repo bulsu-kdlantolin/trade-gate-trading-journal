@@ -53,7 +53,7 @@ export const DEFAULT_CRYPTO_SESSIONS: TradingSession[] = [
     utcStartMinute: 0,
     utcEndHour: 18,
     utcEndMinute: 0,
-    color: '#EF4444', // NY AM: Red
+    color: '#3B82F6', // NY AM: Institutional Electric Blue
     isDefault: true
   },
   {

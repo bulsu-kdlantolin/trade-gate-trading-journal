@@ -3,9 +3,11 @@ import { TradeRecord, isFuturesTrade, isSpotTrade } from '../../types/trade';
 import { CryptoIcon } from '../common/CryptoIcon';
 import { TradeGateLogo } from '../common/TradeGateLogo';
 import { getGradeStyle } from '../../utils/gradeStyles';
+import { getSessionStyle } from '../../utils/badgeStyles';
 import { useToast } from '../../context/ToastContext';
 import { useModalA11y } from '../../hooks/useModalA11y';
 import { getErrorMessage } from '../../utils/errors';
+import { playSuccessChime, playModalClose } from '../../utils/audioTelemetry';
 import { Download, Copy, X, Check, ShieldCheck, TrendingUp, TrendingDown, Image as ImageIcon } from 'lucide-react';
 
 interface ShareTradeModalProps {
@@ -38,6 +40,7 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
       await navigator.clipboard.write([
         new ClipboardItem({ 'image/png': blob })
       ]);
+      playSuccessChime();
       toast.success('Image Copied!', 'Trade card copied to clipboard as PNG.');
     } catch (err: unknown) {
       toast.error('Copy Failed', getErrorMessage(err));
@@ -56,6 +59,7 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
       a.href = dataUrl;
       a.download = `TradeGate_${trade.symbol}_${trade.setupGrade}_${Date.now()}.png`;
       a.click();
+      playSuccessChime();
       toast.success('Downloaded!', 'Trade card PNG saved to downloads.');
     } catch (err: unknown) {
       toast.error('Download Failed', getErrorMessage(err));
@@ -64,10 +68,15 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
     }
   };
 
+  const handleClose = () => {
+    playModalClose();
+    onClose();
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-modal-backdrop"
-      onClick={onClose}
+      onClick={handleClose}
     >
       <div
         ref={modalRef}
@@ -78,7 +87,7 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          onClick={onClose}
+          onClick={handleClose}
           aria-label="Close share trade modal"
           className="absolute top-4 right-4 text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-card-hover transition-colors"
         >
@@ -133,9 +142,13 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
               >
                 Grade {trade.setupGrade} Setup
               </span>
-              <p className="text-[10px] text-slate-500 font-mono mt-1">
-                {trade.session} Session
-              </p>
+              <div className="flex items-center justify-end gap-1 font-mono text-[10px] mt-1">
+                <span
+                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${getSessionStyle(trade.session).dot
+                    }`}
+                />
+                <span className="text-slate-400">{trade.session} Session</span>
+              </div>
             </div>
           </div>
 

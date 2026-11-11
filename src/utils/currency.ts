@@ -155,54 +155,6 @@ export function isCryptoCurrency(currency?: string): boolean {
   return ['USDT', 'BTC', 'ETH', 'SOL'].includes(clean);
 }
 
-/**
- * Asynchronously refreshes live market exchange rates in background from
- * open API sources (without blocking the UI), caching into localStorage.
- */
-export async function refreshLiveExchangeRates(): Promise<void> {
-  try {
-    const rates: Record<string, number> = { ...BASE_RATES_IN_USD };
-
-    // 1. Fetch live fiat rates (CORS-friendly open.er-api.com)
-    try {
-      const fiatRes = await fetch('https://open.er-api.com/v6/latest/USD');
-      if (fiatRes.ok) {
-        const fiatData = await fiatRes.json();
-        if (fiatData && fiatData.rates) {
-          Object.keys(fiatData.rates).forEach((curr) => {
-            const usdPerCurr = 1 / fiatData.rates[curr];
-            if (usdPerCurr > 0 && isFinite(usdPerCurr)) {
-              rates[curr] = usdPerCurr;
-            }
-          });
-        }
-      }
-    } catch { }
-
-    // 2. Fetch live crypto prices (Binance public ticker)
-    try {
-      const cryptoRes = await fetch(
-        'https://api.binance.com/api/v3/ticker/price?symbols=%5B%22BTCUSDT%22,%22ETHUSDT%22,%22SOLUSDT%22%5D'
-      );
-      if (cryptoRes.ok) {
-        const cryptoData = await cryptoRes.json();
-        if (Array.isArray(cryptoData)) {
-          cryptoData.forEach((item) => {
-            const price = parseFloat(item.price);
-            if (item.symbol === 'BTCUSDT' && price > 0) rates.BTC = price;
-            if (item.symbol === 'ETHUSDT' && price > 0) rates.ETH = price;
-            if (item.symbol === 'SOLUSDT' && price > 0) rates.SOL = price;
-          });
-        }
-      }
-    } catch { }
-
-    rates.USD = 1.0;
-    rates.USDT = 1.0;
-    localStorage.setItem(RATES_STORAGE_KEY, JSON.stringify(rates));
-  } catch { }
-}
-
 export function getCurrencySymbol(currency?: BaseCurrency | string): string {
   if (!currency) return '$';
   const clean = currency.toUpperCase().trim();
@@ -210,16 +162,16 @@ export function getCurrencySymbol(currency?: BaseCurrency | string): string {
   return clean.length <= 4 ? `${clean} ` : '$';
 }
 
-  export function formatCryptoAmount(
-    amount: number,
-    currency: string = 'USD',
-    maxDecimals?: number
-  ): string {
-    const clean = (currency || 'USD').toUpperCase().trim();
-    const config = SUPPORTED_CURRENCIES.find((c) => c.code === clean);
-    const symbol = getCurrencySymbol(clean);
-    const defaultDecimals = config ? config.decimals : 2;
-    const decimals = maxDecimals !== undefined ? maxDecimals : defaultDecimals;
+export function formatCryptoAmount(
+  amount: number,
+  currency: string = 'USD',
+  maxDecimals?: number
+): string {
+  const clean = (currency || 'USD').toUpperCase().trim();
+  const config = SUPPORTED_CURRENCIES.find((c) => c.code === clean);
+  const symbol = getCurrencySymbol(clean);
+  const defaultDecimals = config ? config.decimals : 2;
+  const decimals = maxDecimals !== undefined ? maxDecimals : defaultDecimals;
 
   const isNeg = amount < 0;
   const absAmount = Math.abs(amount);
@@ -233,3 +185,24 @@ export function getCurrencySymbol(currency?: BaseCurrency | string): string {
 }
 
 export const formatCurrencyAmount = formatCryptoAmount;
+
+export function formatNumberOnly(
+  amount: number,
+  currency: string = 'USD',
+  maxDecimals?: number
+): string {
+  const clean = (currency || 'USD').toUpperCase().trim();
+  const config = SUPPORTED_CURRENCIES.find((c) => c.code === clean);
+  const defaultDecimals = config ? config.decimals : 2;
+  const decimals = maxDecimals !== undefined ? maxDecimals : defaultDecimals;
+
+  const isNeg = amount < 0;
+  const absAmount = Math.abs(amount);
+
+  const formatted = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: Math.min(2, decimals),
+    maximumFractionDigits: decimals,
+  }).format(absAmount);
+
+  return `${isNeg ? '-' : ''}${formatted}`;
+}
