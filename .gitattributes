@@ -1,4 +1,0 @@
-# Exclude internal agent tooling & skill scripts from GitHub language statistics
-.agent/** linguist-vendored
-.agent/** linguist-detectable=false
-
