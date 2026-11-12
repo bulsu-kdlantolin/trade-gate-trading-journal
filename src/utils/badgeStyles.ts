@@ -11,24 +11,24 @@ export interface SessionStyleConfig {
 
 export const SESSION_STYLES: Record<string, SessionStyleConfig> = {
   Asia: {
-    active: 'bg-slate-900 text-white dark:bg-white dark:text-slate-950 font-bold shadow-xs',
-    dot: 'bg-slate-500 dark:bg-slate-300',
-    badge: 'bg-slate-500/15 text-slate-700 dark:text-slate-300 font-semibold',
+    active: 'bg-slate-200 dark:bg-white/20 text-slate-950 dark:text-white border border-slate-400/50 dark:border-white/40 font-bold shadow-xs',
+    dot: 'bg-white border border-slate-400/70',
+    badge: 'bg-slate-200/80 dark:bg-white/15 text-slate-900 dark:text-white font-semibold',
   },
   London: {
-    active: 'bg-amber-500 text-black font-bold shadow-xs',
-    dot: 'bg-amber-500',
-    badge: 'bg-amber-500/15 text-amber-700 dark:text-amber-400 font-semibold',
-  },
-  'NY AM': {
-    active: 'bg-blue-600 text-white font-bold shadow-xs',
+    active: 'bg-blue-500/20 text-blue-800 dark:text-blue-300 border border-blue-500/40 font-bold shadow-xs',
     dot: 'bg-blue-500',
     badge: 'bg-blue-500/15 text-blue-700 dark:text-blue-400 font-semibold',
   },
+  'NY AM': {
+    active: 'bg-red-500/20 text-red-800 dark:text-red-300 border border-red-500/40 font-bold shadow-xs',
+    dot: 'bg-red-500',
+    badge: 'bg-red-500/15 text-red-700 dark:text-red-400 font-semibold',
+  },
   'NY PM': {
-    active: 'bg-indigo-600 text-white font-bold shadow-xs',
-    dot: 'bg-indigo-500',
-    badge: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 font-semibold',
+    active: 'bg-red-400/20 text-red-700 dark:text-red-200 border border-red-400/40 font-bold shadow-xs',
+    dot: 'bg-red-400',
+    badge: 'bg-red-400/15 text-red-600 dark:text-red-300 font-semibold',
   },
 };
 
@@ -83,25 +83,9 @@ export function getSpotActionStyle(action?: string): string {
 }
 
 /**
- * Returns timeframe typography class based on market horizon (Scalp, Intraday, Macro).
+ * Returns timeframe typography class. Standardized to crisp text-primary to eliminate unwanted purple or conflicting tints.
  */
-export function getTimeframeHorizonStyle(tf: string): string {
-  switch (tf) {
-    case '1m':
-    case '3m':
-    case '5m':
-      return 'text-amber-600 dark:text-amber-400';
-    case '15m':
-    case '30m':
-    case '1H':
-    case '2H':
-      return 'text-sky-600 dark:text-sky-400';
-    case '4H':
-    case '1D':
-    case '1W':
-      return 'text-purple-600 dark:text-purple-400';
-    default:
-      return 'text-text-secondary';
-  }
+export function getTimeframeHorizonStyle(_tf?: string): string {
+  return 'text-text-primary';
 }
 

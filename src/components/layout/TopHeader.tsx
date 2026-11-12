@@ -205,49 +205,55 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           </div>
         </div>
 
-          {/* Right Side: Trading Session, Market Clock, Theme Toggle */}
-          <div className="flex items-center gap-3 sm:gap-4 shrink-0 ml-auto">
-            {/* Trading Session (Beside time) */}
-            <div
-              title={activeSession ? `Active Trading Session: ${activeSession.name} (${activeSession.localRangeStr})` : 'All trading sessions are currently closed'}
-              className="flex items-center gap-1.5 font-mono text-xs select-none"
-            >
-              <span className="text-[11px] text-text-muted font-sans hidden sm:inline">
-                Trading Session:
+        {/* Right Side: Trading Session, Market Clock, Theme Toggle */}
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0 ml-auto">
+          {/* Trading Session (Beside time) */}
+          <div
+            title={activeSession ? `Active Trading Session: ${activeSession.name} (${activeSession.localRangeStr})` : 'All trading sessions are currently closed'}
+            className="flex items-center gap-1.5 font-mono text-xs select-none"
+          >
+            <span className="text-[11px] text-text-muted font-sans hidden sm:inline">
+              Trading Session:
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2 shrink-0">
+                {activeSession ? (
+                  <>
+                    <span
+                      className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                      style={{ backgroundColor: activeSession.color }}
+                    />
+                    <span
+                      className={`relative inline-flex rounded-full h-2 w-2 ${activeSession.color === '#FFFFFF' ? 'border border-slate-400/60' : ''}`}
+                      style={{ backgroundColor: activeSession.color }}
+                    />
+                  </>
+                ) : (
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-text-muted/40" />
+                )}
               </span>
-              <div className="flex items-center gap-1.5">
-                <span className="relative flex h-2 w-2 shrink-0">
-                  <span
-                    className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                    style={{ backgroundColor: activeSession?.color || '#3B82F6' }}
-                  />
-                  <span
-                    className="relative inline-flex rounded-full h-2 w-2 border border-slate-400/50"
-                    style={{ backgroundColor: activeSession?.color || '#3B82F6' }}
-                  />
-                </span>
-                <span className="font-bold text-text-primary text-[11px] max-w-[72px] xs:max-w-none truncate">
-                  {activeSession ? activeSession.name : 'Closed'}
-                </span>
-              </div>
+              <span className="font-bold text-text-primary text-[11px] max-w-[72px] xs:max-w-none truncate">
+                {activeSession ? activeSession.name : 'Closed'}
+              </span>
             </div>
-
-            {/* Device Local Time (Containerless) */}
-            <div
-              title="Auto-detected device local time"
-              className="hidden sm:flex items-center gap-1.5 text-xs font-mono tabular-nums text-text-secondary select-none px-1"
-            >
-              <Clock className="w-3.5 h-3.5 text-text-muted shrink-0" />
-              <span className="font-semibold text-text-primary text-[11px]">{formatDeviceClock(currentTime)}</span>
-            </div>
-
-            {/* Audio Feedback Toggle */}
-            <AudioToggleButton />
-
-            {/* Theme Toggle Button with Scattering & Spread Effect */}
-            <ThemeToggleButton />
           </div>
+
+          {/* Device Local Time (Containerless) */}
+          <div
+            title="Auto-detected device local time"
+            className="hidden sm:flex items-center gap-1.5 text-xs font-mono tabular-nums text-text-secondary select-none px-1"
+          >
+            <Clock className="w-3.5 h-3.5 text-text-muted shrink-0" />
+            <span className="font-semibold text-text-primary text-[11px]">{formatDeviceClock(currentTime)}</span>
+          </div>
+
+          {/* Audio Feedback Toggle */}
+          <AudioToggleButton />
+
+          {/* Theme Toggle Button with Scattering & Spread Effect */}
+          <ThemeToggleButton />
         </div>
+      </div>
     </header >
   );
 };

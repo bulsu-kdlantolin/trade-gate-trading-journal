@@ -26,7 +26,7 @@ colors:
   bearish-light: "#E11D48"
   session-asia: "#FFFFFF"
   session-london: "#3B82F6"
-  session-ny-am: "#3B82F6"
+  session-ny-am: "#EF4444"
   session-ny-pm: "#F87171"
   shadow-dark: "rgba(0, 0, 0, 0.35)"
 typography:
@@ -147,10 +147,10 @@ The palette is anchored by deep space neutrals, punctuated by energetic Amber Go
   - **On-Chain**: Teal (`#14B8A6`)
   - **General**: Neutral Slate (`#64748B`)
 - **Market Liquidity Sessions:**
-  - **Asia**: Slate / White Adaptive (`#F8FAFC` dark / `#0F172A` light)
-  - **London**: Electric Blue (`#3B82F6`)
-  - **New York AM**: Institutional Electric Blue (`#3B82F6`) — *Standardized to prevent false-alarm red signaling*
-  - **New York PM**: Sunset Salmon (`#F87171`)
+  - **Asia**: Pure White (`#FFFFFF`)
+  - **London**: Sovereign Blue (`#3B82F6`)
+  - **New York AM**: Institutional Red (`#EF4444`)
+  - **New York PM**: Sunset Light Red (`#F87171`)
 - **Spot Actions:**
   - **BUY / ACCUMULATE**: Emerald (`#10B981`)
   - **DCA ADD**: Teal (`#14B8A6`)

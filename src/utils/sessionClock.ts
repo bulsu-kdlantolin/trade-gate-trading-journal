@@ -6,7 +6,10 @@ export function getSavedTradingSessions(): TradingSession[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        return parsed.map((s: TradingSession) => {
+          const def = DEFAULT_CRYPTO_SESSIONS.find((d) => d.id === s.id);
+          return def ? { ...s, color: def.color } : s;
+        });
       }
     }
   } catch { }
@@ -86,133 +89,133 @@ export function format12Hour(hour24: number, minute: number): string {
 /**
  * Evaluates current time against trading session windows, formatted in auto-detected device local time with 12-hour AM/PM.
  */
-  export function getCurrentSessionStatuses(customSessions: TradingSession[] = getSavedTradingSessions()): SessionStatus[] {
-    const now = new Date();
-    const currentUtcMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+export function getCurrentSessionStatuses(customSessions: TradingSession[] = getSavedTradingSessions()): SessionStatus[] {
+  const now = new Date();
+  const currentUtcMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
 
-      return customSessions.map((session) => {
-        const startMinutes = session.utcStartHour * 60 + session.utcStartMinute;
-        const endMinutes = session.utcEndHour * 60 + session.utcEndMinute;
+  return customSessions.map((session) => {
+    const startMinutes = session.utcStartHour * 60 + session.utcStartMinute;
+    const endMinutes = session.utcEndHour * 60 + session.utcEndMinute;
 
-        let isActive = false;
-        let minutesRemaining = 0;
-        let elapsedMinutes = 0;
+    let isActive = false;
+    let minutesRemaining = 0;
+    let elapsedMinutes = 0;
 
-        if (startMinutes < endMinutes) {
-          // Standard intraday session
-          isActive = currentUtcMinutes >= startMinutes && currentUtcMinutes < endMinutes;
-          if (isActive) {
-            minutesRemaining = endMinutes - currentUtcMinutes;
-            elapsedMinutes = currentUtcMinutes - startMinutes;
-          }
-        } else {
-          // Overnight session (spanning UTC midnight)
-          isActive = currentUtcMinutes >= startMinutes || currentUtcMinutes < endMinutes;
-          if (isActive) {
-            minutesRemaining =
-              currentUtcMinutes >= startMinutes
-                ? 24 * 60 - currentUtcMinutes + endMinutes
-                : endMinutes - currentUtcMinutes;
-            elapsedMinutes =
-              currentUtcMinutes >= startMinutes
-                ? currentUtcMinutes - startMinutes
-                : 24 * 60 - startMinutes + currentUtcMinutes;
-          }
-        }
-
-        const hoursLeft = Math.floor(minutesRemaining / 60);
-        const minsLeft = minutesRemaining % 60;
-        const timeRemainingStr = isActive ? `${hoursLeft}h ${minsLeft}m left` : 'Closed';
-
-        const localRangeStr = formatSessionLocalRange(session);
-
-          return {
-            id: session.id,
-            name: session.name,
-            label: session.label,
-            color: session.color,
-            isActive,
-            timeRemainingStr,
-            utcRangeStr: localRangeStr,
-            localRangeStr,
-            elapsedMinutes,
-          };
-        });
+    if (startMinutes < endMinutes) {
+      // Standard intraday session
+      isActive = currentUtcMinutes >= startMinutes && currentUtcMinutes < endMinutes;
+      if (isActive) {
+        minutesRemaining = endMinutes - currentUtcMinutes;
+        elapsedMinutes = currentUtcMinutes - startMinutes;
+      }
+    } else {
+      // Overnight session (spanning UTC midnight)
+      isActive = currentUtcMinutes >= startMinutes || currentUtcMinutes < endMinutes;
+      if (isActive) {
+        minutesRemaining =
+          currentUtcMinutes >= startMinutes
+            ? 24 * 60 - currentUtcMinutes + endMinutes
+            : endMinutes - currentUtcMinutes;
+        elapsedMinutes =
+          currentUtcMinutes >= startMinutes
+            ? currentUtcMinutes - startMinutes
+            : 24 * 60 - startMinutes + currentUtcMinutes;
+      }
     }
+
+    const hoursLeft = Math.floor(minutesRemaining / 60);
+    const minsLeft = minutesRemaining % 60;
+    const timeRemainingStr = isActive ? `${hoursLeft}h ${minsLeft}m left` : 'Closed';
+
+    const localRangeStr = formatSessionLocalRange(session);
+
+    return {
+      id: session.id,
+      name: session.name,
+      label: session.label,
+      color: session.color,
+      isActive,
+      timeRemainingStr,
+      utcRangeStr: localRangeStr,
+      localRangeStr,
+      elapsedMinutes,
+    };
+  });
+}
 
 /**
  * Returns the single current active session.
  * If multiple sessions overlap (e.g. Asia and London), selects the current NEW session that started most recently.
  */
 export function getCurrentActiveSession(customSessions: TradingSession[] = getSavedTradingSessions()): SessionStatus | null {
-      const statuses = getCurrentSessionStatuses(customSessions);
-      const active = statuses.filter((s) => s.isActive);
+  const statuses = getCurrentSessionStatuses(customSessions);
+  const active = statuses.filter((s) => s.isActive);
 
-      if (active.length === 0) return null;
-      if (active.length === 1) return active[0];
+  if (active.length === 0) return null;
+  if (active.length === 1) return active[0];
 
-      // Multiple active sessions: select the newly opened session (lowest elapsedMinutes)
-      const sorted = [...active].sort((a, b) => a.elapsedMinutes - b.elapsedMinutes);
-      return sorted[0];
+  // Multiple active sessions: select the newly opened session (lowest elapsedMinutes)
+  const sorted = [...active].sort((a, b) => a.elapsedMinutes - b.elapsedMinutes);
+  return sorted[0];
+}
+
+/**
+ * Formats time in the device's auto-detected local timezone with 12-hour AM/PM format (e.g. "1:45:22 PM").
+ */
+export function formatDeviceClock(date: Date = new Date()): string {
+  return date.toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  });
+}
+
+export function formatUtcClock(date: Date = new Date()): string {
+  return formatDeviceClock(date);
+}
+
+export function formatLocalClock(date: Date = new Date()): string {
+  return formatDeviceClock(date);
+}
+
+export interface NextSessionCountdown {
+  sessionName: string;
+  hours: number;
+  minutes: number;
+  formattedStr: string;
+}
+
+/**
+ * Calculates countdown string until the next upcoming trading session begins.
+ */
+export function getTimeUntilNextSession(customSessions: TradingSession[] = getSavedTradingSessions()): NextSessionCountdown {
+  const now = new Date();
+  const currentUtcMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+
+  let nextSession: TradingSession = customSessions[0];
+  let minDiff = 24 * 60 + 1;
+
+  for (const session of customSessions) {
+    const startMinutes = session.utcStartHour * 60 + session.utcStartMinute;
+    let diff = startMinutes - currentUtcMinutes;
+    if (diff <= 0) {
+      diff += 24 * 60;
     }
-
-    /**
-     * Formats time in the device's auto-detected local timezone with 12-hour AM/PM format (e.g. "1:45:22 PM").
-     */
-    export function formatDeviceClock(date: Date = new Date()): string {
-      return date.toLocaleTimeString(undefined, {
-        hour: 'numeric',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true,
-      });
+    if (diff < minDiff) {
+      minDiff = diff;
+      nextSession = session;
     }
+  }
 
-    export function formatUtcClock(date: Date = new Date()): string {
-      return formatDeviceClock(date);
-    }
+  const hours = Math.floor(minDiff / 60);
+  const minutes = minDiff % 60;
+  const formattedStr = `${nextSession.name} in ${hours}h ${minutes}m`;
 
-    export function formatLocalClock(date: Date = new Date()): string {
-      return formatDeviceClock(date);
-    }
-
-    export interface NextSessionCountdown {
-      sessionName: string;
-      hours: number;
-      minutes: number;
-      formattedStr: string;
-    }
-
-      /**
-       * Calculates countdown string until the next upcoming trading session begins.
-       */
-      export function getTimeUntilNextSession(customSessions: TradingSession[] = getSavedTradingSessions()): NextSessionCountdown {
-        const now = new Date();
-        const currentUtcMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
-
-        let nextSession: TradingSession = customSessions[0];
-        let minDiff = 24 * 60 + 1;
-
-        for (const session of customSessions) {
-          const startMinutes = session.utcStartHour * 60 + session.utcStartMinute;
-          let diff = startMinutes - currentUtcMinutes;
-          if (diff <= 0) {
-            diff += 24 * 60;
-          }
-          if (diff < minDiff) {
-            minDiff = diff;
-            nextSession = session;
-          }
-        }
-
-        const hours = Math.floor(minDiff / 60);
-        const minutes = minDiff % 60;
-        const formattedStr = `${nextSession.name} in ${hours}h ${minutes}m`;
-
-      return {
-        sessionName: nextSession.name,
-        hours,
-        minutes,
-        formattedStr,
-      };
-    }
+  return {
+    sessionName: nextSession.name,
+    hours,
+    minutes,
+    formattedStr,
+  };
+}

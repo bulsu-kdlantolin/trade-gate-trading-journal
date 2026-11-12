@@ -236,7 +236,10 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = ({
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="text-text-muted">TF:</span>
                     {strat.timeframes.map((tf) => (
-                      <span key={tf} className={`font-bold ${getTimeframeHorizonStyle(tf)}`}>
+                      <span
+                        key={tf}
+                        className="inline-flex items-center font-mono text-[10px] font-bold px-1.5 py-0.2 rounded bg-card-hover/80 text-text-primary"
+                      >
                         {tf}
                       </span>
                     ))}
@@ -255,106 +258,106 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = ({
                   </div>
                 </div>
 
-                {/* Action Buttons Strip with Text Labels */}
-                <div className="flex items-center justify-between pt-3 border-t border-border">
-                  {!isActive ? (
-                    <button
-                      onClick={() => {
-                        playSuccessChime();
-                        onSelectStrategy(strat.id);
-                      }}
-                      className="px-3 py-1.5 rounded-xl bg-canvas border border-border hover:border-brand/40 text-text-primary font-bold text-xs flex items-center gap-1.5 transition-colors"
-                    >
-                      <span>Select Active</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-brand">
-                      <Check className="w-3.5 h-3.5" />
-                      Active Playbook
-                    </span>
-                  )}
+                  {/* Action Buttons Strip with Text Labels */}
+                  <div className="flex items-center justify-between pt-3 border-t border-border">
+                    {!isActive ? (
+                      <button
+                        onClick={() => {
+                          playSuccessChime();
+                          onSelectStrategy(strat.id);
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-canvas border border-border hover:border-brand/40 text-text-primary font-bold text-xs flex items-center gap-1.5 transition-colors"
+                      >
+                        <span>Select Active</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 text-xs font-bold text-brand">
+                        <Check className="w-3.5 h-3.5" />
+                        Active Playbook
+                      </span>
+                    )}
 
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => handleOpenShare(strat)}
-                      className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-brand hover:bg-card-hover border border-transparent hover:border-border flex items-center gap-1.5 transition-colors"
-                    >
-                      <Share2 className="w-3.5 h-3.5" />
-                      <span>Share Playbook</span>
-                    </button>
-                    <button
-                      onClick={() => handleOpenEdit(strat)}
-                      className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-card-hover border border-transparent hover:border-border flex items-center gap-1.5 transition-colors"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                      <span>Edit</span>
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(strat)}
-                      className="p-1.5 rounded-xl text-text-muted hover:text-trade-red hover:bg-card-hover transition-colors"
-                      title="Delete Profile"
-                      aria-label={`Delete ${strat.name} strategy profile`}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleOpenShare(strat)}
+                        className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-brand hover:bg-card-hover border border-transparent hover:border-border flex items-center gap-1.5 transition-colors"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                        <span>Share Playbook</span>
+                      </button>
+                      <button
+                        onClick={() => handleOpenEdit(strat)}
+                        className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-card-hover border border-transparent hover:border-border flex items-center gap-1.5 transition-colors"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(strat)}
+                        className="p-1.5 rounded-xl text-text-muted hover:text-trade-red hover:bg-card-hover transition-colors"
+                        title="Delete Profile"
+                        aria-label={`Delete ${strat.name} strategy profile`}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
+                );
           })}
-        </div>
-      )
-      }
+              </div>
+            )
+          }
 
-      {/* Strategy Profile Editor Modal */}
+      {/* Strategy Profile Editor Modal */ }
       {
-        isFormModalOpen && (
-          <Suspense fallback={null}>
-            <StrategyFormModal
-              isOpen={isFormModalOpen}
-              onClose={() => {
-                playModalClose();
-                setIsFormModalOpen(false);
-              }}
-              strategy={editingStrategy}
-              onSave={async (data) => {
-                playSuccessChime();
-                return onSaveStrategy(data);
-              }}
-            />
-          </Suspense>
-        )
+              isFormModalOpen && (
+              <Suspense fallback={null}>
+                <StrategyFormModal
+                  isOpen={isFormModalOpen}
+                  onClose={() => {
+                    playModalClose();
+                    setIsFormModalOpen(false);
+                  }}
+                  strategy={editingStrategy}
+                  onSave={async (data) => {
+                    playSuccessChime();
+                    return onSaveStrategy(data);
+                  }}
+                />
+              </Suspense>
+            )
       }
 
-      {/* Strategy Playbook Share Modal */}
-      {
-        selectedStrategyForShare && (
-          <Suspense fallback={null}>
-            <ShareStrategyModal
-              strategy={selectedStrategyForShare}
-              onClose={() => {
-                playModalClose();
-                setSelectedStrategyForShare(null);
-              }}
-            />
-          </Suspense>
-        )
-      }
+          {/* Strategy Playbook Share Modal */}
+          {
+            selectedStrategyForShare && (
+              <Suspense fallback={null}>
+                <ShareStrategyModal
+                  strategy={selectedStrategyForShare}
+                  onClose={() => {
+                    playModalClose();
+                    setSelectedStrategyForShare(null);
+                  }}
+                />
+              </Suspense>
+            )
+          }
 
-      {/* Delete Strategy Confirmation Dialog */}
-      <ConfirmDeleteModal
-        isOpen={!!strategyToDelete}
-        onClose={() => {
-          playModalClose();
-          setStrategyToDelete(null);
-        }}
-        onConfirm={handleConfirmDelete}
-        title="Delete Strategy Profile?"
-        description="Permanently delete this strategy profile? All trade records logged under this strategy will remain preserved in your historical ledger."
-        itemName={strategyToDelete?.name}
-        confirmButtonText="Delete Profile"
-      />
-    </div >
-  );
+          {/* Delete Strategy Confirmation Dialog */}
+          <ConfirmDeleteModal
+            isOpen={!!strategyToDelete}
+            onClose={() => {
+              playModalClose();
+              setStrategyToDelete(null);
+            }}
+            onConfirm={handleConfirmDelete}
+            title="Delete Strategy Profile?"
+            description="Permanently delete this strategy profile? All trade records logged under this strategy will remain preserved in your historical ledger."
+            itemName={strategyToDelete?.name}
+            confirmButtonText="Delete Profile"
+          />
+        </div >
+      );
 };

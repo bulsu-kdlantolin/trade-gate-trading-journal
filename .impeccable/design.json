@@ -79,9 +79,23 @@
           "#FFE4E6"
         ]
       },
-      "session-ny-am": {
+      "session-asia": {
         "role": "secondary",
-        "displayName": "Institutional Session Blue",
+        "displayName": "Pure White (Asia)",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#334155",
+          "#475569",
+          "#64748B",
+          "#94A3B8",
+          "#CBD5E1",
+          "#F1F5F9",
+          "#FFFFFF"
+        ]
+      },
+      "session-london": {
+        "role": "secondary",
+        "displayName": "Sovereign Blue (London)",
         "canonical": "#3B82F6",
         "tonalRamp": [
           "#172554",
@@ -92,6 +106,35 @@
           "#60A5FA",
           "#93C5FD",
           "#DBEAFE"
+        ]
+      },
+      "session-ny-am": {
+        "role": "secondary",
+        "displayName": "Institutional Red (NY AM)",
+        "canonical": "#EF4444",
+        "tonalRamp": [
+          "#450A0A",
+          "#7F1D1D",
+          "#991B1B",
+          "#B91C1C",
+          "#DC2626",
+          "#EF4444",
+          "#F87171",
+          "#FCA5A5"
+        ]
+      },
+      "session-ny-pm": {
+        "role": "secondary",
+        "displayName": "Sunset Light Red (NY PM)",
+        "canonical": "#F87171",
+        "tonalRamp": [
+          "#991B1B",
+          "#B91C1C",
+          "#DC2626",
+          "#EF4444",
+          "#F87171",
+          "#FCA5A5",
+          "#FECACA"
         ]
       },
       "shadow-dark": {

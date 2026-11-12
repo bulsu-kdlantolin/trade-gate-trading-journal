@@ -739,461 +739,462 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
   const isUnlocked = mandatoryPassed;
 
   return (
-    <div className="space-y-4">
-      {/* 2-Column Institutional TradeGate Grid (Left: Checklist 5 cols | Right: Execution 7 cols) */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-        {/* ─── LEFT COLUMN (5 cols): TRADING CHECKLIST (GATE COMES FIRST) ─── */}
-        <div className="md:col-span-5 space-y-3">
-          <div className="card-glass rounded-2xl p-4 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-border">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-brand" />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-text-primary text-balance">
-                  Pre-Trade Discipline Gate
-                </h3>
-              </div>
+          <div className="space-y-4">
+            {/* 2-Column Institutional TradeGate Grid (Left: Checklist 5 cols | Right: Execution 7 cols) */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+              {/* ─── LEFT COLUMN (5 cols): TRADING CHECKLIST (GATE COMES FIRST) ─── */}
+              <div className="md:col-span-5 space-y-3">
+                <div className="card-glass rounded-2xl p-4 space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-border">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-brand" />
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-text-primary text-balance">
+                        Pre-Trade Discipline Gate
+                      </h3>
+                    </div>
 
-              <div className="flex items-center gap-1.5">
-                {/* Setup Grade Letter (Containerless) */}
-                <span
-                  className={`font-mono text-xs font-black tracking-wider ${getGradeStyle(setupGrade).text}`}
-                >
-                  {setupGrade} Setup
-                </span>
-              </div>
-            </div>
-
-            {/* Gate Status & Compliance Row */}
-            <div
-              className={`border rounded-xl p-3 space-y-2 transition-all duration-300 ${mandatoryPassed
-                ? 'bg-emerald-500/5 border-emerald-500/30 animate-gate-unlock'
-                : 'bg-canvas border-border'
-                }`}
-            >
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  {mandatoryPassed ? (
-                    <span className="flex items-center gap-1.5 text-trade-green font-bold text-xs transition-colors duration-200">
-                      <Unlock className="w-3.5 h-3.5" /> Protocol Cleared
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1.5 text-trade-red font-bold text-xs transition-colors duration-200">
-                      <Lock className="w-3.5 h-3.5" /> Gate Locked
-                    </span>
-                  )}
-                  <span
-                    className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${mandatoryPassed
-                      ? 'bg-emerald-500/15 text-emerald-400'
-                      : 'bg-rose-500/15 text-rose-400'
-                      }`}
-                  >
-                    Mandatory: {checkedMandatoryCount}/{totalMandatoryCount}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-mono text-text-muted flex items-center gap-1">
-                      Confluence: <strong className="text-text-primary">{confluenceScore}</strong>/{maxConfluenceScore} pts
-                      {allRulesChecked && (
-                        <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-400">
-                          100%
-                        </span>
-                      )}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleToggleAllRules}
-                      title={allRulesChecked ? 'Uncheck All Rules' : 'Check All Rules'}
-                      aria-label={allRulesChecked ? 'Uncheck All Rules' : 'Check All Rules'}
-                      className={`relative after:absolute after:-inset-1.5 p-1 rounded-md transition-colors ${allRulesChecked
-                        ? 'text-trade-green hover:bg-trade-green/10'
-                        : 'text-text-muted hover:text-text-primary hover:bg-card'
-                        }`}
-                    >
-                      {allRulesChecked ? (
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="w-4 h-4 text-trade-green"
-                          aria-hidden="true"
-                        >
-                          <path d="M20 6 9 17l-5-5" />
-                          <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" strokeWidth="2.5" />
-                        </svg>
-                      ) : (
-                        <Check className="w-4 h-4" />
-                      )}
-                    </button>
-                </div>
-              </div>
-
-              {/* Gate Discipline Progress Indicator */}
-              {strategy.rules.length > 0 && (
-                <div className="w-full bg-card-hover h-2 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-300 rounded-full ${mandatoryPassed ? getGradeStyle(setupGrade).progress : 'bg-amber-500'
-                      }`}
-                    style={{
-                      width: `${Math.max(
-                        strategy.rules.filter((r) => !!checkedRules[r.id]).length > 0 ? 4 : 0,
-                        Math.round(
-                          (strategy.rules.filter((r) => !!checkedRules[r.id]).length / strategy.rules.length) * 100
-                        )
-                      )}%`,
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Checklist Rule Cards List */}
-            <div className="space-y-2 max-h-[620px] overflow-y-auto pr-1">
-              {strategy.rules.length === 0 ? (
-                <div className="py-8 px-4 text-center rounded-xl bg-canvas border border-border space-y-2">
-                  <ShieldCheck className="w-8 h-8 text-text-muted mx-auto opacity-60" />
-                  <p className="text-xs font-semibold text-text-primary text-balance">No Discipline Rules Configured</p>
-                  <p className="text-[11px] text-text-muted leading-relaxed text-pretty">
-                    This strategy profile has no checklist rules. Add mandatory rules to enforce your pre-trade gate.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={onNavigateToProfiles}
-                    className="mt-1 px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-xs font-semibold text-brand transition-colors"
-                  >
-                    Configure Strategy Rules
-                  </button>
-                </div>
-              ) : (
-                strategy.rules.map((rule) => {
-                  const isChecked = !!checkedRules[rule.id];
-                  const isMandatory = rule.type === 'Mandatory';
-
-                  return (
-                    <div
-                      key={rule.id}
-                      role="checkbox"
-                      aria-checked={isChecked}
-                      tabIndex={0}
-                      onClick={() => toggleRuleCheck(rule.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === ' ' || e.key === 'Enter') {
-                          e.preventDefault();
-                          toggleRuleCheck(rule.id);
-                        }
-                      }}
-                      className={`p-3 rounded-xl border cursor-pointer select-none transition-all flex items-start gap-2.5 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-card ${isChecked
-                        ? 'bg-emerald-500/10 border-emerald-500/40 text-text-primary shadow-xs'
-                        : 'bg-canvas border-border text-text-secondary hover:border-border-muted hover:bg-card-hover'
-                        }`}
-                    >
-                      {/* Square Checkbox Icon */}
-                      <span aria-hidden="true" className="mt-0.5 shrink-0 transition-colors pointer-events-none">
-                        {isChecked ? (
-                          <CheckSquare className="w-4 h-4 text-trade-green" />
-                        ) : (
-                          <Square className="w-4 h-4 text-text-muted group-hover:text-text-primary" />
-                        )}
+                    <div className="flex items-center gap-1.5">
+                      {/* Setup Grade Letter (Containerless) */}
+                      <span
+                        className={`font-mono text-xs font-black tracking-wider ${getGradeStyle(setupGrade).text}`}
+                      >
+                        {setupGrade} Setup
                       </span>
+                    </div>
+                  </div>
 
-                      {/* Rule Description & Badges */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-1 mb-0.5">
-                          <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-card text-text-muted">
-                            {rule.category}
+                  {/* Gate Status & Compliance Row */}
+                  <div
+                    className={`border rounded-xl p-3 space-y-2 transition-all duration-300 ${mandatoryPassed
+                      ? 'bg-emerald-500/5 border-emerald-500/30 animate-gate-unlock'
+                      : 'bg-canvas border-border'
+                      }`}
+                  >
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        {mandatoryPassed ? (
+                          <span className="flex items-center gap-1.5 text-trade-green font-bold text-xs transition-colors duration-200">
+                            <Unlock className="w-3.5 h-3.5" /> Gate Cleared
                           </span>
+                        ) : (
+                          <span className="flex items-center gap-1.5 text-trade-red font-bold text-xs transition-colors duration-200">
+                            <Lock className="w-3.5 h-3.5" /> Gate Locked
+                          </span>
+                        )}
+                        <span
+                          className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${mandatoryPassed
+                            ? 'bg-emerald-500/15 text-emerald-400'
+                            : 'bg-rose-500/15 text-rose-400'
+                            }`}
+                        >
+                          Mandatory: {checkedMandatoryCount}/{totalMandatoryCount}
+                        </span>
+                      </div>
 
-                          {isMandatory ? (
-                            <span
-                              className={`inline-flex items-center justify-center text-[9.5px] font-bold px-2.5 py-0.5 rounded-full uppercase font-mono tracking-wider min-h-[20px] ${isChecked
-                                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
-                                : 'bg-rose-500/15 text-rose-700 dark:text-rose-400'
-                                }`}
-                            >
-                              REQUIRED
-                            </span>
-                          ) : (
-                            <span className="text-[10px] font-bold font-mono text-text-muted">
-                              +{rule.weight} {rule.weight === 1 ? 'pt' : 'pts'}
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-mono text-text-muted flex items-center gap-1">
+                          Confluence: <strong className="text-text-primary">{confluenceScore}</strong>/{maxConfluenceScore} pts
+                          {allRulesChecked && (
+                            <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400">
+                              100%
                             </span>
                           )}
-                        </div>
-
-                        <p className={`text-xs font-semibold leading-snug text-pretty ${isChecked ? 'text-text-primary' : 'text-text-secondary'}`}>
-                          {rule.label}
-                        </p>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleToggleAllRules}
+                          title={allRulesChecked ? 'Uncheck All Rules' : 'Check All Rules'}
+                          aria-label={allRulesChecked ? 'Uncheck All Rules' : 'Check All Rules'}
+                          className={`relative after:absolute after:-inset-1.5 p-1 rounded-md transition-colors ${allRulesChecked
+                            ? 'text-trade-green hover:bg-trade-green/10'
+                            : 'text-text-muted hover:text-text-primary hover:bg-card'
+                            }`}
+                        >
+                          {allRulesChecked ? (
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="w-4 h-4 text-trade-green"
+                              aria-hidden="true"
+                            >
+                              <path d="M20 6 9 17l-5-5" />
+                              <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" strokeWidth="2.5" />
+                            </svg>
+                          ) : (
+                            <Check className="w-4 h-4" />
+                          )}
+                        </button>
                       </div>
                     </div>
-                  );
-                })
-              )}
-            </div>
 
-            {/* Unlocked / Locked Warning Alert if Mandatory Missing */}
-            {!mandatoryPassed && uncheckedMandatoryRules.length > 0 && (
-              <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold text-[11px] uppercase tracking-wider text-balance">Required Invalidation Incomplete</p>
-                  <p className="text-[11px] text-text-secondary mt-0.5 text-pretty">
-                    Missing: {uncheckedMandatoryRules.slice(0, 2).join(', ')}
-                    {uncheckedMandatoryRules.length > 2 && ` +${uncheckedMandatoryRules.length - 2} more`}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+                    {/* Gate Discipline Progress Indicator */}
+                    {strategy.rules.length > 0 && (() => {
+                      const checkedCount = strategy.rules.filter((r) => !!checkedRules[r.id]).length;
+                      const totalCount = strategy.rules.length;
+                      const pct = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0;
+                      const progressColor =
+                        pct === 100
+                          ? 'bg-emerald-500'
+                          : pct >= 50
+                            ? 'bg-orange-500'
+                            : 'bg-red-500';
 
-        {/* ─── RIGHT COLUMN (7 cols): TRADE EXECUTION & DETAILS ─── */}
-        <div className="md:col-span-7 space-y-4">
-          {/* Tactical Execution Commitment Receipt */}
-          {committedReceipt && (
-            <div
-              role="status"
-              aria-live="polite"
-              className="card-glass border border-emerald-500/40 bg-emerald-500/10 rounded-2xl p-3.5 flex items-center justify-between text-xs animate-in fade-in slide-in-from-top-2 duration-200"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0">
-                  <Check className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-text-primary tracking-wide text-xs">
-                      ORDER JOURNALED
-                    </span>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">
-                      #{committedReceipt.id.slice(-6).toUpperCase()}
-                    </span>
-                    <span className="text-[10px] font-mono text-text-muted">
-                      {committedReceipt.timestamp}
-                    </span>
-                  </div>
-                  <p className="text-[11px] font-mono text-text-secondary truncate mt-0.5">
-                    {committedReceipt.symbol} • {committedReceipt.actionLabel} • Grade {committedReceipt.grade}
-                    {committedReceipt.riskAmount ? ` • Risk $${committedReceipt.riskAmount.toLocaleString()}` : ''}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setCommittedReceipt(null)}
-                className="text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-card-hover shrink-0 ml-2 transition-colors"
-                aria-label="Dismiss order receipt"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-
-          <div className="card-glass rounded-2xl p-4 sm:p-5 space-y-4">
-            {/* Trade Execution Inputs */}
-            <TradeEntryForm
-              strategy={strategy}
-              activeExecutionType={activeExecutionType}
-              setActiveExecutionType={setActiveExecutionType}
-              liveBalance={liveBalance}
-              futuresSymbol={futuresSymbol}
-              setFuturesSymbol={setFuturesSymbol}
-              direction={direction}
-              setDirection={setDirection}
-              leverage={leverage}
-              setLeverage={setLeverage}
-              marginType={marginType}
-              setMarginType={setMarginType}
-              entryPrice={entryPrice}
-              setEntryPrice={setEntryPrice}
-              stopLossPrice={stopLossPrice}
-              setStopLossPrice={setStopLossPrice}
-              takeProfitPrice={takeProfitPrice}
-              setTakeProfitPrice={setTakeProfitPrice}
-              riskPercentage={riskPercentage}
-              setRiskPercentage={setRiskPercentage}
-              spotSymbol={spotSymbol}
-              setSpotSymbol={setSpotSymbol}
-              spotAction={spotAction}
-              setSpotAction={setSpotAction}
-              spotEntryPrice={spotEntryPrice}
-              setSpotEntryPrice={setSpotEntryPrice}
-              spotAllocation={spotAllocation}
-              setSpotAllocation={setSpotAllocation}
-              spotTargetSellPrice={spotTargetSellPrice}
-              setSpotTargetSellPrice={setSpotTargetSellPrice}
-              spotStopLossPrice={spotStopLossPrice}
-              setSpotStopLossPrice={setSpotStopLossPrice}
-              spotVenue={spotVenue}
-              setSpotVenue={setSpotVenue}
-            />
-
-            {/* ─── CONTEXT & EXECUTION ATTRIBUTES SECTION ─── */}
-            <div className="pt-3 border-t border-border space-y-3.5">
-              {/* Timeframe & Session Selectors */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">
-                    Chart Timeframe
-                  </label>
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scroll-smooth">
-                    {strategy.timeframes.map((tf) => (
-                      <button
-                        key={tf}
-                        type="button"
-                        onClick={() => {
-                          playMicroTick();
-                          setTimeframe(tf);
-                        }}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all ${timeframe === tf
-                          ? 'bg-brand text-black shadow-xs'
-                          : 'bg-canvas border border-border text-text-secondary hover:text-text-primary'
-                          }`}
-                      >
-                        {tf}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">
-                    Trading session
-                  </label>
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scroll-smooth">
-                    {[...strategy.sessions]
-                      .sort((a, b) => {
-                        const order = ['Asia', 'London', 'NY AM', 'NY PM'];
-                        const ia = order.indexOf(a);
-                        const ib = order.indexOf(b);
-                        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-                      })
-                      .map((sess) => {
-                        const isSelected = session === sess;
-                        const styleConfig = SESSION_STYLES[sess] || {
-                          active: 'bg-brand text-black font-bold shadow-xs',
-                          dot: 'bg-brand',
-                        };
-                        return (
-                          <button
-                            key={sess}
-                            type="button"
-                            onClick={() => {
-                              playMicroTick();
-                              setSession(sess);
+                      return (
+                        <div className="w-full bg-card-hover h-2 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full transition-all duration-300 rounded-full ${progressColor}`}
+                            style={{
+                              width: `${Math.max(checkedCount > 0 ? 4 : 0, pct)}%`,
                             }}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shrink-0 ${isSelected
-                              ? styleConfig.active
-                              : 'bg-canvas border border-border text-text-secondary hover:text-text-primary'
-                              }`}
+                          />
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Checklist Rule Cards List */}
+                    <div className="space-y-2 max-h-[620px] overflow-y-auto pr-1">
+                      {strategy.rules.length === 0 ? (
+                        <div className="py-8 px-4 text-center rounded-xl bg-canvas border border-border space-y-2">
+                          <ShieldCheck className="w-8 h-8 text-text-muted mx-auto opacity-60" />
+                          <p className="text-xs font-semibold text-text-primary text-balance">No Discipline Rules Configured</p>
+                          <p className="text-[11px] text-text-muted leading-relaxed text-pretty">
+                            This strategy profile has no checklist rules. Add mandatory rules to enforce your pre-trade gate.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={onNavigateToProfiles}
+                            className="mt-1 px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-xs font-semibold text-brand transition-colors"
                           >
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSelected
-                                ? sess === 'Asia'
-                                  ? 'bg-white dark:bg-slate-950'
-                                  : 'bg-white'
-                                : styleConfig.dot
-                                }`}
-                            />
-                            <span>{sess}</span>
+                            Configure Strategy Rules
                           </button>
-                        );
-                      })}
+                        </div>
+                      ) : (
+                        strategy.rules.map((rule) => {
+                          const isChecked = !!checkedRules[rule.id];
+                          const isMandatory = rule.type === 'Mandatory';
+
+                          return (
+                            <div
+                              key={rule.id}
+                              role="checkbox"
+                              aria-checked={isChecked}
+                              tabIndex={0}
+                              onClick={() => toggleRuleCheck(rule.id)}
+                              onKeyDown={(e) => {
+                                if (e.key === ' ' || e.key === 'Enter') {
+                                  e.preventDefault();
+                                  toggleRuleCheck(rule.id);
+                                }
+                              }}
+                              className={`p-3 rounded-xl border cursor-pointer select-none transition-all flex items-start gap-2.5 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-card ${isChecked
+                                ? 'bg-emerald-500/10 border-emerald-500/40 text-text-primary shadow-xs'
+                                : 'bg-canvas border-border text-text-secondary hover:border-border-muted hover:bg-card-hover'
+                                }`}
+                            >
+                              {/* Square Checkbox Icon */}
+                              <span aria-hidden="true" className="mt-0.5 shrink-0 transition-colors pointer-events-none">
+                                {isChecked ? (
+                                  <CheckSquare className="w-4 h-4 text-trade-green" />
+                                ) : (
+                                  <Square className="w-4 h-4 text-text-muted group-hover:text-text-primary" />
+                                )}
+                              </span>
+
+                              {/* Rule Description & Badges */}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-1 mb-0.5">
+                                  <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-card text-text-muted">
+                                    {rule.category}
+                                  </span>
+
+                                  {isMandatory ? (
+                                    <span
+                                      className={`inline-flex items-center justify-center text-[9.5px] font-bold px-2.5 py-0.5 rounded-full uppercase font-mono tracking-wider min-h-[20px] ${isChecked
+                                        ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
+                                        : 'bg-rose-500/15 text-rose-700 dark:text-rose-400'
+                                        }`}
+                                    >
+                                      REQUIRED
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] font-bold font-mono text-text-muted">
+                                      +{rule.weight} {rule.weight === 1 ? 'pt' : 'pts'}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <p className={`text-xs font-semibold leading-snug text-pretty ${isChecked ? 'text-text-primary' : 'text-text-secondary'}`}>
+                                  {rule.label}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Unlocked / Locked Warning Alert if Mandatory Missing */}
+                    {!mandatoryPassed && uncheckedMandatoryRules.length > 0 && (
+                      <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-bold text-[11px] uppercase tracking-wider text-balance">Required Invalidation Incomplete</p>
+                          <p className="text-[11px] text-text-secondary mt-0.5 text-pretty">
+                            Missing: {uncheckedMandatoryRules.slice(0, 2).join(', ')}
+                            {uncheckedMandatoryRules.length > 2 && ` +${uncheckedMandatoryRules.length - 2} more`}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
+
+                  {/* ─── RIGHT COLUMN (7 cols): TRADE EXECUTION & DETAILS ─── */}
+                  <div className="md:col-span-7 space-y-4">
+                    {/* Tactical Execution Commitment Receipt */}
+                    {committedReceipt && (
+                      <div
+                        role="status"
+                        aria-live="polite"
+                        className="card-glass border border-emerald-500/40 bg-emerald-500/10 rounded-2xl p-3.5 flex items-center justify-between text-xs animate-in fade-in slide-in-from-top-2 duration-200"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0">
+                            <Check className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-text-primary tracking-wide text-xs">
+                                ORDER JOURNALED
+                              </span>
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">
+                                #{committedReceipt.id.slice(-6).toUpperCase()}
+                              </span>
+                              <span className="text-[10px] font-mono text-text-muted">
+                                {committedReceipt.timestamp}
+                              </span>
+                            </div>
+                            <p className="text-[11px] font-mono text-text-secondary truncate mt-0.5">
+                              {committedReceipt.symbol} • {committedReceipt.actionLabel} • Grade {committedReceipt.grade}
+                              {committedReceipt.riskAmount ? ` • Risk $${committedReceipt.riskAmount.toLocaleString()}` : ''}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setCommittedReceipt(null)}
+                          className="text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-card-hover shrink-0 ml-2 transition-colors"
+                          aria-label="Dismiss order receipt"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+
+                        <div className="card-glass rounded-2xl p-4 sm:p-5 space-y-4">
+                          {/* Trade Execution Inputs */}
+                          <TradeEntryForm
+                            strategy={strategy}
+                            activeExecutionType={activeExecutionType}
+                            setActiveExecutionType={setActiveExecutionType}
+                            liveBalance={liveBalance}
+                            futuresSymbol={futuresSymbol}
+                            setFuturesSymbol={setFuturesSymbol}
+                            direction={direction}
+                            setDirection={setDirection}
+                            leverage={leverage}
+                            setLeverage={setLeverage}
+                            marginType={marginType}
+                            setMarginType={setMarginType}
+                            entryPrice={entryPrice}
+                            setEntryPrice={setEntryPrice}
+                            stopLossPrice={stopLossPrice}
+                            setStopLossPrice={setStopLossPrice}
+                            takeProfitPrice={takeProfitPrice}
+                            setTakeProfitPrice={setTakeProfitPrice}
+                            riskPercentage={riskPercentage}
+                            setRiskPercentage={setRiskPercentage}
+                            spotSymbol={spotSymbol}
+                            setSpotSymbol={setSpotSymbol}
+                            spotAction={spotAction}
+                            setSpotAction={setSpotAction}
+                            spotEntryPrice={spotEntryPrice}
+                            setSpotEntryPrice={setSpotEntryPrice}
+                            spotAllocation={spotAllocation}
+                            setSpotAllocation={setSpotAllocation}
+                            spotTargetSellPrice={spotTargetSellPrice}
+                            setSpotTargetSellPrice={setSpotTargetSellPrice}
+                            spotStopLossPrice={spotStopLossPrice}
+                            setSpotStopLossPrice={setSpotStopLossPrice}
+                            spotVenue={spotVenue}
+                            setSpotVenue={setSpotVenue}
+                          />
+
+                                {/* ─── CONTEXT & EXECUTION ATTRIBUTES SECTION ─── */}
+                                <div className="pt-3 border-t border-border space-y-3.5">
+                                  {/* Timeframe & Session Selectors */}
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                      <label className="block text-xs font-medium text-text-secondary mb-1">
+                                        Chart Timeframe
+                                      </label>
+                                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scroll-smooth">
+                                        {strategy.timeframes.map((tf) => (
+                                          <button
+                                            key={tf}
+                                            type="button"
+                                            onClick={() => {
+                                              playMicroTick();
+                                              setTimeframe(tf);
+                                            }}
+                                            className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all ${timeframe === tf
+                                              ? 'bg-brand text-black shadow-xs'
+                                              : 'bg-canvas border border-border text-text-secondary hover:text-text-primary'
+                                              }`}
+                                          >
+                                            {tf}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                        <div>
+                                          <label className="block text-xs font-medium text-text-secondary mb-1">
+                                            Trading session
+                                          </label>
+                                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scroll-smooth">
+                                              {[...strategy.sessions]
+                                                .sort((a, b) => {
+                                                  const order = ['Asia', 'London', 'NY AM', 'NY PM'];
+                                                  const ia = order.indexOf(a);
+                                                  const ib = order.indexOf(b);
+                                                  return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+                                                })
+                                                .map((sess) => {
+                                                  const isSelected = session === sess;
+                                                  const styleConfig = SESSION_STYLES[sess] || {
+                                                    active: 'bg-brand text-black font-bold shadow-xs',
+                                                    dot: 'bg-brand',
+                                                  };
+                                                  return (
+                                                    <button
+                                                      key={sess}
+                                                      type="button"
+                                                      onClick={() => {
+                                                        playMicroTick();
+                                                        setSession(sess);
+                                                      }}
+                                                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shrink-0 ${isSelected
+                                                        ? styleConfig.active
+                                                        : 'bg-canvas border border-border text-text-secondary hover:text-text-primary'
+                                                        }`}
+                                                    >
+                                                      <span
+                                                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${styleConfig.dot} ${isSelected ? 'opacity-100' : 'opacity-40'}`}
+                                                      />
+                                                      <span>{sess}</span>
+                                                    </button>
+                                                  );
+                                                })}
+                                            </div>
+                                          </div>
+                                        </div>
 
               {/* Entry Status & Outcome Selector Row */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-text-secondary">
-                  Entry Status & Outcome
-                </label>
-                <div className="relative grid grid-cols-2 sm:grid-cols-4 p-1 bg-canvas rounded-xl border border-border select-none gap-1 sm:gap-0">
-                  {/* Sliding highlight indicator on sm screens */}
-                  <div
-                    className={`hidden sm:block absolute top-1 bottom-1 w-[calc(25%-4px)] rounded-lg shadow-xs transition-all duration-200 ease-out pointer-events-none ${entryOutcome === 'Active'
-                      ? 'left-1 bg-card'
-                      : entryOutcome === 'Win'
-                        ? 'left-[calc(25%+2px)] bg-trade-green'
-                        : entryOutcome === 'Loss'
-                          ? 'left-[calc(50%+3px)] bg-trade-red'
-                          : 'left-[calc(75%+4px)] bg-blue-500'
-                      }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playMicroTick();
-                      setEntryOutcome('Active');
-                    }}
-                    className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Active'
-                      ? 'text-text-primary bg-card sm:bg-transparent shadow-xs sm:shadow-none font-extrabold'
-                      : 'text-text-muted hover:text-text-primary'
-                      }`}
-                  >
-                    Active (Open)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playMicroTick();
-                      setEntryOutcome('Win');
-                    }}
-                    className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Win'
-                      ? 'text-white bg-trade-green sm:bg-transparent shadow-xs sm:shadow-none'
-                      : 'text-text-muted hover:text-text-primary'
-                      }`}
-                  >
-                    Win
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playMicroTick();
-                      setEntryOutcome('Loss');
-                    }}
-                    className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Loss'
-                      ? 'text-white bg-trade-red sm:bg-transparent shadow-xs sm:shadow-none'
-                      : 'text-text-muted hover:text-text-primary'
-                      }`}
-                  >
-                    Loss
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playMicroTick();
-                      setEntryOutcome('Breakeven');
-                    }}
-                    className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Breakeven'
-                      ? 'text-white bg-blue-500 sm:bg-transparent shadow-xs sm:shadow-none'
-                      : 'text-text-muted hover:text-text-primary'
-                      }`}
-                  >
-                    Breakeven
-                  </button>
-                </div>
+                                                <label className="block text-xs font-medium text-text-secondary">
+                                                  Entry Status & Outcome
+                                                </label>
+                                                <div className="relative grid grid-cols-2 sm:grid-cols-4 p-1 bg-canvas rounded-xl border border-border select-none gap-1 sm:gap-0">
+                                                  {/* Sliding highlight indicator on sm screens */}
+                                                  <div
+                                                    className={`hidden sm:block absolute top-1 bottom-1 w-[calc(25%-4px)] rounded-lg shadow-xs transition-all duration-200 ease-out pointer-events-none ${entryOutcome === 'Active'
+                                                      ? 'left-1 bg-card'
+                                                      : entryOutcome === 'Win'
+                                                        ? 'left-[calc(25%+2px)] bg-trade-green'
+                                                        : entryOutcome === 'Loss'
+                                                          ? 'left-[calc(50%+3px)] bg-trade-red'
+                                                          : 'left-[calc(75%+4px)] bg-blue-500'
+                                                      }`}
+                                                  />
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                      playMicroTick();
+                                                      setEntryOutcome('Active');
+                                                    }}
+                                                    className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Active'
+                                                      ? 'text-text-primary bg-card sm:bg-transparent shadow-xs sm:shadow-none font-extrabold'
+                                                      : 'text-text-muted hover:text-text-primary'
+                                                      }`}
+                                                  >
+                                                    Active (Open)
+                                                  </button>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                      playMicroTick();
+                                                      setEntryOutcome('Win');
+                                                    }}
+                                                    className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Win'
+                                                      ? 'text-white bg-trade-green sm:bg-transparent shadow-xs sm:shadow-none'
+                                                      : 'text-text-muted hover:text-text-primary'
+                                                      }`}
+                                                  >
+                                                    Win
+                                                  </button>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                      playMicroTick();
+                                                      setEntryOutcome('Loss');
+                                                    }}
+                                                    className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Loss'
+                                                      ? 'text-white bg-trade-red sm:bg-transparent shadow-xs sm:shadow-none'
+                                                      : 'text-text-muted hover:text-text-primary'
+                                                      }`}
+                                                  >
+                                                    Loss
+                                                  </button>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                      playMicroTick();
+                                                      setEntryOutcome('Breakeven');
+                                                    }}
+                                                    className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Breakeven'
+                                                      ? 'text-white bg-blue-500 sm:bg-transparent shadow-xs sm:shadow-none'
+                                                      : 'text-text-muted hover:text-text-primary'
+                                                      }`}
+                                                  >
+                                                    Breakeven
+                                                  </button>
+                                                </div>
 
-                {/* If Win/Loss/BE selected: Realized Exit Price input */}
-                {entryOutcome !== 'Active' && (
-                  <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-canvas border border-border">
-                    <div>
-                      <label className="text-[11px] font-medium text-text-secondary mb-1 flex items-center gap-1.5 whitespace-nowrap">
-                        <span>Exit Price</span>
-                        <CurrencyBadge currency={strategy?.baseCurrency} />
-                        <span className="text-text-muted font-normal text-[11px]">(Optional override)</span>
-                      </label>
-                      <input
-                        type="number"
-                        step="any"
-                        min="0"
-                        value={exitPriceInput || ''}
-                        onChange={(e) => setExitPriceInput(Math.max(0, parseFloat(e.target.value) || 0))}
-                        placeholder={
-                          entryOutcome === 'Win'
-                            ? String(takeProfitPrice || spotTargetSellPrice || '')
-                            : entryOutcome === 'Loss'
+                                                {/* If Win/Loss/BE selected: Realized Exit Price input */}
+                                                {entryOutcome !== 'Active' && (
+                                                  <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-canvas border border-border">
+                                                    <div>
+                                                      <label className="text-[11px] font-medium text-text-secondary mb-1 flex items-center gap-1.5 whitespace-nowrap">
+                                                        <span>Exit Price</span>
+                                                        <CurrencyBadge currency={strategy?.baseCurrency} />
+                                                        <span className="text-text-muted font-normal text-[11px]">(Optional override)</span>
+                                                      </label>
+                                                      <input
+                                                        type="number"
+                                                        step="any"
+                                                        min="0"
+                                                        value={exitPriceInput || ''}
+                                                        onChange={(e) => setExitPriceInput(Math.max(0, parseFloat(e.target.value) || 0))}
+                                                        placeholder={
+                                                          entryOutcome === 'Win'
+                                                            ? String(takeProfitPrice || spotTargetSellPrice || '')
+                                                            : entryOutcome === 'Loss'
                               ? String(stopLossPrice || spotStopLossPrice || '')
                               : String(entryPrice || spotEntryPrice || '')
                         }
@@ -1204,240 +1205,240 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = ({
                       <span className="text-[10px] text-text-muted uppercase font-bold">Outcome Mode</span>
                       <span
                         className={`text-xs font-bold font-mono mt-0.5 ${entryOutcome === 'Win'
-                          ? 'text-trade-green'
-                          : entryOutcome === 'Loss'
-                            ? 'text-trade-red'
-                            : 'text-text-primary'
-                          }`}
-                      >
-                        {entryOutcome.toUpperCase()} RECORD
-                      </span>
-                    </div>
-                  </div>
+                                                  ? 'text-trade-green'
+                                                  : entryOutcome === 'Loss'
+                                                    ? 'text-trade-red'
+                                                    : 'text-text-primary'
+                                                  }`}
+                                              >
+                                                {entryOutcome.toUpperCase()} RECORD
+                                              </span>
+                                            </div>
+                                          </div>
+                                        )}
+                                    </div>
+
+                                      {/* Clean Chart Screenshot Input (URL, Ctrl+V, or Upload) */}
+                                      <div className="space-y-1.5">
+                                        <label className="block text-xs font-medium text-text-secondary">
+                                          Chart Screenshot
+                                        </label>
+
+                                              {screenshotData ? (
+                                                <div className="relative rounded-xl overflow-hidden border border-border bg-black max-h-48 group">
+                                                  <img
+                                                    src={screenshotData}
+                                                    alt="Chart Screenshot"
+                                                    className="w-full h-auto object-contain cursor-pointer"
+                                                    onClick={() => setIsZoomModalOpen(true)}
+                                                  />
+                                                  <div className="absolute top-2 right-2 flex items-center gap-1.5">
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => setIsZoomModalOpen(true)}
+                                                      className="p-1 rounded-md bg-black/70 text-white hover:bg-black transition-colors"
+                                                      title="Zoom in"
+                                                    >
+                                                      <ZoomIn className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => {
+                                                        setScreenshotData(null);
+                                                        setScreenshotUrlInput('');
+                                                      }}
+                                                      className="p-1 rounded-md bg-black/70 text-white hover:bg-rose-600 transition-colors"
+                                                      title="Remove"
+                                                    >
+                                                      <X className="w-3.5 h-3.5" />
+                                                    </button>
+                                                  </div>
+                                                </div>
+                                              ) : (
+                                                <div className="flex items-center gap-2">
+                                                  <div className="relative flex-1">
+                                                    <LinkIcon className="w-3.5 h-3.5 text-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
+                                                    <input
+                                                      type="text"
+                                                      value={screenshotUrlInput}
+                                                      onChange={(e) => setScreenshotUrlInput(e.target.value)}
+                                                      onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                          e.preventDefault();
+                                                          handleApplyUrl();
+                                                        }
+                                                      }}
+                                                      placeholder="Paste chart URL or press Ctrl+V..."
+                                                      className="w-full bg-canvas border border-border rounded-xl pl-8 pr-3 py-1.5 text-xs text-text-primary placeholder:text-text-muted focus:border-brand"
+                                                    />
+                                                  </div>
+
+                                                    {screenshotUrlInput && (
+                                                      <button
+                                                        type="button"
+                                                        onClick={handleApplyUrl}
+                                                        className="px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-text-primary text-xs font-semibold"
+                                                      >
+                                                        Attach
+                                                      </button>
+                                              )}
+
+                                                <input
+                                                  type="file"
+                                                  ref={fileInputRef}
+                                                  onChange={handleFileUpload}
+                                                  accept="image/*"
+                                                  className="hidden"
+                                                />
+                                                <button
+                                                  type="button"
+                                                  onClick={() => fileInputRef.current?.click()}
+                                                  className="px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-text-secondary hover:text-text-primary text-xs font-semibold flex items-center gap-1.5 transition-colors shrink-0"
+                                                >
+                                                  <Upload className="w-3.5 h-3.5" />
+                                                  Upload
+                                                </button>
+                                              </div>
                 )}
-              </div>
-
-              {/* Clean Chart Screenshot Input (URL, Ctrl+V, or Upload) */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-secondary">
-                  Chart Screenshot
-                </label>
-
-                {screenshotData ? (
-                  <div className="relative rounded-xl overflow-hidden border border-border bg-black max-h-48 group">
-                    <img
-                      src={screenshotData}
-                      alt="Chart Screenshot"
-                      className="w-full h-auto object-contain cursor-pointer"
-                      onClick={() => setIsZoomModalOpen(true)}
-                    />
-                    <div className="absolute top-2 right-2 flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => setIsZoomModalOpen(true)}
-                        className="p-1 rounded-md bg-black/70 text-white hover:bg-black transition-colors"
-                        title="Zoom in"
-                      >
-                        <ZoomIn className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setScreenshotData(null);
-                          setScreenshotUrlInput('');
-                        }}
-                        className="p-1 rounded-md bg-black/70 text-white hover:bg-rose-600 transition-colors"
-                        title="Remove"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <div className="relative flex-1">
-                      <LinkIcon className="w-3.5 h-3.5 text-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="text"
-                        value={screenshotUrlInput}
-                        onChange={(e) => setScreenshotUrlInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleApplyUrl();
-                          }
-                        }}
-                        placeholder="Paste chart URL or press Ctrl+V..."
-                        className="w-full bg-canvas border border-border rounded-xl pl-8 pr-3 py-1.5 text-xs text-text-primary placeholder:text-text-muted focus:border-brand"
-                      />
-                    </div>
-
-                    {screenshotUrlInput && (
-                      <button
-                        type="button"
-                        onClick={handleApplyUrl}
-                        className="px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-text-primary text-xs font-semibold"
-                      >
-                        Attach
-                      </button>
-                    )}
-
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleFileUpload}
-                      accept="image/*"
-                      className="hidden"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-text-secondary hover:text-text-primary text-xs font-semibold flex items-center gap-1.5 transition-colors shrink-0"
-                    >
-                      <Upload className="w-3.5 h-3.5" />
-                      Upload
-                    </button>
-                  </div>
-                )}
-              </div>
+                                          </div>
             </div>
 
-            {/* ─── DISCIPLINE REFLECTION & GATE COMMITMENT SECTION ─── */}
-            <div className="pt-3 border-t border-border space-y-3.5">
-              {/* Execution Mistake Tags */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-secondary">
-                  Discipline Audit Tags
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {ERROR_TAG_OPTIONS.map((tag) => {
-                    const isSelected = selectedErrors.includes(tag);
-                    const isNone = tag === 'None';
-                    return (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => toggleExecutionError(tag)}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-card ${isSelected
-                          ? isNone
-                            ? 'bg-emerald-100 dark:bg-emerald-500/30 text-emerald-800 dark:text-emerald-200 font-bold shadow-xs hover:bg-emerald-200 dark:hover:bg-emerald-500/40'
-                            : 'bg-rose-100 dark:bg-rose-500/30 text-rose-800 dark:text-rose-200 font-bold shadow-xs hover:bg-rose-200 dark:hover:bg-rose-500/40'
-                          : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'
-                          }`}
-                      >
-                        {isSelected && (
-                          <span
-                            className={`w-2 h-2 rounded-full shrink-0 ${isNone ? 'bg-emerald-500' : 'bg-rose-500'
-                              }`}
-                          />
-                        )}
-                        <span>{tag}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+                                        {/* ─── DISCIPLINE REFLECTION & GATE COMMITMENT SECTION ─── */}
+                                        <div className="pt-3 border-t border-border space-y-3.5">
+                                          {/* Execution Mistake Tags */}
+                                          <div className="space-y-1.5">
+                                            <label className="block text-xs font-medium text-text-secondary">
+                                              Discipline Audit Tags
+                                            </label>
+                                            <div className="flex flex-wrap gap-1.5">
+                                              {ERROR_TAG_OPTIONS.map((tag) => {
+                                                const isSelected = selectedErrors.includes(tag);
+                                                const isNone = tag === 'None';
+                                                return (
+                                                  <button
+                                                    key={tag}
+                                                    type="button"
+                                                    onClick={() => toggleExecutionError(tag)}
+                                                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-card ${isSelected
+                                                      ? isNone
+                                                        ? 'bg-emerald-100 dark:bg-emerald-500/30 text-emerald-800 dark:text-emerald-200 font-bold shadow-xs hover:bg-emerald-200 dark:hover:bg-emerald-500/40'
+                                                        : 'bg-rose-100 dark:bg-rose-500/30 text-rose-800 dark:text-rose-200 font-bold shadow-xs hover:bg-rose-200 dark:hover:bg-rose-500/40'
+                                                      : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'
+                                                      }`}
+                                                  >
+                                                    {isSelected && (
+                                                      <span
+                                                        className={`w-2 h-2 rounded-full shrink-0 ${isNone ? 'bg-emerald-500' : 'bg-rose-500'
+                                                          }`}
+                                                      />
+                                                    )}
+                                                    <span>{tag}</span>
+                                                  </button>
+                                                );
+                                              })}
+                                            </div>
+                                          </div>
 
-              {/* Trade Notes */}
-              <div>
-                <label htmlFor="pre-trade-notes" className="block text-xs font-medium text-text-secondary mb-1">
-                  Trade Notes & Rationale
-                </label>
-                <textarea
-                  id="pre-trade-notes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={2}
-                  placeholder="Thesis context, invalidation level, key confluences..."
-                  className="w-full bg-canvas border border-border rounded-xl p-2.5 text-xs text-text-primary placeholder:text-text-muted focus:border-brand"
-                />
-              </div>
+                                            {/* Trade Notes */}
+                                            <div>
+                                              <label htmlFor="pre-trade-notes" className="block text-xs font-medium text-text-secondary mb-1">
+                                                Trade Notes & Rationale
+                                              </label>
+                                              <textarea
+                                                id="pre-trade-notes"
+                                                value={notes}
+                                                onChange={(e) => setNotes(e.target.value)}
+                                                rows={2}
+                                                placeholder="Thesis context, invalidation level, key confluences..."
+                                                className="w-full bg-canvas border border-border rounded-xl p-2.5 text-xs text-text-primary placeholder:text-text-muted focus:border-brand"
+                                              />
+                                            </div>
 
-              {/* Enforced Discipline Gate Submit Button */}
-              <div className="space-y-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => executeLogTrade(false)}
-                  disabled={!isUnlocked || isSubmitting}
-                  className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all duration-200 ${justCommittedId
-                    ? 'bg-emerald-400 text-black shadow-md ring-2 ring-emerald-500/40'
-                    : isUnlocked
-                      ? 'bg-brand text-black hover:bg-brand-hover cursor-pointer active:scale-[0.99] ring-2 ring-brand/20'
-                      : 'bg-card border border-border text-text-muted opacity-40 cursor-not-allowed'
-                    }`}
-                >
-                  {isSubmitting ? (
-                    'Logging Entry...'
-                  ) : justCommittedId ? (
-                    <>
-                      <Check className="w-4 h-4 text-black font-extrabold" />
-                      <span>Order Committed (#{justCommittedId.slice(-6).toUpperCase()})</span>
-                    </>
-                  ) : isUnlocked ? (
-                    activeExecutionType === 'futures' ? (
-                      <>
-                        <Send className="w-3.5 h-3.5" />
-                        Log Journal Entry ({direction.toUpperCase()})
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-3.5 h-3.5" />
-                        Log Spot Entry ({spotAction})
-                      </>
-                    )
-                  ) : (
-                    <>
-                      <Lock className="w-3.5 h-3.5" />
-                      Complete {uncheckedMandatoryRules.length} Required Rule{uncheckedMandatoryRules.length > 1 ? 's' : ''} to Unlock
-                    </>
-                  )}
-                </button>
+                                            {/* Enforced Discipline Gate Submit Button */}
+                                            <div className="space-y-2 pt-1">
+                                              <button
+                                                type="button"
+                                                onClick={() => executeLogTrade(false)}
+                                                disabled={!isUnlocked || isSubmitting}
+                                                className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all duration-200 ${justCommittedId
+                                                  ? 'bg-emerald-400 text-black shadow-md ring-2 ring-emerald-500/40'
+                                                  : isUnlocked
+                                                    ? 'bg-brand text-black hover:bg-brand-hover cursor-pointer active:scale-[0.99] ring-2 ring-brand/20'
+                                                    : 'bg-card border border-border text-text-muted opacity-40 cursor-not-allowed'
+                                                  }`}
+                                              >
+                                                {isSubmitting ? (
+                                                  'Logging Entry...'
+                                                ) : justCommittedId ? (
+                                                  <>
+                                                    <Check className="w-4 h-4 text-black font-extrabold" />
+                                                    <span>Order Committed (#{justCommittedId.slice(-6).toUpperCase()})</span>
+                                                  </>
+                                                ) : isUnlocked ? (
+                                                  activeExecutionType === 'futures' ? (
+                                                    <>
+                                                      <Send className="w-3.5 h-3.5" />
+                                                      Log Journal Entry ({direction.toUpperCase()})
+                                                    </>
+                                                  ) : (
+                                                    <>
+                                                      <Send className="w-3.5 h-3.5" />
+                                                      Log Spot Entry ({spotAction})
+                                                    </>
+                                                  )
+                                                ) : (
+                                                  <>
+                                                    <Lock className="w-3.5 h-3.5" />
+                                                    Complete {uncheckedMandatoryRules.length} Required Rule{uncheckedMandatoryRules.length > 1 ? 's' : ''} to Unlock
+                                                  </>
+                                                )}
+                                              </button>
 
-                {!isUnlocked && (
-                  <div className="text-center pt-0.5">
-                    <button
-                      type="button"
-                      onClick={() => executeLogTrade(true)}
-                      className="text-[11px] font-mono text-text-muted hover:text-rose-400 underline decoration-rose-500/30 hover:decoration-rose-400 transition-colors"
-                      title="Record an executed trade where rules were broken (logged as Grade C Violation)"
-                    >
-                      Record as Discipline Violation Override
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div >
-      </div >
+                                              {!isUnlocked && (
+                                                <div className="text-center pt-0.5">
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => executeLogTrade(true)}
+                                                    className="text-[11px] font-mono text-text-muted hover:text-rose-400 underline decoration-rose-500/30 hover:decoration-rose-400 transition-colors"
+                                                    title="Record an executed trade where rules were broken (logged as Grade C Violation)"
+                                                  >
+                                                    Record as Discipline Violation Override
+                                                  </button>
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
 
-      {/* Screenshot Zoom Modal */}
-      {
-        isZoomModalOpen && screenshotData && (
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Enlarged chart preview"
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150 cursor-pointer"
-            onClick={() => setIsZoomModalOpen(false)}
-          >
-            <div className="relative max-w-4xl max-h-[90vh]">
-              <img
-                src={screenshotData}
-                alt="Enlarged Chart Preview"
-                className="w-full h-auto max-h-[85vh] object-contain rounded-xl border border-white/20"
-              />
-              <button
-                onClick={() => setIsZoomModalOpen(false)}
-                aria-label="Close chart preview"
-                className="absolute -top-3 -right-3 p-1.5 rounded-full bg-black border border-white/30 text-white hover:bg-rose-600 transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </ div>
-          </div>
-        )
-      }
-    </div >
-  );
+                                    {/* Screenshot Zoom Modal */}
+                                    {
+                                      isZoomModalOpen && screenshotData && (
+                                        <div
+                                          role="dialog"
+                                          aria-modal="true"
+                                          aria-label="Enlarged chart preview"
+                                          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150 cursor-pointer"
+                                          onClick={() => setIsZoomModalOpen(false)}
+                                        >
+                                          <div className="relative max-w-4xl max-h-[90vh]">
+                                            <img
+                                              src={screenshotData}
+                                              alt="Enlarged Chart Preview"
+                                              className="w-full h-auto max-h-[85vh] object-contain rounded-xl border border-white/20"
+                                            />
+                                            <button
+                                              onClick={() => setIsZoomModalOpen(false)}
+                                              aria-label="Close chart preview"
+                                              className="absolute -top-3 -right-3 p-1.5 rounded-full bg-black border border-white/30 text-white hover:bg-rose-600 transition-colors"
+                                            >
+                                              <X className="w-4 h-4" />
+                                            </button>
+                                          </ div>
+                                        </div>
+                                      )
+                                    }
+                                  </div >
+                                  );
 };
