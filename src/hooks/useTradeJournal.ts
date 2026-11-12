@@ -15,18 +15,18 @@ export function useTradeJournal(activeStrategyId?: string) {
     setIsLoading(true);
     try {
       let loaded = await storage.get<TradeRecord[]>(STORAGE_KEY_TRADES);
-      if (!loaded || !Array.isArray(loaded) || loaded.length === 0) {
-        loaded = SEED_TRADES;
-        await storage.set(STORAGE_KEY_TRADES, loaded);
+        if (!loaded || !Array.isArray(loaded)) {
+          loaded = [];
+          await storage.set(STORAGE_KEY_TRADES, loaded);
+        }
+        setAllTrades(loaded);
+      } catch (e) {
+        console.error('Failed to load trade records:', e);
+        setAllTrades([]);
+      } finally {
+        setIsLoading(false);
       }
-      setAllTrades(loaded);
-    } catch (e) {
-      console.error('Failed to load trade records:', e);
-      setAllTrades(SEED_TRADES);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    }, []);
 
   useEffect(() => {
     loadTrades();

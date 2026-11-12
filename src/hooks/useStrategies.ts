@@ -11,39 +11,43 @@ export function useStrategies() {
   const [activeStrategyId, setActiveStrategyIdState] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Load strategies from IndexedDB with fallback to SEED_STRATEGIES
+  // Load strategies from IndexedDB (empty by default until user creates one)
   const loadStrategies = useCallback(async () => {
     setIsLoading(true);
     try {
       let loaded = await storage.get<StrategyProfile[]>(STORAGE_KEY_STRATEGIES);
       let activeId = await storage.get<string>(STORAGE_KEY_ACTIVE_STRATEGY_ID);
 
-      if (!loaded || !Array.isArray(loaded) || loaded.length === 0) {
-        loaded = SEED_STRATEGIES;
-        activeId = SEED_STRATEGIES[0].id;
-        await storage.set(STORAGE_KEY_STRATEGIES, loaded);
-        await storage.set(STORAGE_KEY_ACTIVE_STRATEGY_ID, activeId);
-      } else if (!activeId || !loaded.some((s) => s.id === activeId)) {
-        activeId = loaded[0].id;
-        await storage.set(STORAGE_KEY_ACTIVE_STRATEGY_ID, activeId);
-      }
+        if (!loaded || !Array.isArray(loaded)) {
+          loaded = [];
+          activeId = '';
+          await storage.set(STORAGE_KEY_STRATEGIES, loaded);
+          await storage.set(STORAGE_KEY_ACTIVE_STRATEGY_ID, activeId);
+        } else if (loaded.length === 0) {
+          activeId = '';
+          await storage.set(STORAGE_KEY_ACTIVE_STRATEGY_ID, '');
+        } else if (!activeId || !loaded.some((s) => s.id === activeId)) {
+          activeId = loaded[0].id;
+          await storage.set(STORAGE_KEY_ACTIVE_STRATEGY_ID, activeId);
+        }
 
-      setStrategies(loaded);
-      setActiveStrategyIdState(activeId);
-    } catch (e) {
-      console.error('Failed to load strategies:', e);
-      setStrategies(SEED_STRATEGIES);
-      setActiveStrategyIdState(SEED_STRATEGIES[0].id);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+        setStrategies(loaded);
+        setActiveStrategyIdState(activeId);
+      } catch (e) {
+        console.error('Failed to load strategies:', e);
+        setStrategies([]);
+        setActiveStrategyIdState('');
+      } finally {
+        setIsLoading(false);
+      }
+    }, []);
 
   useEffect(() => {
     loadStrategies();
   }, [loadStrategies]);
 
   const activeStrategy = useMemo(() => {
+    if (!strategies || strategies.length === 0) return null;
     return strategies.find((s) => s.id === activeStrategyId) || strategies[0] || null;
   }, [strategies, activeStrategyId]);
 
@@ -81,10 +85,9 @@ export function useStrategies() {
 
   const deleteStrategy = useCallback(
     async (id: string) => {
-      if (strategies.length <= 1) return false;
       const updated = strategies.filter((s) => s.id !== id);
       setStrategies(updated);
-      const nextActiveId = activeStrategyId === id ? updated[0].id : activeStrategyId;
+      const nextActiveId = updated.length > 0 ? (activeStrategyId === id ? updated[0].id : activeStrategyId) : '';
       setActiveStrategyIdState(nextActiveId);
       await storage.set(STORAGE_KEY_STRATEGIES, updated);
       await storage.set(STORAGE_KEY_ACTIVE_STRATEGY_ID, nextActiveId);

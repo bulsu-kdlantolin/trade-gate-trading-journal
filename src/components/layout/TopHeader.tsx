@@ -140,120 +140,128 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                   aria-label="Strategy profiles"
                   className="space-y-1 max-h-64 overflow-y-auto"
                 >
-                  {strategies.map((strat) => {
-                    const isSelected = strat.id === activeStrategy?.id;
-                    return (
-                      <button
-                        key={strat.id}
-                        role="option"
-                        aria-selected={isSelected}
-                        onClick={() => {
-                          playSuccessChime();
-                          onSelectStrategy(strat.id);
-                          setIsStratOpen(false);
-                        }}
-                        className={`w-full flex items-center justify-between p-2 rounded-xl text-left transition-all ${isSelected
-                          ? 'bg-brand/10 border border-brand/30 text-brand font-semibold'
-                          : 'hover:bg-card-hover text-text-secondary hover:text-text-primary'
-                          }`}
-                      >
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-bold truncate">{strat.name}</span>
-                            {getModeBadge(strat.executionMode)}
-                          </div>
-                          <span className="text-[10px] text-text-muted font-mono block mt-0.5">
-                            {formatCurrencyAmount(strat.accountBalance, strat.baseCurrency)} • {strat.defaultRiskValue}% Risk
-                          </span>
-                        </div>
-                        {isSelected && <Check className="w-4 h-4 text-brand shrink-0 ml-2" />}
+                            {strategies.length === 0 ? (
+                              <div className="p-3 text-center text-xs text-text-muted">
+                                No strategies created yet.
+                              </div>
+                            ) : (
+                              strategies.map((strat) => {
+                                const isSelected = strat.id === activeStrategy?.id;
+                                return (
+                                  <button
+                                    key={strat.id}
+                                    role="option"
+                                    aria-selected={isSelected}
+                                    onClick={() => {
+                                      playSuccessChime();
+                                      onSelectStrategy(strat.id);
+                                      setIsStratOpen(false);
+                                    }}
+                                    className={`w-full flex items-center justify-between p-2 rounded-xl text-left transition-all ${isSelected
+                                      ? 'bg-brand/10 border border-brand/30 text-brand font-semibold'
+                                      : 'hover:bg-card-hover text-text-secondary hover:text-text-primary'
+                                      }`}
+                                  >
+                                    <div className="min-w-0">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-xs font-bold truncate">{strat.name}</span>
+                                        {getModeBadge(strat.executionMode)}
+                                      </div>
+                                      <span className="text-[10px] text-text-muted font-mono block mt-0.5">
+                                        {formatCurrencyAmount(strat.accountBalance, strat.baseCurrency)} • {strat.defaultRiskValue}% Risk
+                                      </span>
+                                    </div>
+                          {isSelected && <Check className="w-4 h-4 text-brand shrink-0 ml-2" />}
                       </button>
                     );
-                  })}
+                  })
+                  )}
                 </div>
               </div>
             )}
           </div>
 
           {/* Capital Balance & Add Funds (Containerless) */}
-          <div className="flex items-center gap-1 sm:gap-1.5">
-            <div className="flex items-center gap-1.5 font-mono text-xs">
-              <Wallet className="w-3.5 h-3.5 text-text-muted shrink-0" />
-              <span className="text-[11px] text-text-muted font-sans hidden sm:inline">Balance:</span>
-              <span className="font-bold tabular-nums text-text-primary inline-flex items-center gap-1.5">
-                {isCryptoCurrency(activeStrategy?.baseCurrency) ? (
-                  <>
-                    <CryptoIcon symbol={activeStrategy!.baseCurrency} size="xs" />
-                    <span>{formatNumberOnly(liveBalance, activeStrategy!.baseCurrency)}</span>
-                  </>
-                ) : (
-                  <span>{formatCurrencyAmount(liveBalance, activeStrategy?.baseCurrency || 'USD')}</span>
-                )}
-              </span>
+              {activeStrategy && (
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              <div className="flex items-center gap-1.5 font-mono text-xs">
+                <Wallet className="w-3.5 h-3.5 text-text-muted shrink-0" />
+                <span className="text-[11px] text-text-muted font-sans hidden sm:inline">Balance:</span>
+                <span className="font-bold tabular-nums text-text-primary inline-flex items-center gap-1.5">
+                  {isCryptoCurrency(activeStrategy.baseCurrency) ? (
+                    <>
+                      <CryptoIcon symbol={activeStrategy.baseCurrency} size="xs" />
+                      <span>{formatNumberOnly(liveBalance, activeStrategy.baseCurrency)}</span>
+                    </>
+                  ) : (
+                    <span>{formatCurrencyAmount(liveBalance, activeStrategy.baseCurrency || 'USD')}</span>
+                  )}
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  playModalOpen();
+                  onOpenDepositModal();
+                }}
+                title="Deposit or adjust capital"
+                aria-label="Deposit or adjust capital"
+                className="relative after:absolute after:-inset-2 p-1 rounded-lg text-brand hover:text-brand-hover hover:bg-card-hover transition-colors shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              onClick={() => {
-                playModalOpen();
-                onOpenDepositModal();
-              }}
-              title="Deposit or adjust capital"
-              aria-label="Deposit or adjust capital"
-              className="relative after:absolute after:-inset-2 p-1 rounded-lg text-brand hover:text-brand-hover hover:bg-card-hover transition-colors shrink-0"
+          )}
+          </div>
+
+          {/* Right Side: Trading Session, Market Clock, Theme Toggle */}
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0 ml-auto">
+            {/* Trading Session (Beside time) */}
+            <div
+              title={activeSession ? `Active Trading Session: ${activeSession.name} (${activeSession.localRangeStr})` : 'All trading sessions are currently closed'}
+              className="flex items-center gap-1.5 font-mono text-xs select-none"
             >
-              <Plus className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Right Side: Trading Session, Market Clock, Theme Toggle */}
-        <div className="flex items-center gap-3 sm:gap-4 shrink-0 ml-auto">
-          {/* Trading Session (Beside time) */}
-          <div
-            title={activeSession ? `Active Trading Session: ${activeSession.name} (${activeSession.localRangeStr})` : 'All trading sessions are currently closed'}
-            className="flex items-center gap-1.5 font-mono text-xs select-none"
-          >
-            <span className="text-[11px] text-text-muted font-sans hidden sm:inline">
-              Trading Session:
-            </span>
-            <div className="flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2 shrink-0">
-                {activeSession ? (
-                  <>
-                    <span
-                      className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                      style={{ backgroundColor: activeSession.color }}
-                    />
-                    <span
-                      className={`relative inline-flex rounded-full h-2 w-2 ${activeSession.color === '#FFFFFF' ? 'border border-slate-400/60' : ''}`}
-                      style={{ backgroundColor: activeSession.color }}
-                    />
-                  </>
-                ) : (
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-text-muted/40" />
-                )}
+              <span className="text-[11px] text-text-muted font-sans hidden sm:inline">
+                Trading Session:
               </span>
-              <span className="font-bold text-text-primary text-[11px] max-w-[72px] xs:max-w-none truncate">
-                {activeSession ? activeSession.name : 'Closed'}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="relative flex h-2 w-2 shrink-0">
+                  {activeSession ? (
+                    <>
+                      <span
+                        className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                        style={{ backgroundColor: activeSession.color }}
+                      />
+                      <span
+                        className={`relative inline-flex rounded-full h-2 w-2 ${activeSession.color === '#FFFFFF' ? 'border border-slate-400/60' : ''}`}
+                        style={{ backgroundColor: activeSession.color }}
+                      />
+                    </>
+                  ) : (
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-text-muted/40" />
+                  )}
+                </span>
+                <span className="font-bold text-text-primary text-[11px] max-w-[72px] xs:max-w-none truncate">
+                  {activeSession ? activeSession.name : 'Closed'}
+                </span>
+              </div>
             </div>
+
+            {/* Device Local Time (Containerless) */}
+            <div
+              title="Auto-detected device local time"
+              className="hidden sm:flex items-center gap-1.5 text-xs font-mono tabular-nums text-text-secondary select-none px-1"
+            >
+              <Clock className="w-3.5 h-3.5 text-text-muted shrink-0" />
+              <span className="font-semibold text-text-primary text-[11px]">{formatDeviceClock(currentTime)}</span>
+            </div>
+
+            {/* Audio Feedback Toggle */}
+            <AudioToggleButton />
+
+            {/* Theme Toggle Button with Scattering & Spread Effect */}
+            <ThemeToggleButton />
           </div>
-
-          {/* Device Local Time (Containerless) */}
-          <div
-            title="Auto-detected device local time"
-            className="hidden sm:flex items-center gap-1.5 text-xs font-mono tabular-nums text-text-secondary select-none px-1"
-          >
-            <Clock className="w-3.5 h-3.5 text-text-muted shrink-0" />
-            <span className="font-semibold text-text-primary text-[11px]">{formatDeviceClock(currentTime)}</span>
-          </div>
-
-          {/* Audio Feedback Toggle */}
-          <AudioToggleButton />
-
-          {/* Theme Toggle Button with Scattering & Spread Effect */}
-          <ThemeToggleButton />
         </div>
-      </div>
     </header >
   );
 };

@@ -69,10 +69,6 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = ({
   };
 
   const handleDeleteClick = (strat: StrategyProfile) => {
-    if (strategies.length <= 1) {
-      toast.warning('Action Blocked', 'You must maintain at least one active strategy profile.');
-      return;
-    }
     playDangerAction();
     setStrategyToDelete(strat);
   };
@@ -174,89 +170,89 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = ({
                         {strat.name}
                       </h4>
                       {isActive && (
-                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-brand/15 text-brand font-mono shrink-0">
-                          ACTIVE
-                        </span>
+                          <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 font-mono shrink-0">
+                            ACTIVE
+                          </span>
+                      )}
+                        </div>
+                    {strat.description && (
+                        <p className="text-xs text-text-secondary mt-1 line-clamp-2 leading-relaxed text-pretty">
+                          {strat.description}
+                        </p>
                       )}
                     </div>
-                    {strat.description && (
-                      <p className="text-xs text-text-secondary mt-1 line-clamp-2 leading-relaxed text-pretty">
-                        {strat.description}
-                      </p>
-                    )}
+
+                    <span
+                      className={`text-[11px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider font-mono shrink-0 ${strat.executionMode === 'futures'
+                        ? 'bg-blue-500/15 text-blue-400'
+                        : 'bg-emerald-500/15 text-emerald-400'
+                        }`}
+                    >
+                      {strat.executionMode === 'futures' ? 'Perps' : 'Spot'}
+                    </span>
                   </div>
 
-                  <span
-                    className={`text-[11px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider font-mono shrink-0 ${strat.executionMode === 'futures'
-                      ? 'bg-blue-500/15 text-blue-400'
-                      : 'bg-emerald-500/15 text-emerald-400'
-                      }`}
-                  >
-                    {strat.executionMode === 'futures' ? 'Perps' : 'Spot'}
-                  </span>
-                </div>
+                  {/* Capital & Parameters Bar */}
+                  <div className="grid grid-cols-3 gap-2 bg-canvas border border-border p-2.5 rounded-xl text-center text-xs">
+                    <div>
+                      <span className="text-[11px] font-medium text-text-muted uppercase tracking-wider block">
+                        Base Capital
+                      </span>
+                      <span className="font-mono font-bold text-sm text-trade-green block mt-0.5 tabular-nums">
+                        {isCryptoCurrency(strat.baseCurrency) ? (
+                          <span className="inline-flex items-center justify-center gap-1">
+                            <CryptoIcon symbol={strat.baseCurrency} size="xs" />
+                            <span>{strat.accountBalance.toLocaleString()}</span>
+                          </span>
+                        ) : (
+                          `${currencySymbol}${strat.accountBalance.toLocaleString()}`
+                        )}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[11px] font-medium text-text-muted uppercase tracking-wider block">
+                        Default Risk
+                      </span>
+                      <span className="font-mono font-bold text-sm text-text-primary block mt-0.5 tabular-nums">
+                        {strat.defaultRiskValue}%
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[11px] font-medium text-text-muted uppercase tracking-wider block">
+                        Rules
+                      </span>
+                      <span className="font-mono font-bold text-xs text-text-primary block mt-0.5 tabular-nums">
+                        {mandatoryCount} Req • {confluenceCount} Conf
+                      </span>
+                    </div>
+                  </div>
 
-                {/* Capital & Parameters Bar */}
-                <div className="grid grid-cols-3 gap-2 bg-canvas border border-border p-2.5 rounded-xl text-center text-xs">
-                  <div>
-                    <span className="text-[11px] font-medium text-text-muted uppercase tracking-wider block">
-                      Base Capital
-                    </span>
-                    <span className="font-mono font-bold text-sm text-trade-green block mt-0.5 tabular-nums">
-                      {isCryptoCurrency(strat.baseCurrency) ? (
-                        <span className="inline-flex items-center justify-center gap-1">
-                          <CryptoIcon symbol={strat.baseCurrency} size="xs" />
-                          <span>{strat.accountBalance.toLocaleString()}</span>
+                  {/* Timeframes & Sessions Tagline */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-text-muted">TF:</span>
+                      {strat.timeframes.map((tf) => (
+                        <span
+                          key={tf}
+                          className="inline-flex items-center font-mono text-[10px] font-bold px-1.5 py-0.2 rounded bg-card-hover/80 text-text-primary"
+                        >
+                          {tf}
                         </span>
-                      ) : (
-                        `${currencySymbol}${strat.accountBalance.toLocaleString()}`
-                      )}
-                    </span>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-text-muted">Sessions:</span>
+                      {strat.sessions.map((sess) => (
+                        <span
+                          key={sess}
+                          className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.2 rounded ${getSessionStyle(sess).badge}`}
+                        >
+                          <span className={`w-1 h-1 rounded-full shrink-0 ${getSessionStyle(sess).dot}`} />
+                          {sess}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-[11px] font-medium text-text-muted uppercase tracking-wider block">
-                      Default Risk
-                    </span>
-                    <span className="font-mono font-bold text-sm text-text-primary block mt-0.5 tabular-nums">
-                      {strat.defaultRiskValue}%
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[11px] font-medium text-text-muted uppercase tracking-wider block">
-                      Rules
-                    </span>
-                    <span className="font-mono font-bold text-xs text-text-primary block mt-0.5 tabular-nums">
-                      {mandatoryCount} Req • {confluenceCount} Conf
-                    </span>
-                  </div>
-                </div>
-
-                {/* Timeframes & Sessions Tagline */}
-                <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-text-muted">TF:</span>
-                    {strat.timeframes.map((tf) => (
-                      <span
-                        key={tf}
-                        className="inline-flex items-center font-mono text-[10px] font-bold px-1.5 py-0.2 rounded bg-card-hover/80 text-text-primary"
-                      >
-                        {tf}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-text-muted">Sessions:</span>
-                    {strat.sessions.map((sess) => (
-                      <span
-                        key={sess}
-                        className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.2 rounded ${getSessionStyle(sess).badge}`}
-                      >
-                        <span className={`w-1 h-1 rounded-full shrink-0 ${getSessionStyle(sess).dot}`} />
-                        {sess}
-                      </span>
-                    ))}
-                  </div>
-                </div>
 
                   {/* Action Buttons Strip with Text Labels */}
                   <div className="flex items-center justify-between pt-3 border-t border-border">
@@ -272,92 +268,92 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = ({
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 text-xs font-bold text-brand">
-                        <Check className="w-3.5 h-3.5" />
-                        Active Playbook
-                      </span>
+                        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-trade-green">
+                          <Check className="w-3.5 h-3.5 text-trade-green" />
+                          Active Playbook
+                        </span>
                     )}
 
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => handleOpenShare(strat)}
-                        className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-brand hover:bg-card-hover border border-transparent hover:border-border flex items-center gap-1.5 transition-colors"
-                      >
-                        <Share2 className="w-3.5 h-3.5" />
-                        <span>Share Playbook</span>
-                      </button>
-                      <button
-                        onClick={() => handleOpenEdit(strat)}
-                        className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-card-hover border border-transparent hover:border-border flex items-center gap-1.5 transition-colors"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                        <span>Edit</span>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(strat)}
-                        className="p-1.5 rounded-xl text-text-muted hover:text-trade-red hover:bg-card-hover transition-colors"
-                        title="Delete Profile"
-                        aria-label={`Delete ${strat.name} strategy profile`}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => handleOpenShare(strat)}
+                            className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-brand hover:bg-card-hover border border-transparent hover:border-border flex items-center gap-1.5 transition-colors"
+                          >
+                            <Share2 className="w-3.5 h-3.5" />
+                            <span>Share Playbook</span>
+                          </button>
+                          <button
+                            onClick={() => handleOpenEdit(strat)}
+                            className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-card-hover border border-transparent hover:border-border flex items-center gap-1.5 transition-colors"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(strat)}
+                            className="p-1.5 rounded-xl text-text-muted hover:text-trade-red hover:bg-card-hover transition-colors"
+                            title="Delete Profile"
+                            aria-label={`Delete ${strat.name} strategy profile`}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
                 </div>
-                );
+                  );
           })}
-              </div>
-            )
+                </div>
+                )
           }
 
-      {/* Strategy Profile Editor Modal */ }
-      {
-              isFormModalOpen && (
-              <Suspense fallback={null}>
-                <StrategyFormModal
-                  isOpen={isFormModalOpen}
+                {/* Strategy Profile Editor Modal */}
+                {
+                  isFormModalOpen && (
+                    <Suspense fallback={null}>
+                      <StrategyFormModal
+                        isOpen={isFormModalOpen}
+                        onClose={() => {
+                          playModalClose();
+                          setIsFormModalOpen(false);
+                        }}
+                        strategy={editingStrategy}
+                        onSave={async (data) => {
+                          playSuccessChime();
+                          return onSaveStrategy(data);
+                        }}
+                      />
+                    </Suspense>
+                  )
+                }
+
+                {/* Strategy Playbook Share Modal */}
+                {
+                  selectedStrategyForShare && (
+                    <Suspense fallback={null}>
+                      <ShareStrategyModal
+                        strategy={selectedStrategyForShare}
+                        onClose={() => {
+                          playModalClose();
+                          setSelectedStrategyForShare(null);
+                        }}
+                      />
+                    </Suspense>
+                  )
+                }
+
+                {/* Delete Strategy Confirmation Dialog */}
+                <ConfirmDeleteModal
+                  isOpen={!!strategyToDelete}
                   onClose={() => {
                     playModalClose();
-                    setIsFormModalOpen(false);
+                    setStrategyToDelete(null);
                   }}
-                  strategy={editingStrategy}
-                  onSave={async (data) => {
-                    playSuccessChime();
-                    return onSaveStrategy(data);
-                  }}
+                  onConfirm={handleConfirmDelete}
+                  title="Delete Strategy Profile?"
+                  description="Permanently delete this strategy profile? All trade records logged under this strategy will remain preserved in your historical ledger."
+                  itemName={strategyToDelete?.name}
+                  confirmButtonText="Delete Profile"
                 />
-              </Suspense>
-            )
-      }
-
-          {/* Strategy Playbook Share Modal */}
-          {
-            selectedStrategyForShare && (
-              <Suspense fallback={null}>
-                <ShareStrategyModal
-                  strategy={selectedStrategyForShare}
-                  onClose={() => {
-                    playModalClose();
-                    setSelectedStrategyForShare(null);
-                  }}
-                />
-              </Suspense>
-            )
-          }
-
-          {/* Delete Strategy Confirmation Dialog */}
-          <ConfirmDeleteModal
-            isOpen={!!strategyToDelete}
-            onClose={() => {
-              playModalClose();
-              setStrategyToDelete(null);
-            }}
-            onConfirm={handleConfirmDelete}
-            title="Delete Strategy Profile?"
-            description="Permanently delete this strategy profile? All trade records logged under this strategy will remain preserved in your historical ledger."
-            itemName={strategyToDelete?.name}
-            confirmButtonText="Delete Profile"
-          />
-        </div >
-      );
-};
+              </div >
+            );
+          };
