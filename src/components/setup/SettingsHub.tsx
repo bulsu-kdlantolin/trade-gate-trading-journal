@@ -64,7 +64,7 @@ const SESSION_PERIOD_OPTIONS: SelectOption<'AM' | 'PM'>[] = [
   { value: 'PM', label: 'PM' },
 ];
 
-export const SettingsHub: React.FC<SettingsHubProps> = ({
+export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
   strategies,
   allTrades,
   activeStrategy,
@@ -248,12 +248,12 @@ export const SettingsHub: React.FC<SettingsHubProps> = ({
     reader.readAsText(file);
   };
 
-  // Reset to default sample crypto data
+  // Reset to starter crypto profiles and template configuration
   const handleResetSampleData = async () => {
     try {
       playDangerAction();
       await onResetAllData();
-      toast.success('System Reset', 'Restored default crypto profiles & sample trades.');
+      toast.success('System Reset', 'Restored starter crypto strategy profiles.');
     } catch (err: unknown) {
       toast.error('Reset Failed', getErrorMessage(err));
     }
@@ -598,9 +598,9 @@ export const SettingsHub: React.FC<SettingsHubProps> = ({
                       <span className={`w-2 h-2 rounded-full shrink-0 ${getSessionStyle(sess.name).dot}`} />
                       <span className="font-semibold text-xs text-text-primary">{sess.name}</span>
                     </div>
-                      <span className={`text-[11px] font-mono font-bold tabular-nums px-2 py-0.5 rounded ${getSessionStyle(sess.name).badge}`}>
-                        {formatSessionLocalRange(sess)}
-                      </span>
+                    <span className={`text-[11px] font-mono font-bold tabular-nums px-2 py-0.5 rounded ${getSessionStyle(sess.name).badge}`}>
+                      {formatSessionLocalRange(sess)}
+                    </span>
                   </div>
                   <p className="text-[11px] text-text-muted leading-relaxed text-pretty">
                     {sessionDescriptions[sess.id] || ''}
@@ -631,18 +631,18 @@ export const SettingsHub: React.FC<SettingsHubProps> = ({
           {/* Reset Profiles Row */}
           <div className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <span className="text-xs font-semibold text-text-primary">Reset Default Strategies</span>
+              <span className="text-xs font-semibold text-text-primary">Reset Starter Strategies</span>
               <p className="text-[11px] text-text-muted mt-0.5 text-pretty">
-                Restores the 4 pre-seeded crypto strategy profiles and default sample trades.
+                Restores standard crypto strategy profiles (Clean Slate). Custom profiles will be reset.
               </p>
             </div>
             <button
               onClick={() => setIsResetConfirmOpen(true)}
-              aria-label="Reset default strategy profiles and sample data"
+              aria-label="Reset default starter strategy profiles"
               className="py-1.5 px-3 rounded-xl bg-canvas border border-border hover:border-brand/40 text-text-primary font-semibold text-xs flex items-center gap-1.5 transition-colors shrink-0"
             >
               <RotateCcw className="w-3.5 h-3.5 text-text-muted" />
-              Reset Default Profiles
+              Reset Starter Profiles
             </button>
           </div>
 
@@ -671,8 +671,8 @@ export const SettingsHub: React.FC<SettingsHubProps> = ({
         isOpen={isResetConfirmOpen}
         onClose={() => setIsResetConfirmOpen(false)}
         onConfirm={handleResetSampleData}
-        title="Reset to Default Strategies?"
-        description="This will restore the 4 default crypto strategy profiles and sample journal entries. Any custom strategies or unsaved settings will be overwritten. This action cannot be undone."
+        title="Reset to Starter Strategies?"
+        description="This will restore the standard crypto strategy profiles and clean ledger. Any custom strategies or unsaved settings will be overwritten. This action cannot be undone."
         confirmButtonText="Reset Everything"
       />
 
@@ -687,4 +687,4 @@ export const SettingsHub: React.FC<SettingsHubProps> = ({
       />
     </div>
   );
-};
+});

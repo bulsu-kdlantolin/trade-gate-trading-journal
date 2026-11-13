@@ -1,29 +1,30 @@
 ---
 name: TradeGate Crypto
-description: Institutional cryptocurrency trading journal, execution gate, and performance terminal
+description: Institutional cryptocurrency trading journal, execution gate, and performance terminal styled with the official Binance design system
 colors:
-  primary: "#F59E0B"
-  primary-hover: "#D97706"
-  canvas-dark: "#090A0F"
-  card-dark: "#11131A"
-  card-hover-dark: "#181B24"
-  border-dark: "#1F2430"
-  border-muted-dark: "#2E3648"
-  text-primary-dark: "#F8FAFC"
-  text-secondary-dark: "#94A3B8"
-  text-muted-dark: "#8E9DAE"
-  canvas-light: "#F8FAFC"
+  primary: "#FCD535"
+  primary-hover: "#F0B90B"
+  canvas-dark: "#181A20"
+  card-dark: "#1E2329"
+  card-hover-dark: "#2B313A"
+  border-dark: "#2B313A"
+  border-muted-dark: "#363D47"
+  text-primary-dark: "#EAECEF"
+  text-secondary-dark: "#848E9C"
+  text-muted-dark: "#5E6673"
+  canvas-light: "#FAFAFA"
   card-light: "#FFFFFF"
-  card-hover-light: "#F1F5F9"
-  border-light: "#E2E8F0"
-  border-muted-light: "#CBD5E1"
-  text-primary-light: "#0F172A"
-  text-secondary-light: "#475569"
-  text-muted-light: "#64748B"
-  bullish: "#10B981"
-  bullish-light: "#059669"
-  bearish: "#F43F5E"
-  bearish-light: "#E11D48"
+  card-hover-light: "#F5F5F5"
+  border-light: "#EAECEF"
+  border-muted-light: "#D0D5DD"
+  text-primary-light: "#181A20"
+  text-secondary-light: "#474D57"
+  text-muted-light: "#707A8A"
+  brand-text-light: "#946C00"
+  bullish: "#0ECB81"
+  bullish-light: "#0ECB81"
+  bearish: "#F6465D"
+  bearish-light: "#F6465D"
   session-asia: "#FFFFFF"
   session-london: "#3B82F6"
   session-ny-am: "#EF4444"
@@ -31,40 +32,40 @@ colors:
   shadow-dark: "rgba(0, 0, 0, 0.35)"
 typography:
   display:
-    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
+    fontFamily: "BinancePlex, IBM Plex Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
     fontSize: "1.5rem"
     fontWeight: 800
     lineHeight: 1.2
     letterSpacing: "-0.02em"
   headline:
-    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
+    fontFamily: "BinancePlex, IBM Plex Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
     fontSize: "1.125rem"
     fontWeight: 700
     lineHeight: 1.3
   title:
-    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
+    fontFamily: "BinancePlex, IBM Plex Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 700
     lineHeight: 1.4
   body:
-    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
+    fontFamily: "BinancePlex, IBM Plex Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
     fontSize: "0.75rem"
     fontWeight: 500
     lineHeight: 1.5
   label:
-    fontFamily: "JetBrains Mono, SFMono-Regular, Consolas, Menlo, monospace"
+    fontFamily: "IBM Plex Mono, JetBrains Mono, SFMono-Regular, Consolas, Menlo, monospace"
     fontSize: "0.6875rem"
     fontWeight: 700
     lineHeight: 1
     letterSpacing: "0.02em"
   micro:
-    fontFamily: "JetBrains Mono, SFMono-Regular, Consolas, Menlo, monospace"
+    fontFamily: "IBM Plex Mono, JetBrains Mono, SFMono-Regular, Consolas, Menlo, monospace"
     fontSize: "0.625rem"
     fontWeight: 700
     lineHeight: 1
     letterSpacing: "0.02em"
   nano:
-    fontFamily: "JetBrains Mono, SFMono-Regular, Consolas, Menlo, monospace"
+    fontFamily: "IBM Plex Mono, JetBrains Mono, SFMono-Regular, Consolas, Menlo, monospace"
     fontSize: "0.5625rem"
     fontWeight: 700
     lineHeight: 1
@@ -99,62 +100,62 @@ components:
 
 ## Overview
 
-**Creative North Star: "The Sovereign Execution Terminal"**
+**Creative North Star: "The Sovereign Execution Terminal — Binance Edition"**
 
-TradeGate Crypto is engineered for high-conviction cryptocurrency traders who require tactical discipline, rapid ergonomics, and institutional clarity. The visual language balances extreme data density with zero visual noise, rejecting decorative gradients and novelty themes in favor of high-contrast hairlines, deep canvas grounding, and focused amber telemetry.
+TradeGate Crypto is engineered for high-conviction cryptocurrency traders who require tactical discipline, rapid ergonomics, and institutional clarity. The visual language adopts the official Binance design system—balancing extreme data density with zero visual noise, utilizing Binance's iconic dark canvas grounding (`#181A20`), container surfaces (`#1E2329`), vibrant Binance yellow accent (`#FCD535` / `#F0B90B`), and signature trading green (`#0ECB81`) and red (`#F6465D`).
 
 The interface operates strictly in **Operate Mode**: every pixel exists to serve pre-trade discipline, risk verification, and performance analysis. Layouts maintain rigorous horizontal rhythm and tabular precision. Ambient brand glows are used sparingly—reserved for verified gate unlocks, active session badges, and high-tier setup grades.
 
 **Key Characteristics:**
-- **High-Density Tactility:** Dense 12-column grids with compact padding (8px to 16px) prioritizing scanability.
-- **Strict Semantic Separation:** Financial gains and losses use high-contrast Emerald and Rose tokens, while structural controls remain disciplined in Neutral and Amber Gold.
-- **Tabular Monospace Alignment:** Every price, PnL value, position size, and R-multiple renders in JetBrains Mono with tabular numerals.
-- **Enforced Gate Feedback:** Interactive checklist items physically transform with emerald tints upon verification; the execution trigger states are unambiguously locked or unlocked.
+- **Binance Typography:** UI hierarchy powered by `IBM Plex Sans` (the open standard counterpart to proprietary `BinancePlex`) and numeric/tabular data powered by `IBM Plex Mono` / `JetBrains Mono` with tabular numerals.
+- **Strict Semantic Separation:** Financial gains and losses use high-contrast Binance Green (`#0ECB81`) and Red (`#F6465D`) tokens, while structural controls remain disciplined in Binance Yellow (`#FCD535` / `#F0B90B`).
+- **Tabular Monospace Alignment:** Every price, PnL value, position size, and R-multiple renders in `IBM Plex Mono` with tabular numerals.
+- **Enforced Gate Feedback:** Interactive checklist items physically transform with green tints upon verification; the execution trigger states are unambiguously locked or unlocked.
 - **Acoustic & Tactile Feedback:** Zero external audio dependencies; pure Web Audio API synthesis produces subtle micro-ticks, gate arpeggios, and avionic HUD sweeps.
 
 ## Colors
 
-The palette is anchored by deep space neutrals, punctuated by energetic Amber Gold, with strict emerald/rose semantic returns.
+The palette is anchored by official Binance dark/light neutrals, punctuated by energetic Binance Yellow, with strict Binance green/red semantic returns.
 
 ### Primary
-- **Amber Gold** (`#F59E0B`): The core brand energy, reserved for active navigation tabs, live strategy indicators, A+ setup tiers, and primary execution triggers.
-- **Amber Deep** (`#D97706`): Interactive hover state for primary amber buttons and badges.
+- **Binance Yellow** (`#FCD535` in dark / `#F0B90B` in light): The core brand energy, reserved for active navigation tabs, live strategy indicators, A+ setup tiers, and primary execution triggers.
+- **Binance Gold** (`#F0B90B`): Interactive hover state for primary yellow buttons and badges in dark mode; primary button in light mode.
 
 ### Neutral
-- **Deep Pitch Canvas** (`#090A0F` dark / `#F8FAFC` light): The foundation canvas layer. Absorbs ambient light and gives cards floating structural separation.
-- **Elevated Card Surface** (`#11131A` dark / `#FFFFFF` light): Container surface for trade forms, checklists, and bento KPI cards.
-- **Interactive Surface Hover** (`#181B24` dark / `#F1F5F9` light): Subtle highlight for table rows, clickable list items, and menu buttons.
-- **Subtle Hairline Border** (`#1F2430` dark / `#E2E8F0` light): 1px structural boundary that defines cards without heavy drop-shadows.
-- **Slate Text Primary** (`#F8FAFC` dark / `#0F172A` light): Main headlines, active prices, and primary labels.
-- **Slate Text Secondary** (`#94A3B8` dark / `#475569` light): Form input labels, table secondary values, and timestamps.
-- **Slate Text Muted** (`#64748B` dark / `#94A3B8` light): Inactive states, placeholder text, and footnote metadata.
+- **Binance Canvas** (`#181A20` dark / `#FAFAFA` light): The foundation canvas layer. Absorbs ambient light and gives cards floating structural separation.
+- **Binance Card Surface** (`#1E2329` dark / `#FFFFFF` light): Container surface for trade forms, checklists, and bento KPI cards.
+- **Binance Card Hover** (`#2B313A` dark / `#F5F5F5` light): Subtle highlight for table rows, clickable list items, and menu buttons.
+- **Binance Hairline Border** (`#2B313A` dark / `#EAECEF` light): 1px structural boundary that defines cards without heavy drop-shadows.
+- **Binance Text Primary** (`#EAECEF` dark / `#181A20` light): Main headlines, active prices, and primary labels.
+- **Binance Text Secondary** (`#848E9C` dark / `#474D57` light): Form input labels, table secondary values, and timestamps.
+- **Binance Text Muted** (`#5E6673` dark / `#707A8A` light): Inactive states, placeholder text, and footnote metadata.
 
 ### Semantic
-- **Bullish Emerald** (`#10B981` dark / `#059669` light): Winning trades, verified mandatory rules, and positive P&L returns.
-- **Bearish Rose** (`#F43F5E` dark / `#E11D48` light): Discipline violations, stop losses, closed losses, and gate lock alerts.
+- **Binance Bullish Green** (`#0ECB81`): Winning trades, verified mandatory rules, and positive P&L returns.
+- **Binance Bearish Red** (`#F6465D`): Discipline violations, stop losses, closed losses, and gate lock alerts.
 
 ### Operational Roles & Hierarchy
 - **Setup Confidence Tiers (Grades):**
-  - **Grade A+**: Amber Gold (`#F59E0B`) — Elite conviction, all mandatory rules passed, maximum confluence points.
-  - **Grade A**: Emerald (`#10B981`) — Solid disciplined setup, high confluence.
+  - **Grade A+**: Binance Yellow (`#FCD535`) — Elite conviction, all mandatory rules passed, maximum confluence points.
+  - **Grade A**: Binance Green (`#0ECB81`) — Solid disciplined setup, high confluence.
   - **Grade B**: Electric Blue (`#3B82F6`) — Disciplined execution, moderate confluence.
-  - **Grade C**: Bearish Rose (`#F43F5E`) — Marginal setup, gate violation, or forced bypass.
+  - **Grade C**: Binance Red (`#F6465D`) — Marginal setup, gate violation, or forced bypass.
 - **Rule Domain Categories:**
   - **HTF Bias**: Indigo (`#6366F1`)
-  - **Execution**: Amber Gold (`#F59E0B`)
-  - **Risk**: Rose (`#F43F5E`)
+  - **Execution**: Binance Yellow (`#F0B90B`)
+  - **Risk**: Binance Red (`#F6465D`)
   - **Market Context**: Purple (`#A855F7`)
   - **On-Chain**: Teal (`#14B8A6`)
-  - **General**: Neutral Slate (`#64748B`)
-- **Market Liquidity Sessions:**
+  - **General**: Neutral Slate (`#5E6673`)
+- **Market Liquidity Sessions (Preserved):**
   - **Asia**: Pure White (`#FFFFFF`)
   - **London**: Sovereign Blue (`#3B82F6`)
   - **New York AM**: Institutional Red (`#EF4444`)
   - **New York PM**: Sunset Light Red (`#F87171`)
 - **Spot Actions:**
-  - **BUY / ACCUMULATE**: Emerald (`#10B981`)
+  - **BUY / ACCUMULATE**: Binance Green (`#0ECB81`)
   - **DCA ADD**: Teal (`#14B8A6`)
-  - **PARTIAL TP**: Amber (`#F59E0B`)
+  - **PARTIAL TP**: Binance Yellow (`#F0B90B`)
   - **FULL EXIT**: Blue (`#3B82F6`)
 
 ### Named Rules

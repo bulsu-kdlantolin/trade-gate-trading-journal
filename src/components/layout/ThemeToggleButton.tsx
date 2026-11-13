@@ -36,84 +36,84 @@ export const ThemeToggleButton: React.FC = () => {
     const willBeDark = !isDark;
     const colors = willBeDark
       ? ['#60A5FA', '#818CF8', '#A78BFA', '#E2E8F0', '#38BDF8', '#C084FC']
-      : ['#F59E0B', '#FBBF24', '#FCD34D', '#FEF08A', '#F97316', '#FDE047'];
+      : ['#FCD535', '#F0B90B', '#FDE047', '#FEF08A', '#D9A006', '#FCD535'];
 
-    const count = 16;
-    const newParticles: ScatterParticle[] = [];
-    for (let i = 0; i < count; i++) {
-      const angle = (i * (360 / count) + (Math.random() * 16 - 8)) * (Math.PI / 180);
-      const distance = 28 + Math.random() * 38; // 28px - 66px radial scatter
-      newParticles.push({
-        id: Date.now() + i,
-        x: Math.round(Math.cos(angle) * distance),
-        y: Math.round(Math.sin(angle) * distance),
-        size: Math.round((2.5 + Math.random() * 2.2) * 10) / 10,
-        color: colors[i % colors.length],
-      });
-    }
+const count = 16;
+const newParticles: ScatterParticle[] = [];
+for (let i = 0; i < count; i++) {
+  const angle = (i * (360 / count) + (Math.random() * 16 - 8)) * (Math.PI / 180);
+  const distance = 28 + Math.random() * 38; // 28px - 66px radial scatter
+  newParticles.push({
+    id: Date.now() + i,
+    x: Math.round(Math.cos(angle) * distance),
+    y: Math.round(Math.sin(angle) * distance),
+    size: Math.round((2.5 + Math.random() * 2.2) * 10) / 10,
+    color: colors[i % colors.length],
+  });
+}
 
-    setParticles(newParticles);
-    setShowShockwave(true);
+setParticles(newParticles);
+setShowShockwave(true);
 
-    // Auto-clean particle burst after animation ends (extended for slower graceful trail)
-    setTimeout(() => {
-      setParticles([]);
-      setShowShockwave(false);
-  }, 1300);
+// Auto-clean particle burst after animation ends (extended for slower graceful trail)
+setTimeout(() => {
+  setParticles([]);
+  setShowShockwave(false);
+}, 1300);
 
-  // Check for View Transitions API and reduced-motion user preference
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const doc = document as unknown as {
-    startViewTransition?: (cb: () => void) => {
-      ready: Promise<void>;
-      finished: Promise<void>;
-    };
+// Check for View Transitions API and reduced-motion user preference
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const doc = document as unknown as {
+  startViewTransition?: (cb: () => void) => {
+    ready: Promise<void>;
+    finished: Promise<void>;
   };
+};
 
-  if (typeof doc.startViewTransition !== 'function' || prefersReducedMotion) {
-    toggleTheme();
-    return;
-  }
+if (typeof doc.startViewTransition !== 'function' || prefersReducedMotion) {
+  toggleTheme();
+  return;
+}
 
-  isTransitioningRef.current = true;
+isTransitioningRef.current = true;
 
-  try {
-    // Calculate max radius needed to cover the furthest corner of viewport
-    const endRadius = Math.hypot(
-      Math.max(x, window.innerWidth - x),
-      Math.max(y, window.innerHeight - y)
-    );
+try {
+  // Calculate max radius needed to cover the furthest corner of viewport
+  const endRadius = Math.hypot(
+    Math.max(x, window.innerWidth - x),
+    Math.max(y, window.innerHeight - y)
+  );
 
-    // Execute synchronous DOM update inside view transition callback
-    const transition = doc.startViewTransition(() => {
-      flushSync(() => {
-        toggleTheme();
-      });
+  // Execute synchronous DOM update inside view transition callback
+  const transition = doc.startViewTransition(() => {
+    flushSync(() => {
+      toggleTheme();
     });
+  });
 
-    await transition.ready;
+  await transition.ready;
 
-    // Animate circular reveal expanding smoothly from the button switch center (cinematic slower pace)
-    const animation = document.documentElement.animate(
-      {
-        clipPath: [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${endRadius}px at ${x}px ${y}px)`,
-        ],
-      },
-      {
-        duration: 1050,
-        easing: 'cubic-bezier(0.25, 1, 0.35, 1)',
-        pseudoElement: '::view-transition-new(root)',
-      }
-    );
+  // Animate circular reveal expanding smoothly from the button switch center (cinematic slower pace)
+  const animation = document.documentElement.animate(
+    {
+      clipPath: [
+        `circle(0px at ${x}px ${y}px)`,
+        `circle(${endRadius}px at ${x}px ${y}px)`,
+      ],
+    },
+    {
+      duration: 1050,
+      easing: 'cubic-bezier(0.25, 1, 0.35, 1)',
+      pseudoElement: '::view-transition-new(root)',
+    }
+  );
 
-    await animation.finished;
-  } catch {
-    // Fallback if animation is cancelled or unsupported
-  } finally {
-    isTransitioningRef.current = false;
-  }
+  await animation.finished;
+} catch {
+  // Fallback if animation is cancelled or unsupported
+} finally {
+  isTransitioningRef.current = false;
+}
 };
 
 return (

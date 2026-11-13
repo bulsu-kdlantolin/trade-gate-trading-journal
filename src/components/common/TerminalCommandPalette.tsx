@@ -29,6 +29,7 @@ import {
   toggleAudioEnabled,
 } from '../../utils/audioTelemetry';
 import { useTheme } from '../../context/ThemeContext';
+import { useModalA11y } from '../../hooks/useModalA11y';
 
 interface TerminalCommandPaletteProps {
   isOpen: boolean;
@@ -63,6 +64,7 @@ export const TerminalCommandPalette: React.FC<TerminalCommandPaletteProps> = ({
   onSelectStrategy,
   onOpenDepositModal,
 }) => {
+  const modalRef = useModalA11y(isOpen, onClose);
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -311,6 +313,7 @@ export const TerminalCommandPalette: React.FC<TerminalCommandPaletteProps> = ({
       }}
     >
       <div
+        ref={modalRef}
         className="w-full max-w-xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[80vh]"
         onKeyDown={handleKeyDown}
       >
@@ -328,6 +331,9 @@ export const TerminalCommandPalette: React.FC<TerminalCommandPaletteProps> = ({
             placeholder="Type a command, playbook, or shortcut... (Esc to exit)"
             className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
             aria-label="Search terminal commands"
+            aria-autocomplete="list"
+            aria-controls="command-palette-results"
+            aria-activedescendant={filteredItems[selectedIndex] ? `palette-item-${filteredItems[selectedIndex].id}` : undefined}
           />
           {query ? (
             <button
@@ -351,6 +357,7 @@ export const TerminalCommandPalette: React.FC<TerminalCommandPaletteProps> = ({
         {/* Results List */}
         <div
           ref={listRef}
+          id="command-palette-results"
           role="listbox"
           aria-label="Commands"
           className="flex-1 overflow-y-auto p-2 space-y-1 divide-y divide-border/20"
@@ -368,6 +375,7 @@ export const TerminalCommandPalette: React.FC<TerminalCommandPaletteProps> = ({
               return (
                 <button
                   key={item.id}
+                  id={`palette-item-${item.id}`}
                   data-index={idx}
                   role="option"
                   aria-selected={isSelected}

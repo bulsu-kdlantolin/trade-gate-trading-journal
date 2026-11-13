@@ -57,9 +57,9 @@ function getDeterministicGradients(str: string): { from: string; to: string; tex
   }
   const palettes = [
     { from: '#6366F1', to: '#A855F7', text: '#FFFFFF' },
-    { from: '#EC4899', to: '#F43F5E', text: '#FFFFFF' },
-    { from: '#F59E0B', to: '#EF4444', text: '#FFFFFF' },
-    { from: '#10B981', to: '#06B6D4', text: '#FFFFFF' },
+    { from: '#EC4899', to: '#F6465D', text: '#FFFFFF' },
+    { from: '#F0B90B', to: '#EF4444', text: '#FFFFFF' },
+    { from: '#0ECB81', to: '#06B6D4', text: '#FFFFFF' },
     { from: '#3B82F6', to: '#1D4ED8', text: '#FFFFFF' },
     { from: '#8B5CF6', to: '#6D28D9', text: '#FFFFFF' },
     { from: '#14B8A6', to: '#0F766E', text: '#FFFFFF' },
@@ -69,7 +69,7 @@ function getDeterministicGradients(str: string): { from: string; to: string; tex
   return palettes[idx];
 }
 
-  const INLINE_CRYPTO_SVGS: Record<string, (size: number, gradId?: string) => React.ReactNode > = {
+const INLINE_CRYPTO_SVGS: Record<string, (size: number, gradId?: string) => React.ReactNode> = {
   BTC: (size) => (
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
       <circle cx="16" cy="16" r="16" fill="#F7931A" />
@@ -80,26 +80,26 @@ function getDeterministicGradients(str: string): { from: string; to: string; tex
       />
     </svg>
   ),
-    ETH: (size) => (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-        <circle cx="16" cy="16" r="16" fill="#627EEA" />
-        <g fill="#FFFFFF" fillRule="nonzero">
-          <path fillOpacity=".6" d="M16.498 4v8.87l7.497 3.35z" />
-          <path d="M16.498 4L9 16.22l7.498-3.35z" />
-          <path fillOpacity=".6" d="M16.498 21.968v6.027L24 17.616z" />
-          <path d="M16.498 27.995v-6.028L9 17.616z" />
-          <path fillOpacity=".2" d="M16.498 20.573l7.497-4.353-7.497-3.349z" />
-          <path fillOpacity=".6" d="M9 16.22l7.498 4.353v-7.702z" />
-        </g>
-      </svg>
-    ),
-        SOL: (size, gradId = 'sol_g_default') => (
-          <svg width = { size } height = { size } viewBox = "0 0 36 36" fill = "none">
+  ETH: (size) => (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="16" fill="#627EEA" />
+      <g fill="#FFFFFF" fillRule="nonzero">
+        <path fillOpacity=".6" d="M16.498 4v8.87l7.497 3.35z" />
+        <path d="M16.498 4L9 16.22l7.498-3.35z" />
+        <path fillOpacity=".6" d="M16.498 21.968v6.027L24 17.616z" />
+        <path d="M16.498 27.995v-6.028L9 17.616z" />
+        <path fillOpacity=".2" d="M16.498 20.573l7.497-4.353-7.497-3.349z" />
+        <path fillOpacity=".6" d="M9 16.22l7.498 4.353v-7.702z" />
+      </g>
+    </svg>
+  ),
+  SOL: (size, gradId = 'sol_g_default') => (
+    <svg width={size} height={size} viewBox="0 0 36 36" fill="none">
       <defs>
-        <linearGradient id = { gradId } x1 = "90.7%" y1 = "34.8%" x2 = "35.5%" y2 = "55.4%">
-          <stop stopColor = "#00FFA3" offset = "0%" />
-    < stop stopColor = "#03E1FF" offset = "50%" />
-      <stop stopColor="#DC1FFF" offset="100%" />
+        <linearGradient id={gradId} x1="90.7%" y1="34.8%" x2="35.5%" y2="55.4%">
+          <stop stopColor="#00FFA3" offset="0%" />
+          < stop stopColor="#03E1FF" offset="50%" />
+          <stop stopColor="#DC1FFF" offset="100%" />
         </linearGradient >
       </defs >
       <circle cx="18" cy="18" r="17.5" fill="#0C0F17" stroke="rgba(255, 255, 255, 0.14)" strokeWidth="1" />
@@ -124,60 +124,60 @@ function getDeterministicGradients(str: string): { from: string; to: string; tex
   ),
   BNB: (size) => (
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-      <circle cx="16" cy="16" r="16" fill="#F3BA2F" />
+      <circle cx="16" cy="16" r="16" fill="#F0B90B" />
       <g fill="#FFFFFF" transform="translate(5, 5) scale(0.04296875)">
         <path d="M193.73 214.59l62.27-62.27 62.27 62.27 35.36-35.36L256 108.5 96 268.5l35.36 35.36 62.37-62.27zm0 82.82l62.27 62.27 62.27-62.27 35.36 35.36L256 403.5 96 243.5l35.36-35.36 62.37 62.27zm125.86-41.41L256 193.73l-63.59 63.59L256 320.91l63.59-63.59zM141.31 237.58L106 272.89l50.3 50.3 35.31-35.31-50.3-50.3zm229.38 0l-50.3 50.3 35.31 35.31 50.3-50.3-35.31-35.31z" />
       </g>
     </svg>
   ),
-    XRP: (size) => (
-      <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-        <circle cx="16" cy="16" r="15.5" fill="#23292F" stroke="rgba(255, 255, 255, 0.14)" strokeWidth="1" />
+  XRP: (size) => (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="15.5" fill="#23292F" stroke="rgba(255, 255, 255, 0.14)" strokeWidth="1" />
+      <path
+        fill="#FFFFFF"
+        d="M22.363 8h2.602l-5.414 5.361a5.06 5.06 0 0 1-7.102 0L7.032 8h2.605l4.113 4.071a3.2 3.2 0 0 0 4.496 0zM9.605 22.906H7l5.45-5.393a5.06 5.06 0 0 1 7.1 0L25 22.906h-2.605L18.25 18.8a3.2 3.2 0 0 0-4.496 0z"
+      />
+    </svg>
+  ),
+  HYPE: (size) => (
+    <svg width={size} height={size} viewBox="0 0 144 144" fill="none">
+      <circle cx="72" cy="72" r="70" fill="#0B1317" stroke="rgba(255, 255, 255, 0.14)" strokeWidth="4" />
+      <g transform="translate(18, 18) scale(0.75)">
         <path
-          fill="#FFFFFF"
-          d="M22.363 8h2.602l-5.414 5.361a5.06 5.06 0 0 1-7.102 0L7.032 8h2.605l4.113 4.071a3.2 3.2 0 0 0 4.496 0zM9.605 22.906H7l5.45-5.393a5.06 5.06 0 0 1 7.1 0L25 22.906h-2.605L18.25 18.8a3.2 3.2 0 0 0-4.496 0z"
+          fill="#97FCE4"
+          d="M144 71.7c0 47.606-29.134 62.882-44.484 49.28-12.636-11.091-16.395-34.528-35.4-36.934-24.122-3.035-26.21 29.087-42.083 29.087C3.55 113.133 0 86.243 0 72.432c0-14.126 3.968-33.378 19.736-33.378 18.379 0 19.423 27.518 42.396 26.053 22.869-1.57 23.286-30.238 38.115-42.48C113.195 12.06 144 23.464 144 71.7"
         />
-      </svg>
-    ),
-      HYPE: (size) => (
-        <svg width={size} height={size} viewBox="0 0 144 144" fill="none">
-          <circle cx="72" cy="72" r="70" fill="#0B1317" stroke="rgba(255, 255, 255, 0.14)" strokeWidth="4" />
-          <g transform="translate(18, 18) scale(0.75)">
-            <path
-              fill="#97FCE4"
-              d="M144 71.7c0 47.606-29.134 62.882-44.484 49.28-12.636-11.091-16.395-34.528-35.4-36.934-24.122-3.035-26.21 29.087-42.083 29.087C3.55 113.133 0 86.243 0 72.432c0-14.126 3.968-33.378 19.736-33.378 18.379 0 19.423 27.518 42.396 26.053 22.869-1.57 23.286-30.238 38.115-42.48C113.195 12.06 144 23.464 144 71.7"
-            />
-          </g>
-        </svg>
-      ),
-        ZEC: (size) => (
-          <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-            <circle cx="16" cy="16" r="16" fill="#ECB244" />
-            <path
-              fill="#FFFFFF"
-              fillRule="nonzero"
-              d="M15.096 19.846h6.297v3.35h-3.875c.064.958.097 1.847.161 2.804h-3.261v-2.77h-3.876c0-1.093-.129-2.187.065-3.213.097-.547.678-1.026 1.033-1.504a462.137 462.137 0 013.714-4.581c.485-.582.969-1.129 1.518-1.778h-6.04v-3.35h3.586V6h3.132v2.735h3.908c0 1.128.129 2.222-.065 3.248-.097.547-.678 1.026-1.065 1.504a462.138 462.138 0 01-3.714 4.581 37.083 37.083 0 01-1.518 1.778z"
-            />
-          </svg>
-        ),
-          USDT: (size) => (
-            <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-              <circle cx="16" cy="16" r="16" fill="#26A17B" />
-              <path
-                d="M17.9 15.1v-2.2h5.5V9.4H8.6v3.5h5.5v2.2C9.5 15.3 6 16.2 6 17.3c0 1.1 3.5 2 8.1 2.2v5.6h3.8v-5.6c4.6-.2 8.1-1.1 8.1-2.2 0-1.1-3.5-2-8.1-2.2zm0 3.3v-.1c-3.7-.2-6.5-.8-6.5-1.5 0-.7 2.8-1.3 6.5-1.5v3.1zm3.8-1.5c0 .7-2.8 1.3-6.5 1.5v-3.1c3.7.2 6.5.8 6.5 1.6z"
-                fill="#FFFFFF"
-              />
-            </svg>
-          ),
-            USDC: (size) => (
-              <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-                <circle cx="16" cy="16" r="16" fill="#2775CA" />
-                <path
-                  d="M16 6a10 10 0 100 20 10 10 0 000-20zm0 18.2A8.2 8.2 0 1116 7.8a8.2 8.2 0 010 16.4zm.9-12.8h-2.1v.9c-.8.1-1.6.5-2 1.1-.5.7-.7 1.6-.5 2.5.3 1.4 1.5 2.1 2.9 2.4 1.2.3 1.7.6 1.7 1.1 0 .6-.6 1-1.5 1-.9 0-1.6-.4-1.9-1.2l-1.3.6c.4 1.1 1.4 1.8 2.6 2v.9h2.1v-.9c.9-.1 1.7-.6 2.2-1.3.5-.8.6-1.7.4-2.5-.3-1.4-1.5-2.1-2.9-2.4-1.1-.3-1.7-.6-1.7-1.1 0-.6.5-.9 1.4-.9.8 0 1.4.3 1.7 1l1.3-.6c-.4-1-1.3-1.7-2.4-1.9v-.9z"
-                  fill="#FFFFFF"
-                />
-              </svg>
-            ),
+      </g>
+    </svg>
+  ),
+  ZEC: (size) => (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="16" fill="#ECB244" />
+      <path
+        fill="#FFFFFF"
+        fillRule="nonzero"
+        d="M15.096 19.846h6.297v3.35h-3.875c.064.958.097 1.847.161 2.804h-3.261v-2.77h-3.876c0-1.093-.129-2.187.065-3.213.097-.547.678-1.026 1.033-1.504a462.137 462.137 0 013.714-4.581c.485-.582.969-1.129 1.518-1.778h-6.04v-3.35h3.586V6h3.132v2.735h3.908c0 1.128.129 2.222-.065 3.248-.097.547-.678 1.026-1.065 1.504a462.138 462.138 0 01-3.714 4.581 37.083 37.083 0 01-1.518 1.778z"
+      />
+    </svg>
+  ),
+  USDT: (size) => (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="16" fill="#26A17B" />
+      <path
+        d="M17.9 15.1v-2.2h5.5V9.4H8.6v3.5h5.5v2.2C9.5 15.3 6 16.2 6 17.3c0 1.1 3.5 2 8.1 2.2v5.6h3.8v-5.6c4.6-.2 8.1-1.1 8.1-2.2 0-1.1-3.5-2-8.1-2.2zm0 3.3v-.1c-3.7-.2-6.5-.8-6.5-1.5 0-.7 2.8-1.3 6.5-1.5v3.1zm3.8-1.5c0 .7-2.8 1.3-6.5 1.5v-3.1c3.7.2 6.5.8 6.5 1.6z"
+        fill="#FFFFFF"
+      />
+    </svg>
+  ),
+  USDC: (size) => (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="16" fill="#2775CA" />
+      <path
+        d="M16 6a10 10 0 100 20 10 10 0 000-20zm0 18.2A8.2 8.2 0 1116 7.8a8.2 8.2 0 010 16.4zm.9-12.8h-2.1v.9c-.8.1-1.6.5-2 1.1-.5.7-.7 1.6-.5 2.5.3 1.4 1.5 2.1 2.9 2.4 1.2.3 1.7.6 1.7 1.1 0 .6-.6 1-1.5 1-.9 0-1.6-.4-1.9-1.2l-1.3.6c.4 1.1 1.4 1.8 2.6 2v.9h2.1v-.9c.9-.1 1.7-.6 2.2-1.3.5-.8.6-1.7.4-2.5-.3-1.4-1.5-2.1-2.9-2.4-1.1-.3-1.7-.6-1.7-1.1 0-.6.5-.9 1.4-.9.8 0 1.4.3 1.7 1l1.3-.6c-.4-1-1.3-1.7-2.4-1.9v-.9z"
+        fill="#FFFFFF"
+      />
+    </svg>
+  ),
 };
 
 export const CMC_COIN_IDS: Record<string, number> = {
@@ -332,59 +332,59 @@ export const CryptoIcon: React.FC<CryptoIconProps> = ({
   // 1. High-fidelity inline vector SVGs for core tokens
   const inlineSvgRenderer = INLINE_CRYPTO_SVGS[normalized];
   if (inlineSvgRenderer) {
+    return (
+      <span className={`inline-flex items-center justify-center shrink-0 align-middle ${sizeClass} ${className}`}>
+        {inlineSvgRenderer(pixelSize, gradId)}
+      </span>
+    );
+  }
+
+  // 2. Official CoinMarketCap CDN Logo (64x64)
+  const cmcId = CMC_COIN_IDS[normalized];
+  if (cmcId && loadStage === 'cmc') {
+    return (
+      <img
+        src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${cmcId}.png`}
+        alt={normalized}
+        width={pixelSize}
+        height={pixelSize}
+        loading="lazy"
+        onError={() => setLoadStage('coincap')}
+        className={`rounded-full shrink-0 object-cover inline-block align-middle ${sizeClass} ${className}`}
+      />
+    );
+  }
+
+  // 3. CoinCap 2x CDN Logo
+  if (loadStage === 'cmc' || loadStage === 'coincap') {
+    const cdnUrl = `https://assets.coincap.io/assets/icons/${normalized.toLowerCase()}@2x.png`;
+    return (
+      <img
+        src={cdnUrl}
+        alt={normalized}
+        width={pixelSize}
+        height={pixelSize}
+        loading="lazy"
+        onError={() => setLoadStage('fallback')}
+        className={`rounded-full shrink-0 object-cover inline-block align-middle ${sizeClass} ${className}`}
+      />
+    );
+  }
+
+  // 4. Deterministic Monogram Fallback
+  const { from, to, text } = getDeterministicGradients(normalized);
+  const initials = normalized.slice(0, 3);
+
   return (
-    <span className={`inline-flex items-center justify-center shrink-0 align-middle ${sizeClass} ${className}`}>
-      {inlineSvgRenderer(pixelSize, gradId)}
+    <span
+      className={`inline-flex items-center justify-center shrink-0 rounded-full font-mono font-bold uppercase select-none shadow-xs border border-white/10 align-middle ${sizeClass} ${className}`}
+      style={{
+        background: `linear-gradient(135deg, ${from}, ${to})`,
+        color: text,
+      }}
+      title={symbol}
+    >
+      {initials}
     </span>
   );
-}
-
-// 2. Official CoinMarketCap CDN Logo (64x64)
-const cmcId = CMC_COIN_IDS[normalized];
-if (cmcId && loadStage === 'cmc') {
-  return (
-    <img
-      src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${cmcId}.png`}
-      alt={normalized}
-      width={pixelSize}
-      height={pixelSize}
-      loading="lazy"
-      onError={() => setLoadStage('coincap')}
-      className={`rounded-full shrink-0 object-cover inline-block align-middle ${sizeClass} ${className}`}
-    />
-  );
-}
-
-// 3. CoinCap 2x CDN Logo
-if (loadStage === 'cmc' || loadStage === 'coincap') {
-  const cdnUrl = `https://assets.coincap.io/assets/icons/${normalized.toLowerCase()}@2x.png`;
-  return (
-    <img
-      src={cdnUrl}
-      alt={normalized}
-      width={pixelSize}
-      height={pixelSize}
-      loading="lazy"
-      onError={() => setLoadStage('fallback')}
-      className={`rounded-full shrink-0 object-cover inline-block align-middle ${sizeClass} ${className}`}
-    />
-  );
-}
-
-// 4. Deterministic Monogram Fallback
-const { from, to, text } = getDeterministicGradients(normalized);
-const initials = normalized.slice(0, 3);
-
-return (
-  <span
-    className={`inline-flex items-center justify-center shrink-0 rounded-full font-mono font-bold uppercase select-none shadow-xs border border-white/10 align-middle ${sizeClass} ${className}`}
-    style={{
-      background: `linear-gradient(135deg, ${from}, ${to})`,
-      color: text,
-    }}
-    title={symbol}
-  >
-    {initials}
-  </span>
-);
 };

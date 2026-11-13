@@ -467,222 +467,226 @@ export const CustomDateRangePicker: React.FC<CustomDateRangePickerProps> = ({
             }`}
         >
           {/* Header Bar */}
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-border">
-              <div className="flex items-center gap-2">
-                <span className="w-7 h-7 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
-                  <Clock className="w-3.5 h-3.5" />
-                </span>
-                <div>
-                  <h4 className="text-xs font-bold text-text-primary leading-tight">
-                    Performance Date Range
-                  </h4>
-                  <p className="text-[11px] text-text-muted leading-tight">
-                    Select start & end date to filter metrics
-                  </p>
-                </div>
+          <div className="flex items-center justify-between pb-3 mb-3 border-b border-border">
+            <div className="flex items-center gap-2">
+              <span className="w-7 h-7 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
+                <Clock className="w-3.5 h-3.5" />
+              </span>
+              <div>
+                <h4 className="text-xs font-bold text-text-primary leading-tight">
+                  Performance Date Range
+                </h4>
+                <p className="text-[11px] text-text-muted leading-tight">
+                  Select start & end date to filter metrics
+                </p>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="p-1 rounded-lg text-text-muted hover:text-text-primary hover:bg-card-hover transition-colors"
-                aria-label="Close date picker"
-              >
-                <X className="w-4 h-4" />
-              </button>
             </div>
 
-            {/* Main 2-Column Responsive Body */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-              {/* Left Column: Quick Range Presets */}
-                <div className="sm:col-span-4 border-b sm:border-b-0 sm:border-r border-border pb-3 sm:pb-0 sm:pr-3 space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-text-muted block mb-1 px-2 tracking-wider">
-                    Quick Presets
-                  </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-1 gap-1 max-h-[160px] sm:max-h-[280px] overflow-y-auto">
-                    {PRESET_RANGES.map((preset) => {
-                      const isActive = activePresetId === preset.id;
-                      return (
-                        <button
-                          key={preset.id}
-                          type="button"
-                          onClick={() => handlePresetSelect(preset)}
-                          className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center justify-between ${isActive
-                            ? 'bg-brand text-black font-bold shadow-xs'
-                            : 'text-text-secondary hover:text-text-primary hover:bg-card-hover'
-                            }`}
-                        >
-                          <span>{preset.label}</span>
-                          {isActive && <Check className="w-3 h-3 text-black shrink-0" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="p-1 rounded-lg text-text-muted hover:text-text-primary hover:bg-card-hover transition-colors"
+              aria-label="Close date picker"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
 
-                {/* Right Column: Interactive Calendar & Month Controls */}
-                <div className="sm:col-span-8 space-y-3">
-                  {/* Month Navigation Header */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-bold text-xs text-text-primary">
-                        {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={handleJumpToToday}
-                        className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-canvas border border-border text-text-muted hover:text-brand transition-colors"
-                      >
-                        Today
-                      </button>
-                    </div>
-
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={handlePrevMonth}
-                        className="p-1 rounded-lg hover:bg-card-hover text-text-secondary hover:text-text-primary transition-colors border border-border"
-                        aria-label="Previous month"
-                      >
-                        <ChevronLeft className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleNextMonth}
-                        className="p-1 rounded-lg hover:bg-card-hover text-text-secondary hover:text-text-primary transition-colors border border-border"
-                        aria-label="Next month"
-                      >
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Day Names Header */}
-                  <div className="grid grid-cols-7 gap-1 text-center">
-                    {WEEKDAY_NAMES.map((w) => (
-                      <span
-                        key={w}
-                        className="text-[10px] font-bold text-text-muted uppercase tracking-wider py-1"
-                      >
-                        {w}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* 42-Cell Days Grid */}
-                  <div className="grid grid-cols-7 gap-y-1 gap-x-0">
-                    {calendarCells.map((cell) => {
-                      const isStart = cell.dateKey === previewRange.start;
-                      const isEnd = cell.dateKey === previewRange.end;
-                      const isSingle = isStart && isEnd;
-                      const isInRange =
-                        cell.dateKey > previewRange.start && cell.dateKey < previewRange.end;
-
-                      let cellBgClass = 'hover:bg-card-hover text-text-primary';
-                      let containerBg = 'bg-transparent';
-
-                      if (isSingle) {
-                        cellBgClass = 'bg-brand text-black font-bold shadow-xs rounded-xl';
-                      } else if (isStart) {
-                        cellBgClass = 'bg-brand text-black font-bold shadow-xs rounded-l-xl';
-                        containerBg = 'bg-brand/15 rounded-l-xl';
-                      } else if (isEnd) {
-                        cellBgClass = 'bg-brand text-black font-bold shadow-xs rounded-r-xl';
-                        containerBg = 'bg-brand/15 rounded-r-xl';
-                      } else if (isInRange) {
-                        cellBgClass = 'text-brand font-semibold';
-                        containerBg = 'bg-brand/15';
-                      }
-
-                      const opacityClass = cell.isCurrentMonth
-                        ? 'opacity-100'
-                        : 'opacity-30 text-text-muted';
-
-                      return (
-                        <div
-                          key={cell.dateKey}
-                          className={`relative flex items-center justify-center p-0.5 ${containerBg}`}
-                          onMouseEnter={() => {
-                            if (isSelecting) {
-                              setHoverDate(cell.dateKey);
-                            }
-                          }}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => handleDayClick(cell.dateKey)}
-                            className={`w-8 h-7 text-xs flex items-center justify-center transition-all ${cellBgClass} ${opacityClass} ${cell.isToday && !isStart && !isEnd && !isInRange
-                              ? 'ring-1 ring-brand/50 rounded-lg text-brand font-bold'
-                              : ''
-                              }`}
-                          >
-                            {cell.dayNumber}
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Manual Direct Inputs Row (Type="text", No system datepicker) */}
-                    <div className="pt-2 border-t border-border flex items-center gap-2">
-                      <div className="flex-1">
-                        <label className="text-[10px] text-text-muted uppercase font-bold block mb-0.5">
-                          Start (YYYY-MM-DD)
-                        </label>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={manualStart}
-                          onChange={(e) => setManualStart(e.target.value)}
-                          placeholder="2026-01-01"
-                          className="w-full bg-canvas border border-border rounded-xl px-2.5 py-1 text-xs font-mono text-text-primary focus:border-brand"
-                        />
-                      </div>
-                      <div className="text-text-muted pt-4 text-xs font-mono">→</div>
-                      <div className="flex-1">
-                        <label className="text-[10px] text-text-muted uppercase font-bold block mb-0.5">
-                          End (YYYY-MM-DD)
-                        </label>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={manualEnd}
-                          onChange={(e) => setManualEnd(e.target.value)}
-                          placeholder="2026-12-31"
-                          className="w-full bg-canvas border border-border rounded-xl px-2.5 py-1 text-xs font-mono text-text-primary focus:border-brand"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom Action Footer */}
-                  <div className="mt-4 pt-3 border-t border-border flex items-center justify-between gap-2">
+          {/* Main 2-Column Responsive Body */}
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+            {/* Left Column: Quick Range Presets */}
+            <div className="sm:col-span-4 border-b sm:border-b-0 sm:border-r border-border pb-3 sm:pb-0 sm:pr-3 space-y-1">
+              <span className="text-[10px] uppercase font-bold text-text-muted block mb-1 px-2 tracking-wider">
+                Quick Presets
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-1 gap-1 max-h-[160px] sm:max-h-[280px] overflow-y-auto">
+                {PRESET_RANGES.map((preset) => {
+                  const isActive = activePresetId === preset.id;
+                  return (
                     <button
+                      key={preset.id}
                       type="button"
-                      onClick={handleReset}
-                      className="px-3 py-1.5 rounded-xl border border-border hover:border-brand/40 text-text-muted hover:text-text-primary text-xs font-semibold inline-flex items-center gap-1.5 transition-colors"
+                      onClick={() => handlePresetSelect(preset)}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center justify-between ${isActive
+                        ? 'bg-brand text-black font-bold shadow-xs'
+                        : 'text-text-secondary hover:text-text-primary hover:bg-card-hover'
+                        }`}
                     >
-                      <RotateCcw className="w-3 h-3" />
-                      Reset (30d)
+                      <span>{preset.label}</span>
+                      {isActive && <Check className="w-3 h-3 text-black shrink-0" />}
                     </button>
+                  );
+                })}
+              </div>
+            </div>
 
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-mono text-text-muted hidden sm:inline">
-                        {calculateDaysBetween(manualStart, manualEnd)} days
-                      </span>
+            {/* Right Column: Interactive Calendar & Month Controls */}
+            <div className="sm:col-span-8 space-y-3">
+              {/* Month Navigation Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-xs text-text-primary">
+                    {viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleJumpToToday}
+                    className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-canvas border border-border text-text-muted hover:text-brand transition-colors"
+                  >
+                    Today
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handlePrevMonth}
+                    className="p-1 rounded-lg hover:bg-card-hover text-text-secondary hover:text-text-primary transition-colors border border-border"
+                    aria-label="Previous month"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNextMonth}
+                    className="p-1 rounded-lg hover:bg-card-hover text-text-secondary hover:text-text-primary transition-colors border border-border"
+                    aria-label="Next month"
+                  >
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Day Names Header */}
+              <div className="grid grid-cols-7 gap-1 text-center">
+                {WEEKDAY_NAMES.map((w) => (
+                  <span
+                    key={w}
+                    className="text-[10px] font-bold text-text-muted uppercase tracking-wider py-1"
+                  >
+                    {w}
+                  </span>
+                ))}
+              </div>
+
+              {/* 42-Cell Days Grid */}
+              <div className="grid grid-cols-7 gap-y-1 gap-x-0">
+                {calendarCells.map((cell) => {
+                  const isStart = cell.dateKey === previewRange.start;
+                  const isEnd = cell.dateKey === previewRange.end;
+                  const isSingle = isStart && isEnd;
+                  const isInRange =
+                    cell.dateKey > previewRange.start && cell.dateKey < previewRange.end;
+
+                  let cellBgClass = 'hover:bg-card-hover text-text-primary';
+                  let containerBg = 'bg-transparent';
+
+                  if (isSingle) {
+                    cellBgClass = 'bg-brand text-black font-bold shadow-xs rounded-xl';
+                  } else if (isStart) {
+                    cellBgClass = 'bg-brand text-black font-bold shadow-xs rounded-l-xl';
+                    containerBg = 'bg-brand/15 rounded-l-xl';
+                  } else if (isEnd) {
+                    cellBgClass = 'bg-brand text-black font-bold shadow-xs rounded-r-xl';
+                    containerBg = 'bg-brand/15 rounded-r-xl';
+                  } else if (isInRange) {
+                    cellBgClass = 'text-brand font-semibold';
+                    containerBg = 'bg-brand/15';
+                  }
+
+                  const opacityClass = cell.isCurrentMonth
+                    ? 'opacity-100'
+                    : 'opacity-30 text-text-muted';
+
+                  return (
+                    <div
+                      key={cell.dateKey}
+                      className={`relative flex items-center justify-center p-0.5 ${containerBg}`}
+                      onMouseEnter={() => {
+                        if (isSelecting) {
+                          setHoverDate(cell.dateKey);
+                        }
+                      }}
+                    >
                       <button
                         type="button"
-                        onClick={handleApplyManual}
-                        className="px-4 py-1.5 rounded-xl bg-brand text-black hover:bg-brand-hover text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1"
+                        onClick={() => handleDayClick(cell.dateKey)}
+                        className={`w-8 h-7 text-xs flex items-center justify-center transition-all ${cellBgClass} ${opacityClass} ${cell.isToday && !isStart && !isEnd && !isInRange
+                          ? 'rounded-full border-2 border-brand text-brand font-bold bg-brand/10'
+                          : ''
+                          }`}
                       >
-                        <Check className="w-3.5 h-3.5" />
-                        Apply Range
+                        {cell.dayNumber}
                       </button>
                     </div>
-                  </div>
-                </div>
-      )}
+                  );
+                })}
               </div>
-              );
+
+              {/* Manual Direct Inputs Row (Type="text", No system datepicker) */}
+              <div className="pt-2 border-t border-border flex items-center gap-2">
+                <div className="flex-1">
+                    <label htmlFor="custom-date-start" className="text-[10px] text-text-muted uppercase font-bold block mb-0.5">
+                      Start (YYYY-MM-DD)
+                    </label>
+                    <input
+                      id="custom-date-start"
+                      type="text"
+                      inputMode="numeric"
+                      value={manualStart}
+                      onChange={(e) => setManualStart(e.target.value)}
+                      placeholder="2026-01-01"
+                      aria-label="Start date YYYY-MM-DD"
+                      className="w-full bg-canvas border border-border rounded-xl px-2.5 py-1 text-xs font-mono text-text-primary focus:border-brand"
+                    />
+                </div>
+                <div className="text-text-muted pt-4 text-xs font-mono">→</div>
+                <div className="flex-1">
+                    <label htmlFor="custom-date-end" className="text-[10px] text-text-muted uppercase font-bold block mb-0.5">
+                      End (YYYY-MM-DD)
+                    </label>
+                    <input
+                      id="custom-date-end"
+                      type="text"
+                      inputMode="numeric"
+                      value={manualEnd}
+                      onChange={(e) => setManualEnd(e.target.value)}
+                      placeholder="2026-12-31"
+                      aria-label="End date YYYY-MM-DD"
+                      className="w-full bg-canvas border border-border rounded-xl px-2.5 py-1 text-xs font-mono text-text-primary focus:border-brand"
+                    />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Action Footer */}
+          <div className="mt-4 pt-3 border-t border-border flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={handleReset}
+              className="px-3 py-1.5 rounded-xl border border-border hover:border-brand/40 text-text-muted hover:text-text-primary text-xs font-semibold inline-flex items-center gap-1.5 transition-colors"
+            >
+              <RotateCcw className="w-3 h-3" />
+              Reset (30d)
+            </button>
+
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-mono text-text-muted hidden sm:inline">
+                {calculateDaysBetween(manualStart, manualEnd)} days
+              </span>
+              <button
+                type="button"
+                onClick={handleApplyManual}
+                className="px-4 py-1.5 rounded-xl bg-brand text-black hover:bg-brand-hover text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1"
+              >
+                <Check className="w-3.5 h-3.5" />
+                Apply Range
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };

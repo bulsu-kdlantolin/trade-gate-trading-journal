@@ -178,7 +178,7 @@ export function App() {
     }
   };
 
-  // Reset all to sample data
+  // Reset all to starter profiles
   const handleResetAllData = async () => {
     await resetToDefaultStrategies();
     await resetToDefaultTrades();
@@ -267,6 +267,11 @@ export function App() {
     } catch { }
   };
 
+  const handleNavigateToStrategies = () => {
+    setActiveTab('strategies');
+    window.dispatchEvent(new CustomEvent('tradegate_open_create_strategy'));
+  };
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-canvas text-text-primary">
       {/* Keyboard-accessible Skip Navigation Link */}
@@ -293,6 +298,7 @@ export function App() {
           activeStrategy={activeStrategy}
           onSelectStrategy={setActiveStrategyId}
           onOpenDepositModal={() => setIsDepositModalOpen(true)}
+          onNavigateToStrategies={handleNavigateToStrategies}
           liveBalance={liveBalance}
         />
 
@@ -304,19 +310,19 @@ export function App() {
         >
           <div className="max-w-[1600px] mx-auto">
             {visitedTabs.has('terminal') && (
-              <div className={activeTab === 'terminal' ? 'block' : 'hidden'}>
+              <div className={activeTab === 'terminal' ? 'block animate-view-fade' : 'hidden'}>
                 <PreTradeGate
                   strategy={activeStrategy}
                   liveBalance={liveBalance}
                   onTradeLogged={logTrade}
-                  onNavigateToProfiles={() => setActiveTab('strategies')}
+                  onNavigateToProfiles={handleNavigateToStrategies}
                   isActive={activeTab === 'terminal'}
                 />
               </div>
             )}
 
             {visitedTabs.has('history') && (
-              <div className={activeTab === 'history' ? 'block' : 'hidden'}>
+              <div className={activeTab === 'history' ? 'block animate-view-fade' : 'hidden'}>
                 <Suspense fallback={<ViewSkeleton />}>
                   <TradeTable
                     trades={trades}
@@ -324,27 +330,25 @@ export function App() {
                     onDeleteTrade={deleteTrade}
                     onUpdateTrade={updateTrade}
                     onNavigateToTerminal={() => setActiveTab('terminal')}
-                    onLoadSampleTrades={resetToDefaultTrades}
                   />
                 </Suspense>
               </div>
             )}
 
             {visitedTabs.has('dashboard') && (
-              <div className={activeTab === 'dashboard' ? 'block' : 'hidden'}>
+              <div className={activeTab === 'dashboard' ? 'block animate-view-fade' : 'hidden'}>
                 <Suspense fallback={<ViewSkeleton />}>
                   <AnalyticsDashboard
                     trades={trades}
                     activeStrategy={activeStrategy}
                     onNavigateToTerminal={() => setActiveTab('terminal')}
-                    onLoadSampleTrades={resetToDefaultTrades}
                   />
                 </Suspense>
               </div>
             )}
 
             {visitedTabs.has('strategies') && (
-              <div className={activeTab === 'strategies' ? 'block' : 'hidden'}>
+              <div className={activeTab === 'strategies' ? 'block animate-view-fade' : 'hidden'}>
                 <Suspense fallback={<ViewSkeleton />}>
                   <StrategiesHub
                     strategies={strategies}
@@ -365,7 +369,7 @@ export function App() {
             )}
 
             {visitedTabs.has('settings') && (
-              <div className={activeTab === 'settings' ? 'block' : 'hidden'}>
+              <div className={activeTab === 'settings' ? 'block animate-view-fade' : 'hidden'}>
                 <Suspense fallback={<ViewSkeleton />}>
                   <SettingsHub
                     strategies={strategies}
@@ -401,7 +405,7 @@ export function App() {
               aria-label={item.label}
               aria-current={isActive ? 'page' : undefined}
               className={`flex-1 flex flex-col items-center justify-center h-full py-1 min-h-[44px] transition-colors relative ${isActive
-                ? 'text-brand font-bold'
+                ? 'text-[#946C00] dark:text-brand font-bold'
                 : 'text-text-muted hover:text-text-primary'
                 }`}
             >

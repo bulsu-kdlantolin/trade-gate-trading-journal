@@ -277,6 +277,7 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
                       id="edit-exit-price"
                       type="number"
                       step="any"
+                      min="0"
                       value={exitPrice}
                       onChange={(e) => handleExitPriceChange(e.target.value)}
                       placeholder="0.00"

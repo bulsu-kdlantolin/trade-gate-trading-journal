@@ -363,6 +363,7 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
                     value={executionMode}
                     onChange={(val) => setExecutionMode(val)}
                     options={EXECUTION_MODE_OPTIONS}
+                    ariaLabel="Execution Mode"
                     className="w-full justify-between py-2"
                     dropdownClassName="w-full min-w-0 max-w-full"
                   />
@@ -403,6 +404,7 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
                         }
                       }}
                       options={BASE_CURRENCY_OPTIONS}
+                      ariaLabel="Base Currency"
                       className="w-full justify-between"
                       dropdownClassName="w-full min-w-0 max-w-full"
                     />
@@ -602,6 +604,7 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
                       value={newType}
                       onChange={(val) => setNewType(val)}
                       options={RULE_TYPE_OPTIONS}
+                      ariaLabel="Rule Type"
                     />
 
                     {newType === 'Confluence' && (
@@ -609,6 +612,7 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
                         value={newWeight}
                         onChange={(val) => setNewWeight(val)}
                         options={RULE_WEIGHT_OPTIONS}
+                        ariaLabel="Rule Weight"
                       />
                     )}
 

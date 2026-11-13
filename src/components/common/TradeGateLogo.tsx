@@ -37,9 +37,9 @@ export const TradeGateLogo: React.FC<TradeGateLogoProps> = ({
     >
       <defs>
         <linearGradient id="tg-monolith-gradient" x1="15" y1="15" x2="85" y2="85" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#FDE68A" />
-          <stop offset="45%" stopColor="#F59E0B" />
-          <stop offset="100%" stopColor="#D97706" />
+          <stop offset="0%" stopColor="#FDE047" />
+          <stop offset="45%" stopColor="#FCD535" />
+          <stop offset="100%" stopColor="#F0B90B" />
         </linearGradient>
       </defs>
 
@@ -52,7 +52,7 @@ export const TradeGateLogo: React.FC<TradeGateLogoProps> = ({
           height="88"
           rx="22"
           strokeWidth="2.5"
-          className="fill-[#EBF0F5] dark:fill-[#141721] stroke-[#CBD5E1] dark:stroke-[#262B3A] transition-colors"
+          className="fill-[#EAECEF] dark:fill-[#1E2329] stroke-[#D0D5DD] dark:stroke-[#2B313A] transition-colors"
         />
       )}
 
@@ -74,7 +74,7 @@ export const TradeGateLogo: React.FC<TradeGateLogoProps> = ({
       />
 
       {/* Execution Core Accent */}
-      <circle cx="56" cy="39" r="3.5" fill="#FBBF24" />
+      <circle cx="56" cy="39" r="3.5" fill="#F0B90B" />
     </svg>
   );
 

@@ -100,20 +100,20 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
         {/* The Exportable Trade Card Element */}
         <div
           ref={cardRef}
-          className="bg-[#090A0F] border border-[#1F2430] rounded-2xl p-6 text-white shadow-2xl space-y-5"
-          style={{ fontFamily: 'Inter, sans-serif' }}
+          className="bg-[#181A20] border border-[#2B313A] rounded-2xl p-6 text-white shadow-2xl space-y-5"
+          style={{ fontFamily: '"IBM Plex Sans", sans-serif' }}
         >
           {/* Card Brand Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-[#1F2430]">
+          <div className="flex items-center justify-between pb-4 border-b border-[#2B313A]">
             <div className="flex items-center gap-2.5">
               <TradeGateLogo size="sm" variant="mark-only" />
               <div className="flex items-center gap-1.5">
                 <span className="font-extrabold text-xs tracking-wider text-white">TRADEGATE</span>
-                <span className="text-[10px] text-amber-400 font-mono font-bold">CRYPTO</span>
+                <span className="text-[10px] text-[#FCD535] font-mono font-bold">CRYPTO</span>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#11131A] text-[10px] text-slate-400 font-mono">
-              <ShieldCheck className="w-3 h-3 text-emerald-400" />
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#1E2329] text-[10px] text-slate-400 font-mono">
+              <ShieldCheck className="w-3 h-3 text-[#0ECB81]" />
               <span>DISCIPLINE GATE VERIFIED</span>
             </div>
           </div>
@@ -126,7 +126,7 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
                 <div className="flex items-center gap-2">
                   <h4 className="text-xl font-extrabold text-white">{trade.symbol}</h4>
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${isFut ? 'bg-blue-500/20 text-blue-400' : 'bg-emerald-500/20 text-emerald-400'
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${isFut ? 'bg-blue-500/20 text-blue-400' : 'bg-[#0ECB81]/20 text-[#0ECB81]'
                       }`}
                   >
                     {isFut ? `PERP ${trade.leverage}x` : 'SPOT'}
@@ -153,14 +153,14 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
           </div>
 
           {/* Huge P&L Banner */}
-          <div className="bg-[#11131A] border border-[#1F2430] rounded-xl p-4 flex items-center justify-between">
+          <div className="bg-[#1E2329] border border-[#2B313A] rounded-xl p-4 flex items-center justify-between">
             <div>
               <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
                 Net Realized Return
               </span>
               <div className="flex items-baseline gap-2 mt-0.5">
                 <span
-                  className={`text-2xl font-black font-mono tabular-nums tracking-tight ${isWin ? 'text-emerald-400' : isLoss ? 'text-rose-400' : 'text-white'
+                  className={`text-2xl font-black font-mono tabular-nums tracking-tight ${isWin ? 'text-[#0ECB81]' : isLoss ? 'text-[#F6465D]' : 'text-white'
                     }`}
                 >
                   {trade.pnlDollar !== undefined
@@ -169,7 +169,7 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
                 </span>
                 {trade.pnlR !== undefined && (
                   <span
-                    className={`text-sm font-bold font-mono tabular-nums ${isWin ? 'text-emerald-400' : isLoss ? 'text-rose-400' : 'text-slate-400'
+                    className={`text-sm font-bold font-mono tabular-nums ${isWin ? 'text-[#0ECB81]' : isLoss ? 'text-[#F6465D]' : 'text-slate-400'
                       }`}
                   >
                     ({trade.pnlR >= 0 ? '+' : ''}{trade.pnlR}R)
@@ -190,21 +190,21 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
 
           {/* Key Execution Metrics Grid */}
           <div className="grid grid-cols-3 gap-2 text-center text-xs">
-            <div className="bg-[#11131A] border border-[#1F2430] p-2.5 rounded-lg">
+            <div className="bg-[#1E2329] border border-[#2B313A] p-2.5 rounded-lg">
               <span className="text-[10px] text-slate-400 block">Entry Price</span>
               <span className="font-mono font-bold tabular-nums text-white mt-0.5 block">${trade.entryPrice}</span>
             </div>
-            <div className="bg-[#11131A] border border-[#1F2430] p-2.5 rounded-lg">
+            <div className="bg-[#1E2329] border border-[#2B313A] p-2.5 rounded-lg">
               <span className="text-[10px] text-slate-400 block">Exit / TP</span>
-              <span className="font-mono font-bold tabular-nums text-emerald-400 mt-0.5 block">
+              <span className="font-mono font-bold tabular-nums text-[#0ECB81] mt-0.5 block">
                 ${trade.exitPrice ?? (isFut ? trade.takeProfitPrice : isSp ? trade.targetSellPrice : '-')}
               </span>
             </div>
-            <div className="bg-[#11131A] border border-[#1F2430] p-2.5 rounded-lg">
+            <div className="bg-[#1E2329] border border-[#2B313A] p-2.5 rounded-lg">
               <span className="text-[10px] text-slate-400 block">
                 {isFut ? 'Stop Loss' : 'Custody'}
               </span>
-              <span className="font-mono font-bold tabular-nums text-rose-400 mt-0.5 block">
+              <span className="font-mono font-bold tabular-nums text-[#F6465D] mt-0.5 block">
                 {isFut ? `$${trade.stopLossPrice}` : isSp ? trade.venueTag : '-'}
               </span>
             </div>
@@ -212,17 +212,19 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
 
           {/* Optional Embedded Chart Screenshot */}
           {trade.screenshotUrl && (
-            <div className="rounded-xl overflow-hidden border border-[#1F2430] max-h-48 bg-black">
+            <div className="rounded-xl overflow-hidden border border-[#2B313A] max-h-48 bg-black">
               <img
                 src={trade.screenshotUrl}
-                alt="Trade Execution Chart"
+                alt={`Trade Execution Chart for ${trade.symbol}`}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-auto object-contain"
               />
             </div>
           )}
 
           {/* Footer Timestamp */}
-          <div className="pt-2 border-t border-[#1F2430] flex items-center justify-between text-[10px] text-slate-500 font-mono">
+          <div className="pt-2 border-t border-[#2B313A] flex items-center justify-between text-[10px] text-slate-500 font-mono">
             <span>{new Date(trade.timestamp).toUTCString()}</span>
             <span>app.tradegate.crypto</span>
           </div>
