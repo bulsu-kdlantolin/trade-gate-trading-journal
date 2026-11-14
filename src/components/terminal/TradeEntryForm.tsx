@@ -8,6 +8,7 @@ import {
 } from '../../types/trade';
 import { CryptoIcon } from '../common/CryptoIcon';
 import { CurrencyBadge } from '../common/CurrencyDisplay';
+import { VenueSelector } from '../common/VenueSelector';
 import { searchCryptoAssets, CryptoAsset } from '../../data/cryptoAssets';
 import { calculateFuturesMetrics, calculateSpotMetrics } from '../../utils/cryptoMath';
 import { getCurrencySymbol, isCryptoCurrency } from '../../utils/currency';
@@ -66,13 +67,6 @@ export interface TradeEntryFormProps {
 
 const LEVERAGE_PRESETS = [1, 3, 5, 10, 20, 50];
 const SPOT_ACTIONS: SpotAction[] = ['BUY / ACCUMULATE', 'DCA ADD', 'PARTIAL TP', 'FULL EXIT'];
-const SPOT_VENUES: VenueCustodyTag[] = [
-  'CEX Spot',
-  'Hardware / Cold Wallet',
-  'Solana DEX',
-  'EVM DEX',
-  'Hyperliquid Spot',
-];
 
   export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
     strategy,
@@ -321,8 +315,8 @@ const SPOT_VENUES: VenueCustodyTag[] = [
                       type="text"
                       value={assetSearchQuery}
                       onChange={(e) => setAssetSearchQuery(e.target.value)}
-                      aria-label="Search top 100 crypto perpetual pairs"
-                      placeholder="Search top 100 perps (BTC, ETH, SOL, XRP)..."
+                      aria-label="Search top 500 crypto perpetual pairs"
+                      placeholder="Search top 500 perps (BTC, ETH, SOL, XRP)..."
                       className="w-full bg-canvas border border-border rounded-lg pl-8 pr-3 py-1.5 text-xs text-text-primary placeholder:text-text-muted outline-hidden focus:outline-none focus:ring-0 focus:border-brand"
                       autoFocus
                     />
@@ -338,7 +332,7 @@ const SPOT_VENUES: VenueCustodyTag[] = [
                         : 'bg-canvas text-text-muted hover:text-text-primary'
                         }`}
                     >
-                      Top 100 Perps
+                      Top 500 Perps
                     </button>
                     <button
                       type="button"
@@ -386,7 +380,7 @@ const SPOT_VENUES: VenueCustodyTag[] = [
                                     }`}
                                 />
                               </button>
-                              <CryptoIcon symbol={asset.baseTicker} size="sm" />
+                              <CryptoIcon symbol={asset.baseTicker} size="sm" cmcId={asset.cmcId} />
                               <div className="min-w-0 truncate">
                                 <div className="flex items-center gap-1.5">
                                   <span className="font-mono font-bold text-xs text-text-primary">
@@ -399,11 +393,9 @@ const SPOT_VENUES: VenueCustodyTag[] = [
                               </div>
                             </div>
                             <div className="flex items-center gap-2 shrink-0 pl-2">
-                              {getPrice(asset.baseTicker) ? (
-                                <span className="font-mono font-bold text-xs text-emerald-400 tabular-nums">
-                                  ${formatLivePrice(asset.baseTicker)}
-                                </span>
-                              ) : null}
+                              <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400 tabular-nums">
+                                ${formatLivePrice(asset.baseTicker)}
+                              </span>
                               <span className="text-[10px] font-mono font-bold text-text-muted">
                                 #{asset.rank}
                               </span>
@@ -784,8 +776,8 @@ const SPOT_VENUES: VenueCustodyTag[] = [
                       type="text"
                       value={assetSearchQuery}
                       onChange={(e) => setAssetSearchQuery(e.target.value)}
-                      aria-label="Search top 100 crypto spot assets"
-                      placeholder="Search top 100 spot crypto (BTC, ETH, SOL, XRP)..."
+                      aria-label="Search top 500 crypto spot assets"
+                      placeholder="Search top 500 spot crypto (BTC, ETH, SOL, XRP)..."
                       className="w-full bg-canvas border border-border rounded-lg pl-8 pr-3 py-1.5 text-xs text-text-primary placeholder:text-text-muted outline-hidden focus:outline-none focus:ring-0 focus:border-brand"
                       autoFocus
                     />
@@ -801,7 +793,7 @@ const SPOT_VENUES: VenueCustodyTag[] = [
                         : 'bg-canvas text-text-muted hover:text-text-primary'
                         }`}
                     >
-                      Top 100 Spot
+                      Top 500 Spot
                     </button>
                     <button
                       type="button"
@@ -849,7 +841,7 @@ const SPOT_VENUES: VenueCustodyTag[] = [
                                     }`}
                                 />
                               </button>
-                              <CryptoIcon symbol={asset.baseTicker} size="sm" />
+                              <CryptoIcon symbol={asset.baseTicker} size="sm" cmcId={asset.cmcId} />
                               <div className="min-w-0 truncate">
                                 <div className="flex items-center gap-1.5">
                                   <span className="font-mono font-bold text-xs text-text-primary">
@@ -862,11 +854,9 @@ const SPOT_VENUES: VenueCustodyTag[] = [
                               </div>
                             </div>
                             <div className="flex items-center gap-2 shrink-0 pl-2">
-                              {getPrice(asset.baseTicker) ? (
-                                <span className="font-mono font-bold text-xs text-emerald-400 tabular-nums">
-                                  ${formatLivePrice(asset.baseTicker)}
-                                </span>
-                              ) : null}
+                              <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400 tabular-nums">
+                                ${formatLivePrice(asset.baseTicker)}
+                              </span>
                               <span className="text-[10px] font-mono font-bold text-text-muted">
                                 #{asset.rank}
                               </span>
@@ -906,30 +896,11 @@ const SPOT_VENUES: VenueCustodyTag[] = [
               </div>
             </div>
 
-            {/* Custody Venue Tag */}
-            <div>
-              <label className="block text-xs font-medium text-text-secondary mb-1">
-                Custody Venue / Network
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {SPOT_VENUES.map((venue) => (
-                  <button
-                    key={venue}
-                    type="button"
-                    onClick={() => {
-                      playMicroTick();
-                      setSpotVenue(venue);
-                    }}
-                    className={`px-3 py-1.5 rounded-xl border text-xs font-medium transition-all ${spotVenue === venue
-                      ? 'bg-card border-brand text-brand font-bold shadow-xs'
-                      : 'bg-canvas border-border text-text-muted hover:text-text-primary'
-                      }`}
-                  >
-                    {venue}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Custody Venue Tag / Exchange Selector */}
+            <VenueSelector
+              value={spotVenue}
+              onChange={setSpotVenue}
+            />
 
             {/* Spot Execution Inputs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">

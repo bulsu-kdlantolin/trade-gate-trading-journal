@@ -6,6 +6,7 @@ import { getErrorMessage } from '../../utils/errors';
 import { playSuccessChime, playModalClose } from '../../utils/audioTelemetry';
 import { Download, Copy, X, Check, ShieldCheck, FileText, Sparkles, Layers } from 'lucide-react';
 import { TradeGateLogo } from '../common/TradeGateLogo';
+import { StrategyLogo } from '../common/StrategyLogo';
 
 interface ShareStrategyModalProps {
   strategy: StrategyProfile | null;
@@ -160,161 +161,166 @@ export const ShareStrategyModal: React.FC<ShareStrategyModalProps> = ({ strategy
           style={{ fontFamily: '"IBM Plex Sans", sans-serif' }}
         >
           {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-[#2B313A]">
-              <div className="flex items-center gap-2.5">
-                <TradeGateLogo size="md" variant="mark-only" />
-                <div>
-                  <span className="font-extrabold text-sm tracking-wide text-white">TRADEGATE</span>
-                  <span className="text-[11px] text-[#FCD535] font-mono ml-1 font-bold">CRYPTO PLAYBOOK</span>
-                </div>
+          <div className="flex items-center justify-between pb-4 border-b border-[#2B313A]">
+            <div className="flex items-center gap-2.5">
+              <TradeGateLogo size="md" variant="mark-only" />
+              <div>
+                <span className="font-extrabold text-sm tracking-wide text-white">TRADEGATE</span>
+                <span className="text-[11px] text-[#FCD535] font-mono ml-1 font-bold">CRYPTO PLAYBOOK</span>
               </div>
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#FCD535]/15 text-[#FCD535]">
-                  {modeBadge}
-                </span>
+            </div>
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#FCD535]/15 text-[#FCD535]">
+              {modeBadge}
+            </span>
+          </div>
+
+          {/* Strategy Title & Stats */}
+          <div>
+            <div className="flex items-start gap-3.5">
+              <StrategyLogo strategy={strategy} size="lg" className="shrink-0 mt-0.5 rounded-xl shadow-md" />
+              <div className="min-w-0 flex-1">
+                <h4 className="text-xl font-black text-white text-balance">{strategy.name}</h4>
+                {strategy.description && (
+                  <p className="text-xs text-slate-400 mt-1 leading-relaxed text-pretty">{strategy.description}</p>
+                )}
+              </div>
             </div>
 
-            {/* Strategy Title & Stats */}
-            <div>
-              <h4 className="text-xl font-black text-white text-balance">{strategy.name}</h4>
-              {strategy.description && (
-                <p className="text-xs text-slate-400 mt-1 leading-relaxed text-pretty">{strategy.description}</p>
-              )}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4 text-xs">
+              <div className="bg-[#1E2329] border border-[#2B313A] p-2.5 rounded-xl">
+                <span className="text-[10px] text-slate-400 block uppercase">Base Currency</span>
+                <span className="font-mono font-bold text-white mt-0.5 block">{strategy.baseCurrency}</span>
+              </div>
+              <div className="bg-[#1E2329] border border-[#2B313A] p-2.5 rounded-xl">
+                <span className="text-[10px] text-slate-400 block uppercase">Risk Model</span>
+                <span className="font-mono font-bold tabular-nums text-white mt-0.5 block">
+                  {strategy.defaultRiskValue}% ({strategy.riskModel})
+                </span>
+              </div>
+              <div className="bg-[#1E2329] border border-[#2B313A] p-2.5 rounded-xl">
+                <span className="text-[10px] text-slate-400 block uppercase">Timeframes</span>
+                <span className="font-mono font-bold text-white mt-0.5 block">{strategy.timeframes.join(', ')}</span>
+              </div>
+              <div className="bg-[#1E2329] border border-[#2B313A] p-2.5 rounded-xl">
+                <span className="text-[10px] text-slate-400 block uppercase">Sessions</span>
+                <span className="font-mono font-bold text-white mt-0.5 block">{strategy.sessions.join(', ')}</span>
+              </div>
+            </div>
+          </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4 text-xs">
-                  <div className="bg-[#1E2329] border border-[#2B313A] p-2.5 rounded-xl">
-                    <span className="text-[10px] text-slate-400 block uppercase">Base Currency</span>
-                    <span className="font-mono font-bold text-white mt-0.5 block">{strategy.baseCurrency}</span>
+          {/* Mandatory Rules Section */}
+          <div className="bg-[#1E2329] border border-[#2B313A] rounded-xl p-4 space-y-2.5">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-[#F6465D]" />
+              <h5 className="text-xs font-bold uppercase tracking-wider text-white">
+                Mandatory Discipline Gate Rules
+              </h5>
+              <span className="text-[10px] text-[#F6465D] font-mono">(Must Pass All for Valid Entry)</span>
+            </div>
+
+            <div className="space-y-1.5 pt-1">
+              {mandatoryRules.map((r, i) => (
+                <div
+                  key={r.id}
+                  className="flex items-center justify-between p-2 rounded-lg bg-[#2B313A] border border-[#363D47] text-xs"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded flex items-center justify-center bg-[#F6465D]/20 text-[#F6465D] text-[10px] font-bold">
+                      {i + 1}
+                    </span>
+                    <span className="font-medium text-slate-200">{r.label}</span>
                   </div>
-                    <div className="bg-[#1E2329] border border-[#2B313A] p-2.5 rounded-xl">
-                      <span className="text-[10px] text-slate-400 block uppercase">Risk Model</span>
-                      <span className="font-mono font-bold tabular-nums text-white mt-0.5 block">
-                        {strategy.defaultRiskValue}% ({strategy.riskModel})
-                      </span>
+                  {r.category && (
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-black/40 text-slate-400">
+                      {r.category}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Confluence Criteria Section */}
+          {confluenceRules.length > 0 && (
+            <div className="bg-[#1E2329] border border-[#2B313A] rounded-xl p-4 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[#FCD535]" />
+                  <h5 className="text-xs font-bold uppercase tracking-wider text-white">
+                    Confluence Criteria
+                  </h5>
+                </div>
+                <span className="text-[10px] text-slate-400 font-mono">
+                  Grade A+: {strategy.minConfluenceForGradeA}+ pts • Grade A: {strategy.minConfluenceForGradeB}+ pts
+                </span>
+              </div>
+
+              <div className="space-y-1.5 pt-1">
+                {confluenceRules.map((r) => (
+                  <div
+                    key={r.id}
+                    className="flex items-center justify-between p-2 rounded-lg bg-[#2B313A] border border-[#363D47] text-xs"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#FCD535]" />
+                      <span className="font-medium text-slate-200">{r.label}</span>
                     </div>
-                      <div className="bg-[#1E2329] border border-[#2B313A] p-2.5 rounded-xl">
-                        <span className="text-[10px] text-slate-400 block uppercase">Timeframes</span>
-                        <span className="font-mono font-bold text-white mt-0.5 block">{strategy.timeframes.join(', ')}</span>
-                      </div>
-                        <div className="bg-[#1E2329] border border-[#2B313A] p-2.5 rounded-xl">
-                          <span className="text-[10px] text-slate-400 block uppercase">Sessions</span>
-                          <span className="font-mono font-bold text-white mt-0.5 block">{strategy.sessions.join(', ')}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Mandatory Rules Section */}
-                      <div className="bg-[#1E2329] border border-[#2B313A] rounded-xl p-4 space-y-2.5">
-                        <div className="flex items-center gap-2">
-                          <ShieldCheck className="w-4 h-4 text-[#F6465D]" />
-                          <h5 className="text-xs font-bold uppercase tracking-wider text-white">
-                            Mandatory Discipline Gate Rules
-                          </h5>
-                          <span className="text-[10px] text-[#F6465D] font-mono">(Must Pass All for Valid Entry)</span>
-                        </div>
-
-                        <div className="space-y-1.5 pt-1">
-                          {mandatoryRules.map((r, i) => (
-                            <div
-                              key={r.id}
-                              className="flex items-center justify-between p-2 rounded-lg bg-[#2B313A] border border-[#363D47] text-xs"
-                            >
-                              <div className="flex items-center gap-2">
-                                  <span className="w-5 h-5 rounded flex items-center justify-center bg-[#F6465D]/20 text-[#F6465D] text-[10px] font-bold">
-                                    {i + 1}
-                                  </span>
-                                  <span className="font-medium text-slate-200">{r.label}</span>
-                              </div>
-                              {r.category && (
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-black/40 text-slate-400">
-                                  {r.category}
-                                </span>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Confluence Criteria Section */}
-                      {confluenceRules.length > 0 && (
-                          <div className="bg-[#1E2329] border border-[#2B313A] rounded-xl p-4 space-y-2.5">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <Sparkles className="w-4 h-4 text-[#FCD535]" />
-                                <h5 className="text-xs font-bold uppercase tracking-wider text-white">
-                                  Confluence Criteria
-                                </h5>
-                              </div>
-                              <span className="text-[10px] text-slate-400 font-mono">
-                                Grade A+: {strategy.minConfluenceForGradeA}+ pts • Grade A: {strategy.minConfluenceForGradeB}+ pts
-                              </span>
-                            </div>
-
-                            <div className="space-y-1.5 pt-1">
-                              {confluenceRules.map((r) => (
-                                <div
-                                  key={r.id}
-                                  className="flex items-center justify-between p-2 rounded-lg bg-[#2B313A] border border-[#363D47] text-xs"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#FCD535]" />
-                                    <span className="font-medium text-slate-200">{r.label}</span>
-                                  </div>
-                                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#FCD535]/15 text-[#FCD535]">
-                                      +{r.weight} pts
-                                    </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#FCD535]/15 text-[#FCD535]">
+                      +{r.weight} pts
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
-                          {/* Footer */}
-                            <div className="pt-2 border-t border-[#2B313A] flex items-center justify-between text-[10px] text-slate-500 font-mono">
-                              <span>TradeGate Institutional Playbook Standard</span>
-                              <span>app.tradegate.crypto</span>
-                            </div>
-                          </div>
+          {/* Footer */}
+          <div className="pt-2 border-t border-[#2B313A] flex items-center justify-between text-[10px] text-slate-500 font-mono">
+            <span>TradeGate Institutional Playbook Standard</span>
+            <span>app.tradegate.crypto</span>
+          </div>
+        </div>
 
-                          {/* Action Buttons Strip */}
-                          <div className="flex flex-wrap items-center justify-end gap-2.5 mt-5">
-                            <button
-                              type="button"
-                              onClick={handleCopyMarkdown}
-                              className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-card-hover border border-border text-text-primary hover:bg-card-hover/80 flex items-center gap-1.5 transition-colors"
-                            >
-                              {hasCopiedMd ? <Check className="w-3.5 h-3.5 text-trade-green" /> : <FileText className="w-3.5 h-3.5" />}
-                              {hasCopiedMd ? 'Copied MD!' : 'Copy Markdown'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={handleCopyImage}
-                              disabled={isCopying}
-                              className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-card-hover border border-border text-text-primary hover:bg-card-hover/80 flex items-center gap-1.5 transition-colors"
-                            >
-                              <Copy className="w-3.5 h-3.5" />
-                              {isCopying ? 'Copying...' : 'Copy PNG'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={handleDownloadPng}
-                              disabled={isDownloading}
-                              className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-card-hover border border-border text-text-primary hover:bg-card-hover/80 flex items-center gap-1.5 transition-colors"
-                            >
-                              <Download className="w-3.5 h-3.5" />
-                              {isDownloading ? 'Saving...' : 'Download PNG'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={handleDownloadPdf}
-                              disabled={isPdfExporting}
-                              className="px-4 py-2 text-xs font-bold rounded-xl bg-brand text-black hover:bg-brand-hover flex items-center gap-1.5 shadow-sm transition-colors"
-                            >
-                              <Download className="w-3.5 h-3.5" />
-                              {isPdfExporting ? 'Generating...' : 'Download PDF'}
-                            </button>
-                          </div>
-                        </div>
+        {/* Action Buttons Strip */}
+        <div className="flex flex-wrap items-center justify-end gap-2.5 mt-5">
+          <button
+            type="button"
+            onClick={handleCopyMarkdown}
+            className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-card-hover border border-border text-text-primary hover:bg-card-hover/80 flex items-center gap-1.5 transition-colors"
+          >
+            {hasCopiedMd ? <Check className="w-3.5 h-3.5 text-trade-green" /> : <FileText className="w-3.5 h-3.5" />}
+            {hasCopiedMd ? 'Copied MD!' : 'Copy Markdown'}
+          </button>
+          <button
+            type="button"
+            onClick={handleCopyImage}
+            disabled={isCopying}
+            className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-card-hover border border-border text-text-primary hover:bg-card-hover/80 flex items-center gap-1.5 transition-colors"
+          >
+            <Copy className="w-3.5 h-3.5" />
+            {isCopying ? 'Copying...' : 'Copy PNG'}
+          </button>
+          <button
+            type="button"
+            onClick={handleDownloadPng}
+            disabled={isDownloading}
+            className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-card-hover border border-border text-text-primary hover:bg-card-hover/80 flex items-center gap-1.5 transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            {isDownloading ? 'Saving...' : 'Download PNG'}
+          </button>
+          <button
+            type="button"
+            onClick={handleDownloadPdf}
+            disabled={isPdfExporting}
+            className="px-4 py-2 text-xs font-bold rounded-xl bg-brand text-black hover:bg-brand-hover flex items-center gap-1.5 shadow-sm transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            {isPdfExporting ? 'Generating...' : 'Download PDF'}
+          </button>
+        </div>
+      </div>
     </div>
-                    );
+  );
 };
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TradeRecord, isFuturesTrade, isSpotTrade } from '../../types/trade';
 import { CryptoIcon } from './CryptoIcon';
+import { VenueIcon } from './VenueIcon';
 import { CurrencyDisplay, CurrencyBadge } from './CurrencyDisplay';
 import { getCurrencySymbol, isCryptoCurrency } from '../../utils/currency';
 import { getGradeStyle } from '../../utils/gradeStyles';
@@ -67,8 +68,8 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
                 <span id="trade-detail-modal-title" className="font-bold text-base text-text-primary">{trade.symbol}</span>
                 <span
                   className={`text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${isFut
-                    ? 'bg-blue-500/15 text-blue-400'
-                    : 'bg-emerald-500/15 text-emerald-400'
+                    ? 'bg-blue-500/15 text-blue-700 dark:text-blue-400'
+                    : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
                     }`}
                 >
                   {isFut ? `PERP ${trade.leverage}x` : 'SPOT'}
@@ -250,7 +251,10 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
                   </div>
                   <div>
                     <span className="text-text-muted">Custody / Venue:</span>
-                    <p className="font-semibold text-text-primary">{trade.venueTag}</p>
+                    <p className="font-semibold text-text-primary inline-flex items-center gap-1.5 mt-0.5">
+                      <VenueIcon venue={trade.venueTag} size="xs" />
+                      <span>{trade.venueTag}</span>
+                    </p>
                   </div>
                 </>
               )}
@@ -286,7 +290,7 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
                       </span>
                     </div>
                     {r.isMandatory && (
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-400">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-700 dark:text-rose-400">
                         Required
                       </span>
                     )}
@@ -306,9 +310,9 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsZoomed(!isZoomed)}
-                  className="text-xs text-brand hover:underline flex items-center gap-1"
+                  className="text-xs font-semibold text-text-primary dark:text-brand hover:underline flex items-center gap-1"
                 >
-                  <ZoomIn className="w-3.5 h-3.5" />
+                  <ZoomIn className="w-3.5 h-3.5 text-brand" />
                   {isZoomed ? 'Shrink' : 'Enlarge'}
                 </button>
               </div>

@@ -132,108 +132,108 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
           </span>
         </div>
 
-          <form noValidate onSubmit={handleSubmit} className="space-y-3.5">
-            {/* Action Segmented Switcher (Deposit / Withdraw / Reset) with Sliding Indicator */}
-            <div className="relative grid grid-cols-3 p-1 rounded-xl bg-canvas border border-border select-none">
-              {/* Sliding highlight indicator */}
-              <div
-                className={`absolute top-1 bottom-1 w-[calc(33.333%-4px)] rounded-lg transition-all duration-200 ease-out shadow-xs pointer-events-none ${actionType === 'deposit'
-                  ? 'left-1 bg-trade-green/15'
-                  : actionType === 'withdraw'
-                    ? 'left-[calc(33.333%+2px)] bg-trade-red/15'
-                    : 'left-[calc(66.666%+3px)] bg-brand/15'
-                  }`}
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  playMicroTick();
-                  setActionType('deposit');
-                  if (amountError) setAmountError(null);
-                }}
-                className={`relative z-10 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition-colors duration-200 active:scale-[0.98] ${actionType === 'deposit'
-                  ? 'text-trade-green'
+        <form noValidate onSubmit={handleSubmit} className="space-y-3.5">
+          {/* Action Segmented Switcher (Deposit / Withdraw / Reset) with Sliding Indicator */}
+          <div className="relative grid grid-cols-3 p-1 rounded-xl bg-canvas border border-border select-none">
+            {/* Sliding highlight indicator */}
+            <div
+              className={`absolute top-1 bottom-1 w-[calc(33.333%-4px)] rounded-lg transition-all duration-200 ease-out shadow-xs pointer-events-none ${actionType === 'deposit'
+                ? 'left-1 bg-trade-green/15'
+                : actionType === 'withdraw'
+                  ? 'left-[calc(33.333%+2px)] bg-trade-red/15'
+                  : 'left-[calc(66.666%+3px)] bg-brand/15'
+                }`}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                playMicroTick();
+                setActionType('deposit');
+                if (amountError) setAmountError(null);
+              }}
+              className={`relative z-10 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition-colors duration-200 active:scale-[0.98] ${actionType === 'deposit'
+                ? 'text-trade-green'
+                : 'text-text-muted hover:text-text-primary'
+                }`}
+            >
+              <Plus className="w-3 h-3" />
+              Deposit
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                playMicroTick();
+                setActionType('withdraw');
+                if (amountError) setAmountError(null);
+              }}
+              className={`relative z-10 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition-colors duration-200 active:scale-[0.98] ${actionType === 'withdraw'
+                ? 'text-trade-red'
+                : 'text-text-muted hover:text-text-primary'
+                }`}
+            >
+              <Minus className="w-3 h-3" />
+              Withdraw
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                playMicroTick();
+                setActionType('reset');
+                if (amountError) setAmountError(null);
+              }}
+              className={`relative z-10 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition-colors duration-200 active:scale-[0.98] ${actionType === 'reset'
+                  ? 'text-text-primary dark:text-brand'
                   : 'text-text-muted hover:text-text-primary'
                   }`}
-              >
-                <Plus className="w-3 h-3" />
-                Deposit
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  playMicroTick();
-                  setActionType('withdraw');
-                  if (amountError) setAmountError(null);
-                }}
-                className={`relative z-10 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition-colors duration-200 active:scale-[0.98] ${actionType === 'withdraw'
-                  ? 'text-trade-red'
-                  : 'text-text-muted hover:text-text-primary'
-                  }`}
-              >
-                <Minus className="w-3 h-3" />
-                Withdraw
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  playMicroTick();
-                  setActionType('reset');
-                  if (amountError) setAmountError(null);
-                }}
-                className={`relative z-10 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition-colors duration-200 active:scale-[0.98] ${actionType === 'reset'
-                  ? 'text-brand'
-                  : 'text-text-muted hover:text-text-primary'
-                  }`}
-              >
-                <RotateCcw className="w-3 h-3" />
-                Reset
-              </button>
-            </div>
+            >
+              <RotateCcw className="w-3 h-3" />
+              Reset
+            </button>
+          </div>
 
-            {/* Amount input */}
-            <div>
-              <label htmlFor="capital-adjustment-amount" className="block text-xs font-medium text-text-secondary mb-1">
-                {actionType === 'reset' ? 'New Starting Balance' : 'Adjustment Amount'} ({strategy.baseCurrency})
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center text-text-muted text-xs pointer-events-none">
-                  {isCryptoCurrency(strategy.baseCurrency) ? (
-                    <CryptoIcon symbol={strategy.baseCurrency} size="xs" />
-                  ) : (
-                    <span className="font-mono">{currencySymbol}</span>
-                  )}
-                </span>
-                <input
-                  id="capital-adjustment-amount"
-                  type="number"
-                  step="any"
-                  min="0"
-                  value={amountStr}
-                  onChange={(e) => {
-                    setAmountStr(e.target.value);
-                    if (amountError) setAmountError(null);
-                  }}
-                  placeholder="0.00"
-                  className={`w-full bg-canvas border rounded-xl ${amountError ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-border focus:border-brand'
-                    } ${isCryptoCurrency(strategy.baseCurrency) ? 'pl-8' : 'pl-7'
-                    } pr-3 py-2 text-xs font-mono font-bold text-text-primary placeholder:text-text-muted transition-colors`}
-                />
-              </div>
-              {amountError && (
-                <p className="text-[11px] text-rose-400 font-medium mt-1.5 flex items-center gap-1.5 animate-fadeIn">
+          {/* Amount input */}
+          <div>
+            <label htmlFor="capital-adjustment-amount" className="block text-xs font-medium text-text-secondary mb-1">
+              {actionType === 'reset' ? 'New Starting Balance' : 'Adjustment Amount'} ({strategy.baseCurrency})
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center text-text-muted text-xs pointer-events-none">
+                {isCryptoCurrency(strategy.baseCurrency) ? (
+                  <CryptoIcon symbol={strategy.baseCurrency} size="xs" />
+                ) : (
+                  <span className="font-mono">{currencySymbol}</span>
+                )}
+              </span>
+              <input
+                id="capital-adjustment-amount"
+                type="number"
+                step="any"
+                min="0"
+                value={amountStr}
+                onChange={(e) => {
+                  setAmountStr(e.target.value);
+                  if (amountError) setAmountError(null);
+                }}
+                placeholder="0.00"
+                className={`w-full bg-canvas border rounded-xl ${amountError ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-border focus:border-brand'
+                  } ${isCryptoCurrency(strategy.baseCurrency) ? 'pl-8' : 'pl-7'
+                  } pr-3 py-2 text-xs font-mono font-bold text-text-primary placeholder:text-text-muted transition-colors`}
+              />
+            </div>
+            {amountError && (
+                <p className="text-[11px] text-rose-600 dark:text-rose-400 font-medium mt-1.5 flex items-center gap-1.5 animate-fadeIn">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                   <span>{amountError}</span>
                 </p>
               )}
-              <p className="text-[11px] text-text-muted mt-1 leading-normal">
-                {actionType === 'deposit'
-                  ? 'Adds capital to this strategy profile. Capital adjustments do not distort trading P&L.'
-                  : actionType === 'withdraw'
-                    ? 'Deducts capital from this strategy profile. Historical trading P&L remains untouched.'
-                    : 'Directly overwrites the starting balance of this strategy to the specified amount.'}
-              </p>
-            </div>
+                <p className="text-[11px] text-text-muted mt-1 leading-normal">
+                  {actionType === 'deposit'
+                    ? 'Adds capital to this strategy profile. Capital adjustments do not distort trading P&L.'
+                    : actionType === 'withdraw'
+                      ? 'Deducts capital from this strategy profile. Historical trading P&L remains untouched.'
+                      : 'Directly overwrites the starting balance of this strategy to the specified amount.'}
+                </p>
+              </div>
 
             {/* Note input (only for deposit/withdraw) */}
             {actionType !== 'reset' && (
@@ -278,7 +278,7 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
                     : 'Reset Balance'}
               </button>
             </div>
-          </form>
+        </form>
       </div>
     </div>
   );

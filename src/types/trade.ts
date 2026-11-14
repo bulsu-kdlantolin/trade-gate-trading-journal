@@ -6,11 +6,43 @@ export type TradeDirection = 'Long' | 'Short';
 export type SpotAction = 'BUY / ACCUMULATE' | 'DCA ADD' | 'PARTIAL TP' | 'FULL EXIT';
 export type MarginType = 'Isolated' | 'Cross';
 export type VenueCustodyTag =
-  | 'CEX Spot'
+  | 'Binance'
+  | 'Coinbase'
+  | 'Bybit'
+  | 'OKX'
+  | 'Kraken'
+  | 'KuCoin'
+  | 'Bitget'
+  | 'Gate.io'
+  | 'MEXC'
+  | 'HTX / Huobi'
+  | 'Deribit'
+  | 'Raydium / Jupiter'
+  | 'Uniswap (EVM)'
+  | 'Hyperliquid Spot'
+  | 'PancakeSwap'
+  | 'Aerodrome (Base)'
+  | 'Pump.fun'
+  | 'Curve Finance'
+  | 'Osmosis'
+  | 'Solana Network'
+  | 'Base Network'
+  | 'Ethereum / EVM'
+  | 'Arbitrum Network'
+  | 'BNB Chain'
+  | 'Sui Network'
+  | 'TON Network'
   | 'Hardware / Cold Wallet'
+  | 'Ledger'
+  | 'Trezor'
+  | 'Tangem'
+  | 'Phantom / Backpack'
+  | 'MetaMask / Rabby'
+  | 'Trust Wallet'
+  | 'CEX Spot'
   | 'Solana DEX'
   | 'EVM DEX'
-  | 'Hyperliquid Spot';
+  | (string & {});
 
 export type TradeGrade = 'A+' | 'A' | 'B+' | 'B' | 'C';
 export type TradeResult = 'Win' | 'Loss' | 'Breakeven';

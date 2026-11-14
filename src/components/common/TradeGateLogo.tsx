@@ -91,7 +91,7 @@ export const TradeGateLogo: React.FC<TradeGateLogoProps> = ({
         </span>
         {showBadge && (
           <span
-            className={`font-mono font-bold px-1.5 py-0.5 rounded-md bg-brand/15 text-brand tracking-wider ${currentSize.badge}`}
+            className={`font-mono font-extrabold px-1.5 py-0.5 rounded-md bg-brand/15 text-text-primary dark:text-brand tracking-wider ${currentSize.badge}`}
           >
             {badgeText}
           </span>

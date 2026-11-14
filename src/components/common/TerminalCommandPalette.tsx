@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { TabKey } from '../layout/Sidebar';
 import { StrategyProfile } from '../../types/strategy';
+import { StrategyLogo } from './StrategyLogo';
 import { formatCurrencyAmount } from '../../utils/currency';
 import {
   playMicroTick,
@@ -48,7 +49,8 @@ interface PaletteItem {
   title: string;
   subtitle?: string;
   shortcut?: string;
-  icon: React.FC<{ className?: string }>;
+  icon?: React.FC<{ className?: string }>;
+  customIcon?: React.ReactNode;
   action: () => void;
   badge?: string;
   isActive?: boolean;
@@ -220,6 +222,7 @@ export const TerminalCommandPalette: React.FC<TerminalCommandPaletteProps> = ({
         title: strat.name,
         subtitle: `${formatCurrencyAmount(strat.accountBalance, strat.baseCurrency)} • ${strat.defaultRiskValue}% Risk • ${strat.rules.length} Rules`,
         icon: ArrowRight,
+        customIcon: <StrategyLogo strategy={strat} size="sm" />,
         badge: strat.executionMode.toUpperCase(),
         isActive: activeStrategy?.id === strat.id,
         action: () => {
@@ -385,22 +388,26 @@ export const TerminalCommandPalette: React.FC<TerminalCommandPaletteProps> = ({
                   }}
                   onMouseEnter={() => setSelectedIndex(idx)}
                   className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all ${isSelected
-                      ? 'bg-brand/12 text-text-primary shadow-xs ring-1 ring-brand/30'
-                      : 'hover:bg-card-hover text-text-secondary hover:text-text-primary'
+                    ? 'bg-brand/12 text-text-primary shadow-xs ring-1 ring-brand/30'
+                    : 'hover:bg-card-hover text-text-secondary hover:text-text-primary'
                     }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isSelected
+                    {item.customIcon ? (
+                      <div className="shrink-0">{item.customIcon}</div>
+                    ) : (
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isSelected
                           ? 'bg-brand text-black font-bold'
                           : 'bg-canvas border border-border text-text-muted'
-                        }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </div>
+                          }`}
+                      >
+                        {Icon && <Icon className="w-4 h-4" />}
+                      </div>
+                    )}
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className={`text-xs font-semibold truncate ${isSelected ? 'text-brand' : ''}`}>
+                        <span className={`text-xs font-semibold truncate ${isSelected ? 'text-text-primary dark:text-brand font-bold' : ''}`}>
                           {item.title}
                         </span>
                         {item.badge && (
@@ -409,7 +416,7 @@ export const TerminalCommandPalette: React.FC<TerminalCommandPaletteProps> = ({
                           </span>
                         )}
                         {item.isActive && (
-                          <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 uppercase">
+                          <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 uppercase">
                             Active
                           </span>
                         )}

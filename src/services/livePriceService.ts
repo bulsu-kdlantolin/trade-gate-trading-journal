@@ -14,6 +14,7 @@
  */
 
 import { BASE_RATES_IN_USD, SUPPORTED_CURRENCIES } from '../utils/currency';
+import { BASELINE_500_PRICES } from '../data/baselineCryptoPrices';
 
 export interface PriceMetadata {
   lastUpdated: number;
@@ -25,32 +26,9 @@ const RATES_STORAGE_KEY = 'tradegate_exchange_rates';
 const PRICES_STORAGE_KEY = 'tradegate_crypto_prices';
 const METADATA_STORAGE_KEY = 'tradegate_prices_metadata';
 
-// Baseline fallback prices for top tokens in case network is completely unreachable
-const BASELINE_CRYPTO_PRICES: Record<string, number> = {
-  BTC: 73800.0,
-  ETH: 2065.0,
-  SOL: 83.2,
-  BNB: 580.0,
-  XRP: 0.54,
-  DOGE: 0.18,
-  ADA: 0.35,
-  AVAX: 26.5,
-  SUI: 1.85,
-  LINK: 11.2,
-  NEAR: 4.8,
-  TRX: 0.16,
-  DOT: 4.2,
-  PEPE: 0.0000095,
-  SHIB: 0.000018,
-  LTC: 68.5,
-  BCH: 340.0,
-  UNI: 7.8,
-  AAVE: 155.0,
-  ENA: 0.38,
-  TAO: 480.0,
-  HYPE: 24.5,
-  ZEC: 38.0,
-  XMR: 145.0,
+// Baseline fallback prices covering all 500 volatile crypto assets
+export const BASELINE_CRYPTO_PRICES: Record<string, number> = {
+  ...BASELINE_500_PRICES,
 };
 
 let pollIntervalId: number | null = null;
@@ -61,17 +39,18 @@ let listenersInitialized = false;
  * Returns cached crypto prices or baseline defaults.
  */
 export function getCachedCryptoPrices(): Record<string, number> {
-  if (typeof window === 'undefined') return BASELINE_CRYPTO_PRICES;
+  const base = { ...BASELINE_500_PRICES };
+  if (typeof window === 'undefined') return base;
   try {
     const raw = localStorage.getItem(PRICES_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === 'object') {
-        return { ...BASELINE_CRYPTO_PRICES, ...parsed };
+        return { ...base, ...parsed };
       }
     }
   } catch {}
-  return BASELINE_CRYPTO_PRICES;
+  return base;
 }
 
 /**
@@ -99,8 +78,13 @@ export function getPriceMetadata(): PriceMetadata {
 export function normalizeSymbolToTicker(symbol: string): string {
   if (!symbol) return 'BTC';
   let s = symbol.trim().toUpperCase();
+  const quoteStables = ['USDT', 'USDC', 'USD', 'BUSD', 'DAI', 'FDUSD'];
+  if (quoteStables.includes(s)) return s;
   s = s.replace(/\.P$/i, '').replace(/PERP$/i, '');
-  s = s.replace(/(USDT|USDC|USD|BUSD|DAI)$/i, '');
+  const stripped = s.replace(/(USDT|USDC|USD|BUSD|DAI)$/i, '');
+  if (stripped.length > 0) {
+    s = stripped;
+  }
   s = s.replace(/^\d+/, ''); // strip 1000PEPE -> PEPE
   return s || 'BTC';
 }
@@ -158,84 +142,103 @@ async function fetchFiatExchangeRates(): Promise<Record<string, number>> {
 }
 
 /**
- * Fetches live crypto prices from Binance public ticker API with Bybit & CoinGecko fallbacks.
+ * Fetches live crypto prices concurrently across CoinMarketCap (Top 800), Binance, and Bybit.
+ * Merges providers so all 500 volatile tokens have live updating prices with zero gaps.
  */
 async function fetchLiveCryptoPrices(): Promise<{ prices: Record<string, number>; source: string }> {
-  const prices: Record<string, number> = {};
+  const prices: Record<string, number> = { ...BASELINE_500_PRICES };
+  const sources: string[] = [];
 
-  // Provider 1: Binance All Tickers (fastest, covers all pairs against USDT)
-  try {
-    const res = await fetch('https://api.binance.com/api/v3/ticker/price', {
-      headers: { Accept: 'application/json' },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        data.forEach((item: { symbol: string; price: string }) => {
-          if (item.symbol.endsWith('USDT')) {
-            const rawTicker = item.symbol.replace(/USDT$/, '');
-            const parsedPrice = parseFloat(item.price);
-            if (parsedPrice > 0 && isFinite(parsedPrice)) {
-              prices[rawTicker] = parsedPrice;
+  // Provider 1: CoinMarketCap Listing API (covers 100% of top 500 volatile tokens)
+  const cmcPromise = (async () => {
+    try {
+      const res = await fetch(
+        'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?sortBy=market_cap&sortType=desc&limit=800',
+        { headers: { Accept: 'application/json' } }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const list = data?.data?.cryptoCurrencyList;
+        if (Array.isArray(list)) {
+          let count = 0;
+          list.forEach((c: { symbol: string; quotes?: Array<{ price: number }> }) => {
+            if (c.quotes && c.quotes[0] && c.quotes[0].price > 0 && isFinite(c.quotes[0].price)) {
+              const p = c.quotes[0].price;
+              prices[c.symbol] = p;
+              prices[c.symbol.toUpperCase()] = p;
+              if (c.symbol.toUpperCase() === 'GRAM') {
+                prices.TON = p;
+              }
+              count++;
             }
-          }
-        });
-        if (prices.BTC && prices.ETH) {
-          return { prices, source: 'binance' };
+          });
+          if (count > 0) sources.push(`cmc (${count})`);
         }
       }
-    }
-  } catch {}
+    } catch {}
+  })();
 
-  // Provider 2 Fallback: Bybit linear tickers
-  try {
-    const res = await fetch('https://api.bybit.com/v5/market/tickers?category=linear', {
-      headers: { Accept: 'application/json' },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const list = data?.result?.list;
-      if (Array.isArray(list)) {
-        list.forEach((item: { symbol: string; lastPrice: string }) => {
-          if (item.symbol.endsWith('USDT')) {
-            const rawTicker = item.symbol.replace(/USDT$/, '');
-            const parsedPrice = parseFloat(item.lastPrice);
-            if (parsedPrice > 0 && isFinite(parsedPrice)) {
-              prices[rawTicker] = parsedPrice;
+  // Provider 2: Binance All Tickers (sub-second order book accuracy for all Binance pairs)
+  const binancePromise = (async () => {
+    try {
+      const res = await fetch('https://api.binance.com/api/v3/ticker/price', {
+        headers: { Accept: 'application/json' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          let count = 0;
+          data.forEach((item: { symbol: string; price: string }) => {
+            if (item.symbol.endsWith('USDT')) {
+              const rawTicker = item.symbol.replace(/USDT$/, '');
+              const parsedPrice = parseFloat(item.price);
+              if (parsedPrice > 0 && isFinite(parsedPrice)) {
+                prices[rawTicker] = parsedPrice;
+                prices[rawTicker.toUpperCase()] = parsedPrice;
+                count++;
+              }
             }
-          }
-        });
-        if (prices.BTC && prices.ETH) {
-          return { prices, source: 'bybit' };
+          });
+          if (count > 0) sources.push(`binance (${count})`);
         }
       }
-    }
-  } catch {}
+    } catch {}
+  })();
 
-  // Provider 3 Fallback: CoinGecko simple price
-  try {
-    const res = await fetch(
-      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin,ripple,dogecoin,cardano,avalanche-2,chainlink,near&vs_currencies=usd'
-    );
-    if (res.ok) {
-      const data = await res.json();
-      if (data.bitcoin?.usd) prices.BTC = data.bitcoin.usd;
-      if (data.ethereum?.usd) prices.ETH = data.ethereum.usd;
-      if (data.solana?.usd) prices.SOL = data.solana.usd;
-      if (data.binancecoin?.usd) prices.BNB = data.binancecoin.usd;
-      if (data.ripple?.usd) prices.XRP = data.ripple.usd;
-      if (data.dogecoin?.usd) prices.DOGE = data.dogecoin.usd;
-      if (data.cardano?.usd) prices.ADA = data.cardano.usd;
-      if (data['avalanche-2']?.usd) prices.AVAX = data['avalanche-2'].usd;
-      if (data.chainlink?.usd) prices.LINK = data.chainlink.usd;
-      if (data.near?.usd) prices.NEAR = data.near.usd;
-      if (prices.BTC) {
-        return { prices, source: 'coingecko' };
+  // Provider 3: Bybit Linear Tickers (perpetual futures order book accuracy)
+  const bybitPromise = (async () => {
+    try {
+      const res = await fetch('https://api.bybit.com/v5/market/tickers?category=linear', {
+        headers: { Accept: 'application/json' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const list = data?.result?.list;
+        if (Array.isArray(list)) {
+          let count = 0;
+          list.forEach((item: { symbol: string; lastPrice: string }) => {
+            if (item.symbol.endsWith('USDT')) {
+              const rawTicker = item.symbol.replace(/USDT$/, '');
+              const parsedPrice = parseFloat(item.lastPrice);
+              if (parsedPrice > 0 && isFinite(parsedPrice)) {
+                prices[rawTicker] = parsedPrice;
+                prices[rawTicker.toUpperCase()] = parsedPrice;
+                count++;
+              }
+            }
+          });
+          if (count > 0) sources.push(`bybit (${count})`);
+        }
       }
-    }
-  } catch {}
+    } catch {}
+  })();
 
-  return { prices, source: 'cached' };
+  await Promise.allSettled([cmcPromise, binancePromise, bybitPromise]);
+
+  return {
+    prices,
+    source: sources.length > 0 ? sources.join(' + ') : 'baseline',
+  };
 }
 
 /**

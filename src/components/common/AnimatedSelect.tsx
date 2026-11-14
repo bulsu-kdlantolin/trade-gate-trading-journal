@@ -64,67 +64,67 @@ export function AnimatedSelect<T extends string | number>({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
 
-        if (e.key === 'Escape' || e.key === 'Tab') {
-          setIsOpen(false);
-          return;
-        }
+      if (e.key === 'Escape' || e.key === 'Tab') {
+        setIsOpen(false);
+        return;
+      }
 
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          setIsOpen(false);
-          return;
-        }
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setIsOpen(false);
+        return;
+      }
 
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          const currentIndex = options.findIndex((opt) => opt.value === value);
-          const nextIndex = (currentIndex + 1) % options.length;
-          onChange(options[nextIndex].value);
-          return;
-        }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const currentIndex = options.findIndex((opt) => opt.value === value);
+        const nextIndex = (currentIndex + 1) % options.length;
+        onChange(options[nextIndex].value);
+        return;
+      }
 
-        if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          const currentIndex = options.findIndex((opt) => opt.value === value);
-          const prevIndex = (currentIndex - 1 + options.length) % options.length;
-          onChange(options[prevIndex].value);
-          return;
-        }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const currentIndex = options.findIndex((opt) => opt.value === value);
+        const prevIndex = (currentIndex - 1 + options.length) % options.length;
+        onChange(options[prevIndex].value);
+        return;
+      }
 
-        if (e.key === 'Home') {
-          e.preventDefault();
-          if (options.length > 0) onChange(options[0].value);
-          return;
-        }
+      if (e.key === 'Home') {
+        e.preventDefault();
+        if (options.length > 0) onChange(options[0].value);
+        return;
+      }
 
-        if (e.key === 'End') {
-          e.preventDefault();
-          if (options.length > 0) onChange(options[options.length - 1].value);
-          return;
-        }
+      if (e.key === 'End') {
+        e.preventDefault();
+        if (options.length > 0) onChange(options[options.length - 1].value);
+        return;
+      }
 
-        if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-          clearTimeout(keyBufferTimeout);
-          keyBuffer += e.key.toLowerCase();
-          keyBufferTimeout = setTimeout(() => {
-            keyBuffer = '';
-          }, 500);
-
-          const match = options.find((opt) =>
-            opt.label.toLowerCase().startsWith(keyBuffer)
-          );
-          if (match) {
-            onChange(match.value);
-          }
-        }
-      };
-
-      window.addEventListener('keydown', handleKeyDown);
-      return () => {
-        window.removeEventListener('keydown', handleKeyDown);
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
         clearTimeout(keyBufferTimeout);
-      };
-    }, [isOpen, options, value, onChange]);
+        keyBuffer += e.key.toLowerCase();
+        keyBufferTimeout = setTimeout(() => {
+          keyBuffer = '';
+        }, 500);
+
+        const match = options.find((opt) =>
+          opt.label.toLowerCase().startsWith(keyBuffer)
+        );
+        if (match) {
+          onChange(match.value);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      clearTimeout(keyBufferTimeout);
+    };
+  }, [isOpen, options, value, onChange]);
 
   const isFullWidth = className.includes('w-full') || containerClassName.includes('w-full');
 
@@ -208,8 +208,8 @@ export function AnimatedSelect<T extends string | number>({
                     setIsOpen(false);
                   }}
                   className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors duration-100 min-w-0 ${isSelected
-                    ? 'bg-brand/15 text-brand font-bold shadow-2xs'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-card-hover'
+                      ? 'bg-brand/15 text-text-primary dark:text-brand font-bold shadow-2xs'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-card-hover'
                     }`}
                 >
                   <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
@@ -231,7 +231,7 @@ export function AnimatedSelect<T extends string | number>({
           </div>
         </div >
       )
-}
+      }
     </div >
   );
 }

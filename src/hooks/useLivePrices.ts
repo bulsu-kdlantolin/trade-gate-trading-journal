@@ -32,10 +32,13 @@ function formatPriceWithPrecision(price: number): string {
       maximumFractionDigits: 4,
     });
   }
-  if (price >= 0.001) {
-    return price.toFixed(4);
+  if (price >= 0.0001) {
+    return price.toFixed(6);
   }
-  return price.toFixed(8);
+  if (price >= 1e-8) {
+    return price.toFixed(8);
+  }
+  return price.toExponential(3);
 }
 
 export function useLivePrices(): UseLivePricesReturn {
@@ -89,7 +92,10 @@ export function useLivePrices(): UseLivePricesReturn {
     (symbolOrTicker: string): number | undefined => {
       if (!symbolOrTicker) return undefined;
       const ticker = normalizeSymbolToTicker(symbolOrTicker);
-      return prices[ticker];
+      const direct = prices[ticker] ?? prices[ticker.toUpperCase()] ?? prices[symbolOrTicker] ?? prices[symbolOrTicker.toUpperCase()];
+      if (direct !== undefined && direct > 0) return direct;
+      if (ticker === 'TON' || ticker === 'GRAM') return prices.TON ?? prices.GRAM;
+      return undefined;
     },
     [prices]
   );

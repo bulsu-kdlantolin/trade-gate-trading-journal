@@ -25,14 +25,14 @@
     /* Binance Signature Gold/Yellow */
     --tg-brand-hover: #D9A006;
     --tg-brand-muted: rgba(240, 185, 11, 0.12);
-    --tg-bullish: #0ECB81;
-    /* Binance Signature Bullish Green */
-    --tg-bullish-hover: #0CA86B;
-    --tg-bullish-bg: rgba(14, 203, 129, 0.10);
-    --tg-bearish: #F6465D;
-    /* Binance Signature Bearish Red */
-    --tg-bearish-hover: #D9384E;
-    --tg-bearish-bg: rgba(246, 70, 93, 0.10);
+    --tg-bullish: #02985B;
+    /* Binance Signature Bullish Green (High Contrast for Light Mode) */
+    --tg-bullish-hover: #088052;
+    --tg-bullish-bg: rgba(2, 152, 91, 0.10);
+    --tg-bearish: #CF304A;
+    /* Binance Signature Bearish Red (High Contrast for Light Mode) */
+    --tg-bearish-hover: #B8273B;
+    --tg-bearish-bg: rgba(207, 48, 74, 0.10);
   }
 
   .dark {

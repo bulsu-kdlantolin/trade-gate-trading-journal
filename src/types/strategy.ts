@@ -59,6 +59,7 @@ export interface StrategyProfile {
   id: string;
   name: string;
   description?: string;
+  avatarUrl?: string; // Custom image (data:..., https://...), preset badge (preset:...), or crypto symbol (crypto:...)
   executionMode: CryptoExecutionMode;
   baseCurrency: BaseCurrency;
   accountBalance: number;
@@ -81,6 +82,7 @@ export const DEFAULT_CRYPTO_STRATEGIES: StrategyProfile[] = [
     id: 'strat_ict_crypto_perps',
     name: 'ICT Silver Bullet & Session Liquidity',
     description: 'Killzone displacement, FVG retests, and liquidity sweep setups on Perpetual Futures.',
+    avatarUrl: 'preset:lightning',
     executionMode: 'futures',
     baseCurrency: 'USDT',
     accountBalance: 25000,
@@ -104,6 +106,7 @@ export const DEFAULT_CRYPTO_STRATEGIES: StrategyProfile[] = [
     id: 'strat_orderflow_scalp',
     name: 'Orderflow & Volume Profile Scalp',
     description: 'Volume profile value area sweeps, delta absorption, and liquidation cascade scalps.',
+    avatarUrl: 'preset:target',
     executionMode: 'futures',
     baseCurrency: 'USDT',
     accountBalance: 15000,
@@ -126,6 +129,7 @@ export const DEFAULT_CRYPTO_STRATEGIES: StrategyProfile[] = [
     id: 'strat_htf_narrative_spot',
     name: 'HTF Narrative & Spot Accumulation',
     description: 'High-conviction spot bag building, weekly structure reclaims, and tokenomic confluence.',
+    avatarUrl: 'crypto:BTC',
     executionMode: 'spot',
     baseCurrency: 'USDT',
     accountBalance: 50000,
@@ -148,6 +152,7 @@ export const DEFAULT_CRYPTO_STRATEGIES: StrategyProfile[] = [
     id: 'strat_onchain_dex_solana',
     name: 'On-Chain DEX & Solana Momentum',
     description: 'Fast-moving DEX launches, Raydium liquidity velocity, and smart wallet copy-trading.',
+    avatarUrl: 'crypto:SOL',
     executionMode: 'spot',
     baseCurrency: 'SOL',
     accountBalance: 5000,

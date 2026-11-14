@@ -86,12 +86,12 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
               aria-label={item.label}
               aria-current={isActive ? 'page' : undefined}
               className={`w-full group flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-150 ${isActive
-                  ? 'bg-brand/12 text-[#946C00] dark:text-brand font-semibold shadow-xs'
+                  ? 'bg-brand/15 text-text-primary dark:text-brand font-bold shadow-xs'
                   : 'text-text-secondary hover:text-text-primary hover:bg-card-hover'
                   } ${isCollapsed ? 'justify-center px-0' : ''}`}
             >
               <Icon
-                  className={`w-[18px] h-[18px] shrink-0 transition-colors duration-150 ${isActive ? 'text-[#946C00] dark:text-brand' : 'text-text-muted group-hover:text-text-primary'
+                  className={`w-[18px] h-[18px] shrink-0 transition-colors duration-150 ${isActive ? 'text-brand' : 'text-text-muted group-hover:text-text-primary'
                   }`}
               />
               {!isCollapsed && <span className="truncate">{item.label}</span>}

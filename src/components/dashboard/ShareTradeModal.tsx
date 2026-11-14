@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { TradeRecord, isFuturesTrade, isSpotTrade } from '../../types/trade';
 import { CryptoIcon } from '../common/CryptoIcon';
+import { VenueIcon } from '../common/VenueIcon';
 import { TradeGateLogo } from '../common/TradeGateLogo';
 import { getGradeStyle } from '../../utils/gradeStyles';
 import { getSessionStyle } from '../../utils/badgeStyles';
@@ -204,9 +205,18 @@ export const ShareTradeModal: React.FC<ShareTradeModalProps> = ({ trade, onClose
               <span className="text-[10px] text-slate-400 block">
                 {isFut ? 'Stop Loss' : 'Custody'}
               </span>
-              <span className="font-mono font-bold tabular-nums text-[#F6465D] mt-0.5 block">
-                {isFut ? `$${trade.stopLossPrice}` : isSp ? trade.venueTag : '-'}
-              </span>
+                <span className="font-mono font-bold tabular-nums text-[#F6465D] mt-0.5 flex items-center gap-1.5">
+                  {isFut ? (
+                    `$${trade.stopLossPrice}`
+                  ) : isSp && trade.venueTag ? (
+                    <>
+                      <VenueIcon venue={trade.venueTag} size="xs" />
+                      <span className="text-slate-200">{trade.venueTag}</span>
+                    </>
+                  ) : (
+                    '-'
+                  )}
+                </span>
             </div>
           </div>
 
