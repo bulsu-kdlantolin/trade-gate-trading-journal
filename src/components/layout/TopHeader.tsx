@@ -190,7 +190,7 @@ export const TopHeader: React.FC<TopHeaderProps> = React.memo(({
                     }}
                     title="Add Strategy"
                     aria-label="Add Strategy"
-                    className="p-1 rounded-lg text-text-muted hover:text-brand hover:bg-card-hover transition-colors flex items-center justify-center"
+                    className="min-w-[28px] min-h-[28px] relative after:absolute after:-inset-1.5 p-1 rounded-lg text-text-muted hover:text-brand hover:bg-card-hover transition-colors flex items-center justify-center touch-manipulation"
                   >
                     <Plus className="w-3.5 h-3.5" />
                   </button>
@@ -237,75 +237,75 @@ export const TopHeader: React.FC<TopHeaderProps> = React.memo(({
                               : 'hover:bg-card-hover text-text-secondary hover:text-text-primary'
                               }`}
                           >
-                                <div className="flex items-center gap-2.5 min-w-0">
-                                  <StrategyLogo strategy={strat} size="sm" className="shrink-0" />
-                                  <div className="min-w-0">
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="text-xs font-bold truncate">{strat.name}</span>
-                                      {getModeBadge(strat.executionMode)}
-                                    </div>
-                                    <span className="text-[10px] text-text-muted font-mono block mt-0.5">
-                                      {formatCurrencyAmount(strat.accountBalance, strat.baseCurrency)} • {strat.defaultRiskValue}% Risk
-                                    </span>
-                                  </div>
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <StrategyLogo strategy={strat} size="sm" className="shrink-0" />
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs font-bold truncate">{strat.name}</span>
+                                  {getModeBadge(strat.executionMode)}
                                 </div>
-                                {isSelected && <Check className="w-4 h-4 text-brand shrink-0 ml-2" />}
-                              </button>
-                              );
-                              })
-                              )
-                          }
+                                <span className="text-[10px] text-text-muted font-mono block mt-0.5">
+                                  {formatCurrencyAmount(strat.accountBalance, strat.baseCurrency)} • {strat.defaultRiskValue}% Risk
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        )
-                      }
-                  </div>
-
-                {/* Capital Balance & Add Funds (Containerless) */}
-                {activeStrategy && (
-                  <div className="flex items-center gap-1 sm:gap-1.5">
-                    <div className="flex items-center gap-1.5 font-mono text-xs">
-                      <Wallet className="w-3.5 h-3.5 text-text-muted shrink-0" />
-                      <span className="text-[11px] text-text-muted font-sans hidden sm:inline">Balance:</span>
-                      <span className="font-bold tabular-nums text-text-primary inline-flex items-center gap-1.5">
-                        {isCryptoCurrency(activeStrategy.baseCurrency) ? (
-                          <>
-                            <CryptoIcon symbol={activeStrategy.baseCurrency} size="xs" />
-                            <span>{formatNumberOnly(liveBalance, activeStrategy.baseCurrency)}</span>
-                          </>
-                        ) : (
-                          <span>{formatCurrencyAmount(liveBalance, activeStrategy.baseCurrency || 'USD')}</span>
-                        )}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        playModalOpen();
-                        onOpenDepositModal();
-                      }}
-                      title="Deposit or adjust capital"
-                      aria-label="Deposit or adjust capital"
-                      className="relative after:absolute after:-inset-2 p-1 rounded-lg text-brand hover:text-brand-hover hover:bg-card-hover transition-colors shrink-0"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
+                            {isSelected && <Check className="w-4 h-4 text-brand shrink-0 ml-2" />}
+                          </button>
+                        );
+                      })
+                    )
+                  }
+                </div>
               </div>
-
-                {/* Right Side: Trading Session, Market Clock, Theme Toggle */}
-            <div className="flex items-center gap-3 sm:gap-4 shrink-0 ml-auto">
-              {/* Memoized Market Clock & Session Status (Isolates 1-sec re-renders) */}
-              <MarketClockSessionStatus />
-
-              {/* Audio Feedback Toggle */}
-              <AudioToggleButton />
-
-              {/* Theme Toggle Button with Scattering & Spread Effect */}
-              <ThemeToggleButton />
-            </div>
+            )
+            }
           </div>
-        </header >
-        );
+
+          {/* Capital Balance & Add Funds (Containerless) */}
+          {activeStrategy && (
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              <div className="flex items-center gap-1.5 font-mono text-xs">
+                <Wallet className="w-3.5 h-3.5 text-text-muted shrink-0" />
+                <span className="text-[11px] text-text-muted font-sans hidden sm:inline">Balance:</span>
+                <span className="font-bold tabular-nums text-text-primary inline-flex items-center gap-1.5">
+                  {isCryptoCurrency(activeStrategy.baseCurrency) ? (
+                    <>
+                      <CryptoIcon symbol={activeStrategy.baseCurrency} size="xs" />
+                      <span>{formatNumberOnly(liveBalance, activeStrategy.baseCurrency)}</span>
+                    </>
+                  ) : (
+                    <span>{formatCurrencyAmount(liveBalance, activeStrategy.baseCurrency || 'USD')}</span>
+                  )}
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  playModalOpen();
+                  onOpenDepositModal();
+                }}
+                title="Deposit or adjust capital"
+                aria-label="Deposit or adjust capital"
+                className="relative after:absolute after:-inset-2 p-1 rounded-lg text-brand hover:text-brand-hover hover:bg-card-hover transition-colors shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Right Side: Trading Session, Market Clock, Theme Toggle */}
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0 ml-auto">
+          {/* Memoized Market Clock & Session Status (Isolates 1-sec re-renders) */}
+          <MarketClockSessionStatus />
+
+          {/* Audio Feedback Toggle */}
+          <AudioToggleButton />
+
+          {/* Theme Toggle Button with Scattering & Spread Effect */}
+          <ThemeToggleButton />
+        </div>
+      </div>
+    </header >
+  );
 });
 

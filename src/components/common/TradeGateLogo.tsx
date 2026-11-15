@@ -10,9 +10,9 @@ export interface TradeGateLogoProps {
 }
 
 const SIZE_MAP = {
-  xs: { box: 'w-4 h-4', text: 'text-xs', badge: 'text-[9px]' },
-  sm: { box: 'w-6 h-6', text: 'text-sm', badge: 'text-[9px]' },
-  md: { box: 'w-8 h-8', text: 'text-sm sm:text-base', badge: 'text-[10px]' },
+  xs: { box: 'w-4 h-4', text: 'text-xs', badge: 'text-[10px]' },
+  sm: { box: 'w-6 h-6', text: 'text-sm', badge: 'text-[10px]' },
+  md: { box: 'w-8 h-8', text: 'text-sm sm:text-base', badge: 'text-[11px]' },
   lg: { box: 'w-10 h-10', text: 'text-lg', badge: 'text-[11px]' },
   xl: { box: 'w-14 h-14', text: 'text-2xl', badge: 'text-xs' },
 };

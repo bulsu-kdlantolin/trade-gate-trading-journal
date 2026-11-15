@@ -18,9 +18,9 @@
     --tg-text-primary: #181A20;
     /* Binance Primary Dark Text */
     --tg-text-secondary: #474D57;
-    /* Binance Secondary Mid-Grey Text */
-    --tg-text-muted: #707A8A;
-    /* Binance Muted Grey Text (WCAG AA compliant) */
+    /* Binance Secondary Mid-Grey Text (7.5:1 contrast) */
+    --tg-text-muted: #666F7D;
+    /* Binance Muted Grey Text (WCAG AA >= 4.8:1 compliant) */
     --tg-brand: #F0B90B;
     /* Binance Signature Gold/Yellow */
     --tg-brand-hover: #D9A006;
@@ -48,11 +48,11 @@
     --tg-border-muted: #363D47;
     /* Binance Elevated Secondary Border */
     --tg-text-primary: #EAECEF;
-    /* Binance Primary High-Contrast Text */
-    --tg-text-secondary: #848E9C;
-    /* Binance Secondary Descriptive Text */
-    --tg-text-muted: #5E6673;
-    /* Binance Muted/Placeholder Text */
+    /* Binance Primary High-Contrast Text (~13:1 contrast) */
+    --tg-text-secondary: #A0AAB7;
+    /* Binance Secondary Descriptive Text (~7:1 contrast) */
+    --tg-text-muted: #848E9C;
+    /* Binance Muted/Placeholder Text (WCAG AA >= 4.65:1 compliant) */
     --tg-brand: #FCD535;
     /* Binance Primary Bright Yellow */
     --tg-brand-hover: #F0B90B;
@@ -73,6 +73,16 @@
     font-family: var(--font-sans, "BinancePlex", "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Matthew Butterick typographic balance & orphan prevention */
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+    letter-spacing: -0.015em;
+  }
+
+  p {
+    text-wrap: pretty;
   }
 
   *,

@@ -70,46 +70,36 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
       role="status"
       aria-live="polite"
       aria-label="Loading TradeGate Crypto"
-          className={`fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-[#181A20] text-slate-100 select-none transition-opacity duration-300 ease-out ${isFadingOut
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-canvas text-text-primary select-none transition-opacity duration-300 ease-out ${isFadingOut
         ? 'opacity-0 pointer-events-none'
         : 'opacity-100 pointer-events-auto'
         }`}
     >
-      {/* Subtle ambient Binance yellow aura */}
-      <div className="absolute w-56 h-56 rounded-full bg-[#FCD535]/5 blur-3xl pointer-events-none" />
+      {/* Subtle ambient brand yellow aura */}
+      <div className="absolute w-56 h-56 rounded-full bg-brand/10 blur-3xl pointer-events-none" />
 
       {/* Modern Center Brand & Loader */}
       <div className="relative z-10 flex flex-col items-center text-center space-y-4">
-        {/* Sleek Logo Container */}
-          <div className="w-16 h-16 rounded-2xl bg-[#1E2329] border border-[#2B313A] flex items-center justify-center shadow-xl shadow-black/80">
-            <TradeGateLogo size="lg" withBackground={false} />
-          </div>
-
-          {/* Brand Name */}
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold tracking-tight text-white">
-              TradeGate
-            </span>
-              <span className="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#FCD535]/15 text-[#FCD535] tracking-wider">
-                CRYPTO
-              </span>
-          </div>
+        {/* Integrated Brand Lockup */}
+        <div className="flex items-center justify-center">
+          <TradeGateLogo size="lg" variant="full" badgeText="CRYPTO" />
+        </div>
 
           {/* Precision Hairline Progress */}
-          <div className="w-44 space-y-2 pt-1">
-              <div className="h-1 w-full bg-[#2B313A] rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-[#F0B90B] to-[#FCD535] rounded-full transition-all duration-200 ease-out"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
+          <div className="w-48 space-y-2 pt-1">
+            <div className="h-1.5 w-full bg-card border border-border rounded-full overflow-hidden">
+              <div
+                className="h-full bg-brand rounded-full transition-all duration-200 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
 
-              <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 px-0.5">
-                <span>{customMessage || (isReady ? 'Ready' : 'Loading journal...')}</span>
-                <span className="tabular-nums font-medium text-slate-300">{progress}%</span>
-              </div>
+            <div className="flex items-center justify-between text-[11px] font-mono text-text-muted px-0.5">
+              <span>{customMessage || (isReady ? 'Ready' : 'Loading journal...')}</span>
+              <span className="tabular-nums font-semibold text-text-primary">{progress}%</span>
             </div>
           </div>
         </div>
-        );
+      </div>
+      );
 };

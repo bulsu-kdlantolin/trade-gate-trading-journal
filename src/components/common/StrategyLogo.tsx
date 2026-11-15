@@ -123,12 +123,12 @@ export interface StrategyLogoProps {
 
 const SIZE_CONFIGS = {
   xs: {
-    container: 'w-5 h-5 rounded-md text-[9px]',
+    container: 'w-5 h-5 rounded-md text-[11px]',
     cryptoSize: 'xs' as const,
     iconSize: 'w-3 h-3',
   },
   sm: {
-    container: 'w-7 h-7 rounded-lg text-[10px]',
+    container: 'w-7 h-7 rounded-lg text-[11px]',
     cryptoSize: 'sm' as const,
     iconSize: 'w-3.5 h-3.5',
   },
@@ -215,9 +215,8 @@ export const StrategyLogo: React.FC<StrategyLogoProps> = ({
         />
         {showModeBadge && (
           <span
-            className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border border-card ${
-              mode === 'spot' ? 'bg-emerald-500' : 'bg-blue-500'
-            }`}
+            className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border border-card ${mode === 'spot' ? 'bg-emerald-500' : 'bg-blue-500'
+              }`}
           />
         )}
       </div>
@@ -234,9 +233,8 @@ export const StrategyLogo: React.FC<StrategyLogoProps> = ({
         <CryptoIcon symbol={symbol} size={config.cryptoSize} />
         {showModeBadge && (
           <span
-            className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border border-card ${
-              mode === 'spot' ? 'bg-emerald-500' : 'bg-blue-500'
-            }`}
+            className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border border-card ${mode === 'spot' ? 'bg-emerald-500' : 'bg-blue-500'
+              }`}
           />
         )}
       </div>
@@ -255,9 +253,8 @@ export const StrategyLogo: React.FC<StrategyLogoProps> = ({
           <PresetIcon className={config.iconSize} strokeWidth={2.2} />
           {showModeBadge && (
             <span
-              className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border border-card ${
-                mode === 'spot' ? 'bg-emerald-500' : 'bg-blue-500'
-              }`}
+              className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border border-card ${mode === 'spot' ? 'bg-emerald-500' : 'bg-blue-500'
+                }`}
             />
           )}
         </div>
@@ -276,9 +273,8 @@ export const StrategyLogo: React.FC<StrategyLogoProps> = ({
       <span>{initials}</span>
       {showModeBadge && (
         <span
-          className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border border-card ${
-            mode === 'spot' ? 'bg-emerald-500' : 'bg-blue-500'
-          }`}
+          className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border border-card ${mode === 'spot' ? 'bg-emerald-500' : 'bg-blue-500'
+            }`}
         />
       )}
     </div>

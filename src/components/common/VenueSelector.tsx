@@ -167,252 +167,258 @@ export const VenueSelector: React.FC<VenueSelectorProps> = ({
 
         {value && (
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-brand/10 border border-brand/30 text-xs font-mono shadow-xs">
-            <span className="text-[10px] text-text-muted uppercase font-bold tracking-wider">Active:</span>
+            <span className="text-[11px] text-text-muted uppercase font-bold tracking-wider">Active:</span>
             <VenueIcon venue={value} size="xs" />
             <span className="font-bold text-text-primary dark:text-brand truncate max-w-[170px]">
               {value}
             </span>
             {!isPredefined && (
-              <span className="text-[9px] px-1.5 py-0.2 rounded bg-brand text-black font-extrabold uppercase">
-                Custom
-              </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-brand text-black font-extrabold uppercase">
+                  Custom
+                </span>
+            )}
+              </div>
             )}
           </div>
-        )}
-      </div>
 
       {/* Category Tabs (Popular, CEX, DEX, Networks, Wallets, Custom) */}
-      <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
-        <button
-          type="button"
-          onClick={() => {
-            playMicroTick();
-            setActiveTab('popular');
-            setIsTypingCustom(false);
-          }}
-          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 ${activeTab === 'popular' && !isTypingCustom
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+          <button
+            type="button"
+            onClick={() => {
+              playMicroTick();
+              setActiveTab('popular');
+              setIsTypingCustom(false);
+            }}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 ${activeTab === 'popular' && !isTypingCustom
               ? 'bg-brand text-black shadow-xs font-extrabold'
               : 'bg-canvas border border-border text-text-muted hover:text-text-primary'
-            }`}
-        >
-          <Sparkles className="w-3 h-3" />
-          <span>Top Popular</span>
-        </button>
+              }`}
+          >
+            <Sparkles className="w-3 h-3" />
+            <span>Top Popular</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => {
-            playMicroTick();
-            setActiveTab('cex');
-            setIsTypingCustom(false);
-          }}
-          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 ${activeTab === 'cex' && !isTypingCustom
+          <button
+            type="button"
+            onClick={() => {
+              playMicroTick();
+              setActiveTab('cex');
+              setIsTypingCustom(false);
+            }}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 ${activeTab === 'cex' && !isTypingCustom
               ? 'bg-brand text-black shadow-xs font-extrabold'
               : 'bg-canvas border border-border text-text-muted hover:text-text-primary'
-            }`}
-        >
-          <Building2 className="w-3 h-3" />
-          <span>CEX Exchanges</span>
-        </button>
+              }`}
+          >
+            <Building2 className="w-3 h-3" />
+            <span>CEX Exchanges</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => {
-            playMicroTick();
-            setActiveTab('dex');
-            setIsTypingCustom(false);
-          }}
-          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 ${activeTab === 'dex' && !isTypingCustom
+          <button
+            type="button"
+            onClick={() => {
+              playMicroTick();
+              setActiveTab('dex');
+              setIsTypingCustom(false);
+            }}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 ${activeTab === 'dex' && !isTypingCustom
               ? 'bg-brand text-black shadow-xs font-extrabold'
               : 'bg-canvas border border-border text-text-muted hover:text-text-primary'
-            }`}
-        >
-          <Cpu className="w-3 h-3" />
-          <span>DEX Protocols</span>
-        </button>
+              }`}
+          >
+            <Cpu className="w-3 h-3" />
+            <span>DEX Protocols</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => {
-            playMicroTick();
-            setActiveTab('network');
-            setIsTypingCustom(false);
-          }}
-          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 ${activeTab === 'network' && !isTypingCustom
+          <button
+            type="button"
+            onClick={() => {
+              playMicroTick();
+              setActiveTab('network');
+              setIsTypingCustom(false);
+            }}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 ${activeTab === 'network' && !isTypingCustom
               ? 'bg-brand text-black shadow-xs font-extrabold'
               : 'bg-canvas border border-border text-text-muted hover:text-text-primary'
-            }`}
-        >
-          <Globe className="w-3 h-3" />
-          <span>Networks & L1/L2</span>
-        </button>
+              }`}
+          >
+            <Globe className="w-3 h-3" />
+            <span>Networks & L1/L2</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => {
-            playMicroTick();
-            setActiveTab('wallet');
-            setIsTypingCustom(false);
-          }}
-          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 ${activeTab === 'wallet' && !isTypingCustom
+          <button
+            type="button"
+            onClick={() => {
+              playMicroTick();
+              setActiveTab('wallet');
+              setIsTypingCustom(false);
+            }}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 ${activeTab === 'wallet' && !isTypingCustom
               ? 'bg-brand text-black shadow-xs font-extrabold'
               : 'bg-canvas border border-border text-text-muted hover:text-text-primary'
-            }`}
-        >
-          <Shield className="w-3 h-3" />
-          <span>Cold Wallets</span>
-        </button>
+              }`}
+          >
+            <Shield className="w-3 h-3" />
+            <span>Cold Wallets</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => {
-            playMicroTick();
-            setActiveTab('custom');
-            setIsTypingCustom(true);
-          }}
-          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 ${activeTab === 'custom' || isTypingCustom
-            ? 'bg-brand text-black shadow-xs font-extrabold'
-            : 'bg-canvas border border-border text-text-muted hover:text-text-primary'
-            }`}
-        >
-          <Pencil className="w-3 h-3" />
-          <span>+ Custom / Other</span>
-        </button>
-      </div>
-
-      {/* Preset Chips Grid with Official Logos */}
-      {!isTypingCustom && activeTab !== 'custom' && (
-        <div className="flex flex-wrap gap-2 animate-dropdown">
-          {displayedVenues.map((venue) => {
-            const isSelected = (value || '').toLowerCase() === venue.id.toLowerCase();
-            return (
-              <button
-                key={venue.id}
-                type="button"
-                onClick={() => handleSelectVenue(venue.id)}
-                title={venue.description || venue.name}
-                className = {`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all inline-flex items-center gap-2 group active:scale-[0.98] ${isSelected
-                ? 'bg-brand/15 border-brand text-text-primary dark:text-brand font-bold ring-1 ring-brand/30 shadow-xs'
-                : 'bg-canvas border-border text-text-secondary hover:text-text-primary hover:border-brand/40 shadow-2xs'
-              }`
-          }
-              >
-          <VenueIcon venue={venue.id} size="sm" network={venue.network} />
-          <span>{venue.name}</span>
-          {
-              venue.network && (
-                <span className="hidden sm:inline-flex items-center gap-1 text-[9.5px] font-mono px-1.5 py-0.2 rounded bg-card border border-border text-text-muted">
-                  <NetworkIcon network={venue.network} size="xs" />
-                  <span>{venue.network}</span>
-                </span>
-              )
-            }
-          { isSelected && <Check className="w-3.5 h-3.5 text-brand shrink-0 ml-0.5" />}
-        </button>
-      );
-          })}
-
-      {/* Quick trigger for other/custom */}
-      <button
-        type="button"
-        onClick={() => {
-          playMicroTick();
-          setIsTypingCustom(true);
-          setActiveTab('custom');
-        }}
-        className="px-3 py-1.5 rounded-xl border border-dashed border-border bg-canvas/60 text-text-muted hover:text-brand hover:border-brand/50 text-xs font-medium transition-all inline-flex items-center gap-1.5"
-      >
-        <Plus className="w-3.5 h-3.5" />
-        <span>Other Platform...</span>
-      </button>
-    </div>
-  )
-}
-
-{/* Custom Platform Input Form */ }
-{
-  (isTypingCustom || activeTab === 'custom') && (
-    <div className="bg-canvas border border-brand/40 rounded-xl p-3.5 space-y-2.5 animate-dropdown shadow-xs">
-      <div className="flex items-center justify-between">
-        <span className="text-[11px] font-bold text-text-primary flex items-center gap-1.5">
-          <Pencil className="w-3.5 h-3.5 text-brand" />
-          <span>Custom Exchange, Venue, or Network</span>
-        </span>
-        <button
-          type="button"
-          onClick={() => {
-            playMicroTick();
-            setIsTypingCustom(false);
-            setActiveTab('popular');
-          }}
-          className="text-[11px] text-text-muted hover:text-text-primary transition-colors inline-flex items-center gap-1"
-        >
-          <span>Back to Presets</span>
-        </button>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1">
-          <input
-            type="text"
-            autoFocus={isTypingCustom}
-            value={customInput}
-            onChange={handleCustomInputChange}
-            placeholder="Type platform or network (e.g. MEXC, Tangem, Osmosis, Curve, BitMEX...)"
-            className="w-full bg-card border border-border rounded-xl px-3 py-2 text-xs text-text-primary font-medium focus:border-brand pr-8"
-          />
-          {customInput && (
-            <button
-              type="button"
-              onClick={() => {
-                setCustomInput('');
-                handleSelectVenue('Binance');
-              }}
-              title="Clear custom input"
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary p-0.5"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => {
+              playMicroTick();
+              setActiveTab('custom');
+              setIsTypingCustom(true);
+            }}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 ${activeTab === 'custom' || isTypingCustom
+              ? 'bg-brand text-black shadow-xs font-extrabold'
+              : 'bg-canvas border border-border text-text-muted hover:text-text-primary'
+              }`}
+          >
+            <Pencil className="w-3 h-3" />
+            <span>+ Custom / Other</span>
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            if (customInput.trim()) {
-              onChange(customInput.trim() as VenueCustodyTag);
-              playMicroTick();
-            }
-          }}
-          className="px-3.5 py-2 bg-brand text-black font-bold text-xs rounded-xl hover:bg-brand-hover transition-colors shrink-0 shadow-xs"
-        >
-          Apply
-        </button>
-      </div>
+        {/* Preset Chips Grid with Official Logos */}
+        {!isTypingCustom && activeTab !== 'custom' && (
+          <div className="flex flex-wrap gap-2 animate-dropdown">
+            {displayedVenues.map((venue) => {
+              const isSelected = (value || '').toLowerCase() === venue.id.toLowerCase();
+              return (
+                <button
+                  key={venue.id}
+                  type="button"
+                  onClick={() => handleSelectVenue(venue.id)}
+                  title={venue.description || venue.name}
+                  className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all inline-flex items-center gap-2 group active:scale-[0.98] ${isSelected
+                    ? 'bg-brand/15 border-brand text-text-primary dark:text-brand font-bold ring-1 ring-brand/30 shadow-xs'
+                    : 'bg-canvas border-border text-text-secondary hover:text-text-primary hover:border-brand/40 shadow-2xs'
+                    }`
+                  }
+                >
+                  <VenueIcon venue={venue.id} size="sm" network={venue.network} />
+                  <span>{venue.name}</span>
+                  {
+                    venue.network && (
+                        <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-card border border-border text-text-muted">
+                          <NetworkIcon network={venue.network} size="xs" />
+                          <span>{venue.network}</span>
+                        </span>
+                        )
+                }
+                        {isSelected && <Check className="w-3.5 h-3.5 text-brand shrink-0 ml-0.5" />}
+                      </button>
+                    );
+          })}
 
-      <div className="flex items-center gap-2 flex-wrap pt-0.5">
-        <span className="text-[10px] text-text-muted font-medium">Quick suggestions:</span>
-        {
-          ['MEXC', 'Tangem', 'Osmosis', 'Curve Finance', 'Deribit', 'Sui Network', 'Backpack'].map((sug) => (
-            <button
-              key={sug}
-              type="button"
-              onClick={() => {
-                setCustomInput(sug);
-                onChange(sug as VenueCustodyTag);
-                playMicroTick();
-              }}
-              className="inline-flex items-center gap-1.5 text-[10.5px] font-mono px-2 py-0.5 rounded-md bg-card border border-border text-text-secondary hover:text-brand hover:border-brand/40 transition-colors shadow-2xs"
-            >
-              <VenueIcon venue={sug} size="xs" />
-              <span>{sug}</span>
-            </button>
-          ))
-        }
-      </div>
-    </div>
-  )
-}
-        </div >
+                  {/* Quick trigger for other/custom */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playMicroTick();
+                      setIsTypingCustom(true);
+                      setActiveTab('custom');
+                    }}
+                    className="px-3 py-1.5 rounded-xl border border-dashed border-border bg-canvas/60 text-text-muted hover:text-brand hover:border-brand/50 text-xs font-medium transition-all inline-flex items-center gap-1.5"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Other Platform...</span>
+                  </button>
+                </div>
+              )
+            }
+
+      {/* Custom Platform Input Form */ }
+      {
+        (isTypingCustom || activeTab === 'custom') && (
+                <div className="bg-canvas border border-brand/40 rounded-xl p-3.5 space-y-2.5 animate-dropdown shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-text-primary flex items-center gap-1.5">
+                      <Pencil className="w-3.5 h-3.5 text-brand" />
+                      <span>Custom Exchange, Venue, or Network</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playMicroTick();
+                        setIsTypingCustom(false);
+                        setActiveTab('popular');
+                      }}
+                      className="text-[11px] text-text-muted hover:text-text-primary transition-colors inline-flex items-center gap-1"
+                    >
+                      <span>Back to Presets</span>
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <label htmlFor="custom-venue-input" className="sr-only">
+                        Custom Exchange or Custody Platform Name
+                      </label>
+                      <input
+                        id="custom-venue-input"
+                        aria-label="Custom exchange or custody platform name"
+                        type="text"
+                        autoFocus={isTypingCustom}
+                        value={customInput}
+                        onChange={handleCustomInputChange}
+                        placeholder="Type platform or network (e.g. MEXC, Tangem, Osmosis, Curve, BitMEX...)"
+                        className="w-full bg-card border border-border rounded-xl px-3 py-2 text-xs text-text-primary font-medium focus:border-brand pr-8"
+                      />
+                      {customInput && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCustomInput('');
+                            handleSelectVenue('Binance');
+                          }}
+                          title="Clear custom input"
+                          aria-label="Clear custom platform input"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary p-1 rounded-md hover:bg-canvas transition-colors touch-manipulation min-w-[24px] min-h-[24px] flex items-center justify-center"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (customInput.trim()) {
+                          onChange(customInput.trim() as VenueCustodyTag);
+                          playMicroTick();
+                        }
+                      }}
+                      className="px-3.5 py-2 bg-brand text-black font-bold text-xs rounded-xl hover:bg-brand-hover transition-colors shrink-0 shadow-xs"
+                    >
+                      Apply
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                    <span className="text-[11px] text-text-muted font-medium">Quick suggestions:</span>
+                    {
+                      ['MEXC', 'Tangem', 'Osmosis', 'Curve Finance', 'Deribit', 'Sui Network', 'Backpack'].map((sug) => (
+                        <button
+                          key={sug}
+                          type="button"
+                          onClick={() => {
+                            setCustomInput(sug);
+                            onChange(sug as VenueCustodyTag);
+                            playMicroTick();
+                          }}
+                          className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 min-h-[26px] rounded-md bg-card border border-border text-text-secondary hover:text-brand hover:border-brand/40 transition-colors shadow-2xs touch-manipulation"
+                        >
+                          <VenueIcon venue={sug} size="xs" />
+                          <span>{sug}</span>
+                        </button>
+                      ))
+                    }
+                  </div>
+                </div>
+              )
+      }
+          </div >
         );
 };
