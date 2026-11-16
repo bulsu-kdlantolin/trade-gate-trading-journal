@@ -8,10 +8,12 @@ import { PreTradeGate } from './components/terminal/PreTradeGate';
 import { StrategyProfile, BaseCurrency, BalanceAdjustment } from './types/strategy';
 import { TradeRecord, isFuturesTrade } from './types/trade';
 import { convertCurrency } from './utils/currency';
+import { getErrorMessage } from './utils/errors';
 import { initLivePriceService } from './services/livePriceService';
 import { storage } from './utils/storage';
 import { playTabSwitch, playCommandPaletteOpen } from './utils/audioTelemetry';
 import { LoadingScreen } from './components/common/LoadingScreen';
+import { useToast } from './context/ToastContext';
 import {
   ShieldAlert,
   BookOpen,
@@ -88,6 +90,7 @@ export function App() {
   } = useTradeJournal(activeStrategyId);
 
   const { netAdjustments, addAdjustment, reloadAdjustments } = useBalanceAdjustments(activeStrategy?.id);
+  const toast = useToast();
 
   // App initialization boot screen state
   const [isInitialBoot, setIsInitialBoot] = useState(true);
@@ -102,16 +105,21 @@ export function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [unlockedGateStrategyId, setUnlockedGateStrategyId] = useState<string | null>(null);
 
   // Global Tactical Keyboard Shortcuts (Cockpit Ergonomics)
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
-      const isInput =
+      const isTextEntry =
         target &&
         (target.tagName === 'INPUT' ||
           target.tagName === 'TEXTAREA' ||
           target.isContentEditable);
+      const isInteractive = Boolean(
+        isTextEntry ||
+        target?.closest('button, [role="button"], [role="option"], select, a, [contenteditable="true"]')
+      );
 
       // 1. Cockpit Command Palette Hotkey: Cmd+K / Ctrl+K or "?" (when not in input)
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -121,7 +129,7 @@ export function App() {
         return;
       }
 
-      if (!isInput && e.key === '?' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      if (!isInteractive && e.key === '?' && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault();
         playCommandPaletteOpen();
         setIsCommandPaletteOpen(true);
@@ -132,7 +140,7 @@ export function App() {
       if (isCommandPaletteOpen || isDepositModalOpen) return;
 
       // 2. Direct Tab Switching via number keys [1] - [5] (when not in input)
-      if (!isInput && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      if (!isInteractive && !e.metaKey && !e.ctrlKey && !e.altKey) {
         const tabMap: Record<string, TabKey> = {
           '1': 'terminal',
           '2': 'history',
@@ -151,19 +159,6 @@ export function App() {
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [isCommandPaletteOpen, isDepositModalOpen]);
-
-  // Keep visited tabs mounted so form state, filters, scroll positions, and selected items
-  // are never lost when navigating between views (only resetting upon full site reload)
-  const [visitedTabs, setVisitedTabs] = useState<Set<TabKey>>(() => new Set<TabKey>(['terminal']));
-
-  useEffect(() => {
-    setVisitedTabs((prev) => {
-      if (prev.has(activeTab)) return prev;
-      const next = new Set(prev);
-      next.add(activeTab);
-      return next;
-    });
-  }, [activeTab]);
 
   // Real-time live adjusted strategy capital: Initial Balance + Realized P&L + Net Adjustments
   const liveBalance = (activeStrategy?.accountBalance || 0) + (metrics.netPnlDollar || 0) + netAdjustments;
@@ -186,62 +181,60 @@ export function App() {
 
   // Update strategy currency preference and auto-convert account balances & trade metrics
   const handleUpdateStrategyCurrency = async (newCurrency: BaseCurrency, applyToAll: boolean = true) => {
-    localStorage.setItem('tradegate_preferred_currency', newCurrency);
+    try {
+      const targetStrategies = applyToAll ? strategies : (activeStrategy ? [activeStrategy] : []);
+      const updatedTradesList = [...allTrades];
+      let anyTradesChanged = false;
 
-    const targetStrategies = applyToAll ? strategies : (activeStrategy ? [activeStrategy] : []);
-    const updatedTradesList = [...allTrades];
-    let anyTradesChanged = false;
+      for (const strat of targetStrategies) {
+        const oldCurrency = (strat.baseCurrency || 'USD') as BaseCurrency;
+        if (oldCurrency !== newCurrency) {
+          // 1. Auto-convert starting account balance
+          const convertedBalance = convertCurrency(strat.accountBalance, oldCurrency, newCurrency);
 
-    for (const strat of targetStrategies) {
-      const oldCurrency = (strat.baseCurrency || 'USD') as BaseCurrency;
-      if (oldCurrency !== newCurrency) {
-        // 1. Auto-convert starting account balance
-        const convertedBalance = convertCurrency(strat.accountBalance, oldCurrency, newCurrency);
+          // 2. Auto-convert fixed dollar risk if applicable
+          const convertedRiskValue = strat.riskModel === 'FixedDollar'
+            ? convertCurrency(strat.defaultRiskValue, oldCurrency, newCurrency)
+            : strat.defaultRiskValue;
 
-        // 2. Auto-convert fixed dollar risk if applicable
-        const convertedRiskValue = strat.riskModel === 'FixedDollar'
-          ? convertCurrency(strat.defaultRiskValue, oldCurrency, newCurrency)
-          : strat.defaultRiskValue;
+          await updateStrategy(strat.id, {
+            baseCurrency: newCurrency,
+            accountBalance: convertedBalance,
+            defaultRiskValue: convertedRiskValue,
+          });
 
-        await updateStrategy(strat.id, {
-          baseCurrency: newCurrency,
-          accountBalance: convertedBalance,
-          defaultRiskValue: convertedRiskValue,
-        });
-
-        // 4. Auto-convert all trades belonging to this strategy
-        for (let i = 0; i < updatedTradesList.length; i++) {
-          const t = updatedTradesList[i];
-          if (t.strategyId === strat.id) {
-            anyTradesChanged = true;
-            const updatedTrade = { ...t };
-            if (updatedTrade.accountBalance) {
-              updatedTrade.accountBalance = convertCurrency(updatedTrade.accountBalance, oldCurrency, newCurrency);
-            }
-            if (updatedTrade.pnlDollar !== undefined) {
-              updatedTrade.pnlDollar = convertCurrency(updatedTrade.pnlDollar, oldCurrency, newCurrency);
-            }
-            if (isFuturesTrade(updatedTrade)) {
-              if (updatedTrade.riskAmountDollar !== undefined) {
-                updatedTrade.riskAmountDollar = convertCurrency(updatedTrade.riskAmountDollar, oldCurrency, newCurrency);
+          // 4. Auto-convert all trades belonging to this strategy
+          for (let i = 0; i < updatedTradesList.length; i++) {
+            const t = updatedTradesList[i];
+            if (t.strategyId === strat.id) {
+              anyTradesChanged = true;
+              const updatedTrade = { ...t };
+              if (updatedTrade.accountBalance) {
+                updatedTrade.accountBalance = convertCurrency(updatedTrade.accountBalance, oldCurrency, newCurrency);
               }
-            } else {
-              if (updatedTrade.allocationDollar !== undefined) {
-                updatedTrade.allocationDollar = convertCurrency(updatedTrade.allocationDollar, oldCurrency, newCurrency);
+              if (updatedTrade.pnlDollar !== undefined) {
+                updatedTrade.pnlDollar = convertCurrency(updatedTrade.pnlDollar, oldCurrency, newCurrency);
               }
+              if (isFuturesTrade(updatedTrade)) {
+                if (updatedTrade.riskAmountDollar !== undefined) {
+                  updatedTrade.riskAmountDollar = convertCurrency(updatedTrade.riskAmountDollar, oldCurrency, newCurrency);
+                }
+              } else {
+                if (updatedTrade.allocationDollar !== undefined) {
+                  updatedTrade.allocationDollar = convertCurrency(updatedTrade.allocationDollar, oldCurrency, newCurrency);
+                }
+              }
+              updatedTradesList[i] = updatedTrade;
             }
-            updatedTradesList[i] = updatedTrade;
           }
         }
       }
-    }
 
-    if (anyTradesChanged) {
-      await importTrades(updatedTradesList);
-    }
+      if (anyTradesChanged) {
+        await importTrades(updatedTradesList);
+      }
 
-    // Auto-convert stored balance adjustments (deposits/withdrawals)
-    try {
+      // Auto-convert stored balance adjustments (deposits/withdrawals)
       const storedAdjustments = (await storage.get<BalanceAdjustment[]>('tradegate_crypto_balance_adjustments')) || [];
       if (storedAdjustments.length > 0) {
         let adjustmentsChanged = false;
@@ -264,12 +257,20 @@ export function App() {
           await reloadAdjustments();
         }
       }
-    } catch { }
+      localStorage.setItem('tradegate_preferred_currency', newCurrency);
+    } catch (error) {
+      toast.error('Currency Conversion Failed', getErrorMessage(error));
+    }
   };
 
   const handleNavigateToStrategies = () => {
     setActiveTab('strategies');
     window.dispatchEvent(new CustomEvent('tradegate_open_create_strategy'));
+  };
+
+  const handleTradeLogged = async (trade: TradeRecord) => {
+    await logTrade(trade);
+    setUnlockedGateStrategyId(null);
   };
 
   return (
@@ -309,20 +310,22 @@ export function App() {
           className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-24 md:pb-12 focus:outline-none"
         >
           <div className="max-w-[1600px] mx-auto">
-            {visitedTabs.has('terminal') && (
-              <div className={activeTab === 'terminal' ? 'block animate-view-fade' : 'hidden'}>
+            {activeTab === 'terminal' && (
+              <div className="block animate-view-fade">
                 <PreTradeGate
                   strategy={activeStrategy}
                   liveBalance={liveBalance}
-                  onTradeLogged={logTrade}
+                  onTradeLogged={handleTradeLogged}
                   onNavigateToProfiles={handleNavigateToStrategies}
-                  isActive={activeTab === 'terminal'}
+                  isGateUnlocked={unlockedGateStrategyId === activeStrategy?.id}
+                  onGateUnlock={() => setUnlockedGateStrategyId(activeStrategy?.id || null)}
+                  isActive
                 />
               </div>
             )}
 
-            {visitedTabs.has('history') && (
-              <div className={activeTab === 'history' ? 'block animate-view-fade' : 'hidden'}>
+            {activeTab === 'history' && (
+              <div className="block animate-view-fade">
                 <Suspense fallback={<ViewSkeleton />}>
                   <TradeTable
                     trades={trades}
@@ -335,8 +338,8 @@ export function App() {
               </div>
             )}
 
-            {visitedTabs.has('dashboard') && (
-              <div className={activeTab === 'dashboard' ? 'block animate-view-fade' : 'hidden'}>
+            {activeTab === 'dashboard' && (
+              <div className="block animate-view-fade">
                 <Suspense fallback={<ViewSkeleton />}>
                   <AnalyticsDashboard
                     trades={trades}
@@ -347,8 +350,8 @@ export function App() {
               </div>
             )}
 
-            {visitedTabs.has('strategies') && (
-              <div className={activeTab === 'strategies' ? 'block animate-view-fade' : 'hidden'}>
+            {activeTab === 'strategies' && (
+              <div className="block animate-view-fade">
                 <Suspense fallback={<ViewSkeleton />}>
                   <StrategiesHub
                     strategies={strategies}
@@ -368,8 +371,8 @@ export function App() {
               </div>
             )}
 
-            {visitedTabs.has('settings') && (
-              <div className={activeTab === 'settings' ? 'block animate-view-fade' : 'hidden'}>
+            {activeTab === 'settings' && (
+              <div className="block animate-view-fade">
                 <Suspense fallback={<ViewSkeleton />}>
                   <SettingsHub
                     strategies={strategies}
@@ -410,7 +413,7 @@ export function App() {
                 }`}
             >
               <Icon className={`w-4 h-4 mb-0.5 ${isActive ? 'text-brand' : ''}`} />
-                <span className="text-[11px] leading-tight tracking-tight truncate max-w-[68px]">
+                <span className="text-xs leading-tight tracking-tight truncate max-w-[68px]">
                   {item.label}
                 </span>
                 {isActive && (

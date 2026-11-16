@@ -48,12 +48,12 @@ const MarketClockSessionStatus: React.FC = React.memo(() => {
       {/* Trading Session (Beside time) */}
       <div
         title={activeSession ? `Active Trading Session: ${activeSession.name} (${activeSession.localRangeStr})` : 'All trading sessions are currently closed'}
-        className="flex items-center gap-1.5 font-mono text-xs select-none"
+        className="flex items-center gap-1 font-mono text-xs select-none"
       >
         <span className="text-[11px] text-text-muted font-sans hidden sm:inline">
           Trading Session:
         </span>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <span className="relative flex h-2 w-2 shrink-0">
             {activeSession ? (
               <>
@@ -70,7 +70,7 @@ const MarketClockSessionStatus: React.FC = React.memo(() => {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-text-muted/40" />
             )}
           </span>
-          <span className="font-bold text-text-primary text-[11px] max-w-[72px] xs:max-w-none truncate">
+          <span className={`font-bold text-[11px] max-w-[72px] xs:max-w-none truncate ${activeSession ? 'text-text-primary' : 'text-red-500 dark:text-red-400'}`}>
             {activeSession ? activeSession.name : 'Closed'}
           </span>
         </div>
@@ -98,6 +98,17 @@ export const TopHeader: React.FC<TopHeaderProps> = React.memo(({
 }) => {
   const [isStratOpen, setIsStratOpen] = useState(false);
   const stratRef = useRef<HTMLDivElement>(null);
+  const strategyOptionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  const focusStrategyOption = (index: number) => {
+    const option = strategyOptionRefs.current[index];
+    if (option) option.focus();
+  };
+
+  const openStrategyList = (startIndex = 0) => {
+    setIsStratOpen(true);
+    window.requestAnimationFrame(() => focusStrategyOption(startIndex));
+  };
 
   // Close dropdown on outside click or Escape key
   useEffect(() => {
@@ -154,7 +165,20 @@ export const TopHeader: React.FC<TopHeaderProps> = React.memo(({
               id="strategy-trigger-btn"
               onClick={() => {
                 playMicroTick();
-                setIsStratOpen(!isStratOpen);
+                if (isStratOpen) {
+                  setIsStratOpen(false);
+                } else {
+                  const selectedIndex = strategies.findIndex((strategy) => strategy.id === activeStrategy?.id);
+                  openStrategyList(selectedIndex >= 0 ? selectedIndex : 0);
+                }
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                  event.preventDefault();
+                  const selectedIndex = strategies.findIndex((strategy) => strategy.id === activeStrategy?.id);
+                  const firstIndex = selectedIndex >= 0 ? selectedIndex : 0;
+                  openStrategyList(event.key === 'ArrowUp' ? Math.max(firstIndex, strategies.length - 1) : firstIndex);
+                }
               }}
               aria-haspopup="listbox"
               aria-expanded={isStratOpen}
@@ -220,13 +244,38 @@ export const TopHeader: React.FC<TopHeaderProps> = React.memo(({
                         </button>
                       </div>
                     ) : (
-                      strategies.map((strat) => {
+                      strategies.map((strat, index) => {
                         const isSelected = strat.id === activeStrategy?.id;
                         return (
                           <button
                             key={strat.id}
                             role="option"
                             aria-selected={isSelected}
+                            tabIndex={isSelected || (!activeStrategy && index === 0) ? 0 : -1}
+                            ref={(element) => {
+                              strategyOptionRefs.current[index] = element;
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                                event.preventDefault();
+                                const direction = event.key === 'ArrowDown' ? 1 : -1;
+                                const nextIndex = (index + direction + strategies.length) % strategies.length;
+                                focusStrategyOption(nextIndex);
+                              } else if (event.key === 'Home' || event.key === 'End') {
+                                event.preventDefault();
+                                focusStrategyOption(event.key === 'Home' ? 0 : strategies.length - 1);
+                              } else if (event.key === 'Escape') {
+                                event.preventDefault();
+                                setIsStratOpen(false);
+                                document.getElementById('strategy-trigger-btn')?.focus();
+                              } else if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                playSuccessChime();
+                                onSelectStrategy(strat.id);
+                                setIsStratOpen(false);
+                                document.getElementById('strategy-trigger-btn')?.focus();
+                              }
+                            }}
                             onClick={() => {
                               playSuccessChime();
                               onSelectStrategy(strat.id);

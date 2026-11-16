@@ -166,6 +166,16 @@ select:focus-visible {
 }
 
 /* Accessible High-Contrast Keyboard Focus Indicators (WCAG 2.4.7 Level AA) */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: var(--tg-brand) !important;
+  box-shadow: none !important;
+}
+
 button:focus-visible,
 [role="button"]:focus-visible,
 [role="tab"]:focus-visible,

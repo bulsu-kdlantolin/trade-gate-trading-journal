@@ -62,6 +62,8 @@ interface PreTradeGateProps {
   liveBalance: number;
   onTradeLogged: (trade: TradeRecord) => Promise<unknown>;
   onNavigateToProfiles: () => void;
+  isGateUnlocked?: boolean;
+  onGateUnlock?: () => void;
   isActive?: boolean;
 }
 
@@ -83,6 +85,8 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
   liveBalance,
   onTradeLogged,
   onNavigateToProfiles,
+  isGateUnlocked = false,
+  onGateUnlock,
   isActive = true,
 }) => {
   const toast = useToast();
@@ -144,10 +148,11 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
   const [isZoomModalOpen, setIsZoomModalOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [justCommittedId, setJustCommittedId] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   // Pre-Trade Gate Clearance Modal state (locked like a real gate until keys/checklist entered)
-  const [isGateModalOpen, setIsGateModalOpen] = useState<boolean>(true);
-  const [gateUnlockedDismissed, setGateUnlockedDismissed] = useState<boolean>(false);
+  const [isGateModalOpen, setIsGateModalOpen] = useState<boolean>(!isGateUnlocked);
+  const [gateUnlockedDismissed, setGateUnlockedDismissed] = useState<boolean>(isGateUnlocked);
 
   // Storage key generator for safe draft persistence
   const getDraftStorageKey = (strategyId?: string) => `tradegate_draft_${strategyId || 'default'}`;
@@ -217,6 +222,11 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
     }
     setActiveExecutionType(strategy.executionMode === 'spot' ? 'spot' : 'futures');
   }, [strategy?.id]);
+
+  useEffect(() => {
+    setIsGateModalOpen(!isGateUnlocked);
+    setGateUnlockedDismissed(isGateUnlocked);
+  }, [strategy?.id, isGateUnlocked]);
 
   // Persist trade plan draft on change (debounced 300ms)
   useEffect(() => {
@@ -415,6 +425,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
     playGateUnlockSound();
     setIsGateModalOpen(false);
     setGateUnlockedDismissed(true);
+    onGateUnlock?.();
     toast.success('Pre-Trade Gate Cleared', `${setupGrade} Setup Unlocked • Confluence: ${confluenceScore}/${maxConfluenceScore} pts`);
   };
 
@@ -422,6 +433,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
     playGateUnlockSound();
     setIsGateModalOpen(false);
     setGateUnlockedDismissed(true);
+    onGateUnlock?.();
     toast.warning('Gate Bypassed as Violation', 'This trade will be recorded as a Grade C Discipline Violation.');
   };
 
@@ -517,6 +529,14 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
     toast.success('Image Attached', 'Applied image URL.');
   };
 
+  const showValidationError = (fields: string[], message: string) => {
+    setValidationErrors(fields);
+    toast.error('Validation Error', message);
+    window.requestAnimationFrame(() => {
+      document.getElementById(fields[0])?.focus();
+    });
+  };
+
   // Submit Trade (with optional forceOverride for intentional rule violations)
   const executeLogTrade = async (forceOverride = false) => {
     if (!strategy) return;
@@ -580,7 +600,11 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
         });
 
         if (!metrics.isValid) {
-          toast.error('Validation Error', metrics.errorMessage || 'Check entry and SL prices.');
+          const isStopLossDirectionError = metrics.errorMessage?.includes('Stop Loss must be');
+          showValidationError(
+            isStopLossDirectionError ? ['stopLossPrice', 'entryPrice'] : ['entryPrice', 'stopLossPrice'],
+            metrics.errorMessage || 'Check entry and SL prices.'
+          );
           setIsSubmitting(false);
           return;
         }
@@ -640,7 +664,10 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
         });
 
         if (!metrics.isValid) {
-          toast.error('Validation Error', metrics.errorMessage || 'Check entry and allocation.');
+          showValidationError(
+            ['spotEntryPrice', 'spotAllocation'],
+            metrics.errorMessage || 'Check entry and allocation.'
+          );
           setIsSubmitting(false);
           return;
         }
@@ -707,6 +734,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
 
       // Reset all form fields to fresh state & re-lock the gate for next trade
       setCheckedRules({});
+      setValidationErrors([]);
       setIsGateModalOpen(true);
       setGateUnlockedDismissed(false);
       setEntryPrice(0);
@@ -1129,6 +1157,10 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                     setSpotStopLossPrice={setSpotStopLossPrice}
                     spotVenue={spotVenue}
                     setSpotVenue={setSpotVenue}
+                    validationErrors={validationErrors}
+                    onClearValidationError={(field) => {
+                      setValidationErrors((previous) => previous.filter((errorField) => errorField !== field));
+                    }}
                   />
                 </div>
               </div>

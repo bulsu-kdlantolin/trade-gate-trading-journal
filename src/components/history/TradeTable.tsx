@@ -469,7 +469,9 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
               <thead className="bg-canvas/80 border-b border-border text-[11px] font-bold text-text-muted uppercase tracking-wider select-none">
                 <tr>
                   <th className="py-3 px-4">Asset</th>
-                  <th className="py-3 px-3">Mode & Lev</th>
+                  <th className="py-3 px-3">Mode</th>
+                  <th className="py-3 px-3">Lev</th>
+                  <th className="py-3 px-3">Venue</th>
                   <th className="py-3 px-3">Action / Dir</th>
                   <th className="py-3 px-3 text-center">Setup Grade</th>
                   <th className="py-3 px-3 text-right">Entry / Exit</th>
@@ -489,7 +491,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
               <tbody className="divide-y divide-border">
                 {filteredTrades.length === 0 ? (
                   <tr>
-                    <td colSpan={11} className="py-14 text-center">
+                    <td colSpan={13} className="py-14 text-center">
                       {trades.length === 0 ? (
                         <div className="max-w-sm mx-auto space-y-3">
                           <div className="w-10 h-10 rounded-2xl bg-canvas border border-border flex items-center justify-center text-text-muted mx-auto shadow-xs">
@@ -567,7 +569,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                           </div>
                         </td>
 
-                        {/* Mode & Lev */}
+                        {/* Mode */}
                         <td className="py-3 px-3">
                           <span
                             className={`font-mono text-[11px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${isFut
@@ -575,16 +577,27 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                               : 'bg-emerald-500/15 text-emerald-400'
                               }`}
                           >
-                            {isFut ? `PERP ${t.leverage}x` : 'SPOT'}
+                            {isFut ? 'PERP' : 'SPOT'}
                           </span>
-                          {isSp && t.venueTag && (
+                        </td>
+
+                        {/* Leverage */}
+                        <td className="py-3 px-3 font-mono text-[11px] font-bold text-text-primary">
+                          {isFut && Number.isFinite(t.leverage) ? `${t.leverage}x` : '-'}
+                        </td>
+
+                        {/* Venue */}
+                        <td className="py-3 px-3">
+                          {isSp && t.venueTag ? (
                             <span
-                              className="inline-flex items-center gap-1 text-[11px] text-text-muted font-mono mt-0.5 truncate max-w-[140px]"
+                              className="inline-flex items-center gap-1 text-[11px] text-text-muted font-mono truncate max-w-[140px]"
                               title={`Custody / Exchange: ${t.venueTag}`}
                             >
                               <VenueIcon venue={t.venueTag} size="xs" />
                               <span className="truncate">{t.venueTag}</span>
                             </span>
+                          ) : (
+                            '-'
                           )}
                         </td>
 
@@ -869,7 +882,10 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                                         className={`font-mono text-[11px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${isFut ? 'bg-blue-500/15 text-blue-400' : 'bg-emerald-500/15 text-emerald-400'
                                   }`}
                               >
-                                {isFut ? `PERP ${t.leverage}x` : 'SPOT'}
+                                {isFut ? 'PERP' : 'SPOT'}
+                              </span>
+                              <span className="font-mono text-[11px] font-bold text-text-muted">
+                                Lev: {isFut && Number.isFinite(t.leverage) ? `${t.leverage}x` : '-'}
                               </span>
                                 <span className={`font-mono text-[11px] font-black ${getGradeStyle(t.setupGrade).text}`}>
                                   {t.setupGrade}

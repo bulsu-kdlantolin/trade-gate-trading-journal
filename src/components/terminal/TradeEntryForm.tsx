@@ -63,6 +63,8 @@ export interface TradeEntryFormProps {
   setSpotStopLossPrice: (val: number) => void;
   spotVenue: VenueCustodyTag;
   setSpotVenue: (val: VenueCustodyTag) => void;
+  validationErrors?: string[];
+  onClearValidationError?: (field: string) => void;
 }
 
 const LEVERAGE_PRESETS = [1, 3, 5, 10, 20, 50];
@@ -107,6 +109,8 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
   setSpotStopLossPrice,
   spotVenue,
   setSpotVenue,
+  validationErrors = [],
+  onClearValidationError,
 }) => {
   const [assetSearchQuery, setAssetSearchQuery] = useState('');
   const [isAssetDropdownOpen, setIsAssetDropdownOpen] = useState(false);
@@ -133,6 +137,7 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
   };
 
   const currencySymbol = getCurrencySymbol(strategy.baseCurrency);
+  const hasValidationError = (field: string) => validationErrors.includes(field);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -546,8 +551,10 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                 min="0"
                 value={entryPrice || ''}
                 onChange={(e) => setEntryPrice(Math.max(0, parseFloat(e.target.value) || 0))}
+                onFocus={() => onClearValidationError?.('entryPrice')}
                 placeholder="0.00"
-                className="w-full bg-canvas border border-border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand"
+                aria-invalid={hasValidationError('entryPrice')}
+                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand ${hasValidationError('entryPrice') ? 'border-rose-500 bg-rose-500/5' : 'border-border'}`}
               />
             </div>
 
@@ -563,8 +570,10 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                 min="0"
                 value={stopLossPrice || ''}
                 onChange={(e) => setStopLossPrice(Math.max(0, parseFloat(e.target.value) || 0))}
+                onFocus={() => onClearValidationError?.('stopLossPrice')}
                 placeholder="0.00"
-                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isSlInverted ? 'border-rose-500 text-rose-300' : 'border-border'
+                aria-invalid={isSlInverted || hasValidationError('stopLossPrice')}
+                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isSlInverted || hasValidationError('stopLossPrice') ? 'border-rose-500 text-rose-300' : 'border-border'
                   }`}
               />
               {isSlInverted && (
@@ -918,8 +927,10 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                 min="0"
                 value={spotEntryPrice || ''}
                 onChange={(e) => setSpotEntryPrice(Math.max(0, parseFloat(e.target.value) || 0))}
+                onFocus={() => onClearValidationError?.('spotEntryPrice')}
                 placeholder="0.00"
-                className="w-full bg-canvas border border-border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand"
+                aria-invalid={hasValidationError('spotEntryPrice')}
+                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand ${hasValidationError('spotEntryPrice') ? 'border-rose-500 bg-rose-500/5' : 'border-border'}`}
               />
             </div>
 
@@ -935,8 +946,10 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                 min="0"
                 value={spotAllocation || ''}
                 onChange={(e) => setSpotAllocation(Math.max(0, parseFloat(e.target.value) || 0))}
+                onFocus={() => onClearValidationError?.('spotAllocation')}
                 placeholder="0.00"
-                className="w-full bg-canvas border border-border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand"
+                aria-invalid={hasValidationError('spotAllocation')}
+                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand ${hasValidationError('spotAllocation') ? 'border-rose-500 bg-rose-500/5' : 'border-border'}`}
               />
             </div>
 
