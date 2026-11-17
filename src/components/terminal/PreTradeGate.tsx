@@ -808,12 +808,10 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-3.5 border-b border-border shrink-0">
               <div className="flex items-center gap-3 min-w-0">
-                <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border shadow-xs ${mandatoryPassed
-                    ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
-                    : 'bg-brand/15 border-brand/30 text-brand'
-                    }`}
-                >
+                <div className={`flex items-center justify-center shrink-0 ${mandatoryPassed
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-brand'
+                  }`}>
                   {mandatoryPassed ? <Unlock className="w-5 h-5" /> : <Lock className="w-5 h-5 animate-pulse" />}
                 </div>
                 <div className="min-w-0">
@@ -832,9 +830,9 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
               <div className="flex items-center gap-2 shrink-0">
                 <span
                   key={setupGrade}
-                  className={`font-mono text-xs font-black tracking-wider px-2 py-0.5 rounded-md border ${mandatoryPassed
-                    ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-400'
-                    : 'bg-canvas border-border text-text-muted'
+                  className={`font-mono text-xs font-black tracking-wider ${mandatoryPassed
+                    ? 'text-emerald-700 dark:text-emerald-400'
+                    : 'text-text-muted'
                     }`}
                 >
                   {setupGrade} Setup

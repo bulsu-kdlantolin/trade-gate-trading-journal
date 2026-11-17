@@ -13,7 +13,6 @@ import { playMicroTick, playModalOpen, playModalClose, playSuccessChime, playDan
 import {
   getSavedTradingSessions,
   saveTradingSessions,
-  resetTradingSessions,
   getLocalFromUtc,
   getUtcFromLocal,
   formatSessionLocalRange,
@@ -37,6 +36,7 @@ import {
   Check,
   Coins,
   Settings,
+  Plus,
 } from 'lucide-react';
 import { AnimatedSelect, SelectOption } from '../common/AnimatedSelect';
 
@@ -84,6 +84,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
   const [isSavingCurrency, setIsSavingCurrency] = useState<boolean>(false);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState<TradingSession | null>(null);
 
   useEffect(() => {
     if (activeStrategy?.baseCurrency) {
@@ -130,6 +131,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
     return () => window.removeEventListener('tradegate_rates_updated', handleRates);
   }, []);
   const [editForm, setEditForm] = useState({
+    name: '',
     startHour12: 12,
     startMinute: 0,
     startPeriod: 'AM' as 'AM' | 'PM',
@@ -151,6 +153,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
     const localStart = getLocalFromUtc(sess.utcStartHour, sess.utcStartMinute);
     const localEnd = getLocalFromUtc(sess.utcEndHour, sess.utcEndMinute);
     setEditForm({
+      name: sess.name,
       startHour12: localStart.localHour12,
       startMinute: localStart.localMinute,
       startPeriod: localStart.period,
@@ -174,6 +177,8 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
       if (s.id === id) {
         return {
           ...s,
+          name: editForm.name.trim() || s.name,
+          label: (editForm.name.trim() || s.name).toUpperCase(),
           utcStartHour: utcStart.utcHour,
           utcStartMinute: utcStart.utcMinute,
           utcEndHour: utcEnd.utcHour,
@@ -190,12 +195,44 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
     toast.success('Session Updated', 'Updated trading session window in local time.');
   };
 
-  const handleResetSessions = () => {
-    playDangerAction();
-    const defaults = resetTradingSessions();
-    setSessions(defaults);
-    setEditingSessionId(null);
-    toast.info('Sessions Restored', 'Restored default trading session windows.');
+  const handleAddSession = () => {
+    const id = `custom_${Date.now()}`;
+    const newSession: TradingSession = {
+      id,
+      name: 'Custom Session',
+      label: 'CUSTOM SESSION',
+      utcStartHour: 0,
+      utcStartMinute: 0,
+      utcEndHour: 1,
+      utcEndMinute: 0,
+      color: '#A855F7',
+    };
+    const updated = [...sessions, newSession];
+    setSessions(updated);
+    saveTradingSessions(updated);
+    setEditingSessionId(id);
+    setEditForm({
+      name: newSession.name,
+      startHour12: 12,
+      startMinute: 0,
+      startPeriod: 'AM',
+      endHour12: 1,
+      endMinute: 0,
+      endPeriod: 'AM',
+    });
+    toast.info('Session Added', 'Name your custom trading session and set its local hours.');
+  };
+
+  const handleDeleteSession = () => {
+    if (!sessionToDelete) return;
+    const updated = sessions.filter((session) => session.id !== sessionToDelete.id);
+    setSessions(updated);
+    saveTradingSessions(updated);
+    if (editingSessionId === sessionToDelete.id) {
+      setEditingSessionId(null);
+    }
+    toast.success('Session Deleted', `Removed ${sessionToDelete.name} from trading sessions.`);
+    setSessionToDelete(null);
   };
 
   // Export JSON Full Backup
@@ -276,7 +313,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
         {/* Top Header Strip */}
         <div className="card-glass rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-canvas border border-border flex items-center justify-center text-brand shrink-0 shadow-xs">
+            <div className="flex items-center justify-center text-brand shrink-0">
               <Settings className="w-5 h-5" />
             </div>
             <div>
@@ -289,16 +326,6 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
 
                 {/* Quick Summary Badges */}
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-xl bg-canvas border border-border text-text-secondary inline-flex items-center gap-1.5 shadow-2xs">
-                    <Coins className="w-3.5 h-3.5 text-brand" />
-                    <span>Currency:</span>
-                    <strong className="text-text-primary">{selectedCurrency}</strong>
-                  </span>
-                  <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-xl bg-canvas border border-border text-text-secondary inline-flex items-center gap-1.5 shadow-2xs">
-                    <Clock className="w-3.5 h-3.5 text-brand" />
-                    <span>Sessions:</span>
-                    <strong className="text-text-primary">{sessions.length} Active</strong>
-                  </span>
                 </div>
             </div>
 
@@ -316,8 +343,9 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                           Active: {isCryptoCurrency(selectedCurrency) ? <CryptoIcon symbol={selectedCurrency} size="xs" /> : <CircleFlag country={selectedCurrency} size="xs" />} {selectedCurrency}
                         </span>
                       </div>
-                      <span className="text-[10px] text-text-muted hidden sm:inline">
-                        Global Journal &amp; Gate Symbol
+                      <span className="text-[10px] text-text-muted hidden sm:inline-flex items-center gap-1">
+                        <Coins className="w-3 h-3 text-brand" />
+                        Active currency
                       </span>
                     </div>
 
@@ -511,16 +539,16 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4 text-brand" />
                         <h3 className="text-sm font-bold text-text-primary text-balance">Trading Sessions</h3>
-                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-brand/15 text-text-primary dark:text-brand hidden sm:inline">
-                          Auto-detected Local Time
+                        <span className="text-[10px] font-mono font-bold text-text-muted hidden sm:inline">
+                          {sessions.length} {sessions.length === 1 ? 'session' : 'sessions'}
                         </span>
                       </div>
                       <button
-                        onClick={handleResetSessions}
-                        title="Restore default session hours"
+                        onClick={handleAddSession}
+                        title="Add a custom trading session"
                         className="text-[11px] font-semibold text-text-muted hover:text-text-primary flex items-center gap-1 transition-colors"
                       >
-                        <RotateCcw className="w-3 h-3" /> Reset Sessions
+                        <Plus className="w-3 h-3" /> Add Session
                       </button>
                     </div>
 
@@ -541,6 +569,15 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                             </div>
 
                             <div className="space-y-2.5 text-xs font-mono">
+                              <div>
+                                <label className="block text-[10px] text-text-muted mb-1 font-semibold uppercase tracking-wider">Session Name</label>
+                                <input
+                                  value={editForm.name}
+                                  onChange={(event) => setEditForm({ ...editForm, name: event.target.value })}
+                                  className="w-full bg-card border border-border rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-text-primary focus:border-brand"
+                                  placeholder="e.g. New York Open"
+                                />
+                              </div>
                               <div>
                                 <label className="block text-[10px] text-text-muted mb-1 font-semibold uppercase tracking-wider">Start Time</label>
                                 <div className="flex items-center gap-1.5">
@@ -598,7 +635,15 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                               </div>
                             </div>
 
-                            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+                            <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
+                              <button
+                                type="button"
+                                onClick={() => setSessionToDelete(sess)}
+                                className="px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-500 hover:text-rose-400 transition-colors flex items-center gap-1"
+                              >
+                                <Trash2 className="w-3 h-3" /> Delete
+                              </button>
+                              <div className="flex items-center gap-2">
                               <button
                                 onClick={() => {
                                   playModalClose();
@@ -614,6 +659,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                               >
                                 <Check className="w-3.5 h-3.5" /> Save Window
                               </button>
+                              </div>
                             </div>
                           </div>
                         ) : (
@@ -635,12 +681,19 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                                 {sessionDescriptions[sess.id] || ''}
                               </p>
                             </div>
-                            <div className="mt-2.5 pt-2 border-t border-border flex justify-end">
+                            <div className="mt-2.5 pt-2 border-t border-border flex items-center justify-end gap-3">
                               <button
                                 onClick={() => handleStartEditSession(sess)}
                                 className="text-[11px] font-semibold text-brand hover:text-brand-hover flex items-center gap-1 transition-colors"
                               >
                                 <Edit3 className="w-3 h-3" /> Edit Session
+                              </button>
+                              <button
+                                onClick={() => setSessionToDelete(sess)}
+                                aria-label={`Delete ${sess.name} session`}
+                                className="text-[11px] font-semibold text-rose-500 hover:text-rose-400 flex items-center gap-1 transition-colors"
+                              >
+                                <Trash2 className="w-3 h-3" /> Delete
                               </button>
                             </div>
                           </div>
@@ -715,6 +768,16 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                 title="Clear All Trade Records?"
                 description="Permanently delete all trade records? This will clear all entries from your journal and reset your performance equity curve. Your strategy profiles, checklist rules, and account balances will remain intact. This action cannot be undone."
                 confirmButtonText="Clear All Trades"
+              />
+
+              <ConfirmDeleteModal
+                isOpen={sessionToDelete !== null}
+                onClose={() => setSessionToDelete(null)}
+                onConfirm={handleDeleteSession}
+                title="Delete Trading Session?"
+                description="This removes the session and its configured hours from your workspace. Existing trade records are not changed."
+                itemName={sessionToDelete?.name}
+                confirmButtonText="Delete Session"
               />
             </div>
             );
