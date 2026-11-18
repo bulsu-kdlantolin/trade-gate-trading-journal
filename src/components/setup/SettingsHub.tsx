@@ -313,7 +313,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
         {/* Top Header Strip */}
         <div className="card-glass rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center text-brand shrink-0">
+            <div className="flex items-center justify-center text-brand-content shrink-0">
               <Settings className="w-5 h-5" />
             </div>
             <div>
@@ -337,14 +337,14 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                   <section className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-xs">
                     <div className="flex items-center justify-between border-b border-border pb-3">
                       <div className="flex items-center gap-2">
-                        <Coins className="w-4 h-4 text-brand" />
+                        <Coins className="w-4 h-4 text-brand-content" />
                         <h3 className="text-sm font-bold text-text-primary text-balance">Account Currency &amp; Money Symbol</h3>
-                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-brand/15 text-text-primary dark:text-brand inline-flex items-center gap-1.5">
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-brand/15 text-text-primary dark:text-brand-content inline-flex items-center gap-1.5">
                           Active: {isCryptoCurrency(selectedCurrency) ? <CryptoIcon symbol={selectedCurrency} size="xs" /> : <CircleFlag country={selectedCurrency} size="xs" />} {selectedCurrency}
                         </span>
                       </div>
                       <span className="text-[10px] text-text-muted hidden sm:inline-flex items-center gap-1">
-                        <Coins className="w-3 h-3 text-brand" />
+                        <Coins className="w-3 h-3 text-brand-content" />
                         Active currency
                       </span>
                     </div>
@@ -380,11 +380,11 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                                   ) : (
                                     <div className="flex items-center gap-1.5">
                                       <CircleFlag country={c.code} size="xs" />
-                                      <span className="font-mono font-black text-sm text-text-primary dark:text-brand">{c.symbol}</span>
+                                      <span className="font-mono font-black text-sm text-text-primary dark:text-brand-content">{c.symbol}</span>
                                     </div>
                                   )}
                                   <span className="text-[10px] font-bold font-mono uppercase text-text-muted flex items-center gap-1">
-                                    {isSelected && <Check className="w-3 h-3 text-brand" />}
+                                    {isSelected && <Check className="w-3 h-3 text-brand-content" />}
                                     {c.code}
                                   </span>
                                 </div>
@@ -420,7 +420,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                                       )}
                                     </span>
                                     <span className="text-text-muted">•</span>
-                                    <span className="text-trade-green font-bold inline-flex items-center gap-1">
+                                    <span className="text-trade-green-content font-bold inline-flex items-center gap-1">
                                       {isCrypto ? (
                                         <>
                                           <CryptoIcon symbol={selectedCurrency} size="xs" />
@@ -431,7 +431,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                                       )}
                                     </span>
                                     <span className="text-text-muted">•</span>
-                                    <span className="text-trade-red font-bold inline-flex items-center gap-1">
+                                    <span className="text-trade-red-content font-bold inline-flex items-center gap-1">
                                       {isCrypto ? (
                                         <>
                                           <CryptoIcon symbol={selectedCurrency} size="xs" />
@@ -446,13 +446,13 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
 
                                 <div className="flex items-center gap-2">
                                   {isSavingCurrency ? (
-                                    <span className="text-xs font-semibold text-brand flex items-center gap-1.5 animate-pulse">
+                                    <span className="text-xs font-semibold text-brand-content flex items-center gap-1.5 animate-pulse">
                                       <span className="w-2 h-2 rounded-full bg-brand animate-ping" />
                                       Auto-converting balances...
                                     </span>
                                   ) : (
                                     <span className="text-xs font-medium text-text-muted flex items-center gap-1.5">
-                                      <Check className="w-3.5 h-3.5 text-brand" />
+                                      <Check className="w-3.5 h-3.5 text-brand-content" />
                                       Active Currency: <strong className="text-text-primary font-mono">{selectedCurrency}</strong>
                                     </span>
                                   )}
@@ -466,7 +466,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                   {/* SECTION 2: BACKUP & EXPORT */}
                   <section className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-xs">
                     <div className="flex items-center gap-2 border-b border-border pb-3">
-                      <Database className="w-4 h-4 text-brand" />
+                      <Database className="w-4 h-4 text-brand-content" />
                       <h3 className="text-sm font-bold text-text-primary text-balance">Backup & Data</h3>
                     </div>
 
@@ -476,7 +476,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-semibold text-text-primary">Full Workspace JSON Snapshot</span>
-                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-brand/15 text-text-primary dark:text-brand">
+                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-brand/15 text-text-primary dark:text-brand-content">
                               {strategies.length} profiles • {allTrades.length} trades
                             </span>
                           </div>
@@ -537,7 +537,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                   <section className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-xs">
                     <div className="flex items-center justify-between border-b border-border pb-3">
                       <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-brand" />
+                        <Clock className="w-4 h-4 text-brand-content" />
                         <h3 className="text-sm font-bold text-text-primary text-balance">Trading Sessions</h3>
                         <span className="text-[10px] font-mono font-bold text-text-muted hidden sm:inline">
                           {sessions.length} {sessions.length === 1 ? 'session' : 'sessions'}
@@ -565,7 +565,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                                 <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${getSessionStyle(sess.name).dot}`} />
                                 <span className="font-bold text-xs text-text-primary">Edit {sess.name}</span>
                               </div>
-                              <span className="text-[10px] font-mono text-text-primary dark:text-brand font-semibold">Local Time (12h)</span>
+                              <span className="text-[10px] font-mono text-text-primary dark:text-brand-content font-semibold">Local Time (12h)</span>
                             </div>
 
                             <div className="space-y-2.5 text-xs font-mono">
@@ -639,7 +639,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                               <button
                                 type="button"
                                 onClick={() => setSessionToDelete(sess)}
-                                className="px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-500 hover:text-rose-400 transition-colors flex items-center gap-1"
+                                className="px-2.5 py-1 rounded-lg text-xs font-semibold text-trade-red-content hover:text-trade-red-content transition-colors flex items-center gap-1"
                               >
                                 <Trash2 className="w-3 h-3" /> Delete
                               </button>
@@ -684,14 +684,14 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                             <div className="mt-2.5 pt-2 border-t border-border flex items-center justify-end gap-3">
                               <button
                                 onClick={() => handleStartEditSession(sess)}
-                                className="text-[11px] font-semibold text-brand hover:text-brand-hover flex items-center gap-1 transition-colors"
+                                className="text-[11px] font-semibold text-brand-content hover:text-brand-hover flex items-center gap-1 transition-colors"
                               >
                                 <Edit3 className="w-3 h-3" /> Edit Session
                               </button>
                               <button
                                 onClick={() => setSessionToDelete(sess)}
                                 aria-label={`Delete ${sess.name} session`}
-                                className="text-[11px] font-semibold text-rose-500 hover:text-rose-400 flex items-center gap-1 transition-colors"
+                                className="text-[11px] font-semibold text-trade-red-content hover:text-trade-red-content flex items-center gap-1 transition-colors"
                               >
                                 <Trash2 className="w-3 h-3" /> Delete
                               </button>
@@ -705,8 +705,8 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                   {/* SECTION 4: DANGER ZONE */}
                   <section className="bg-card border border-rose-500/20 rounded-2xl p-5 space-y-4 shadow-xs">
                     <div className="flex items-center gap-2 border-b border-border pb-3">
-                      <Trash2 className="w-4 h-4 text-rose-500" />
-                      <h3 className="text-sm font-bold text-rose-500 text-balance">Danger Zone</h3>
+                      <Trash2 className="w-4 h-4 text-trade-red-content" />
+                      <h3 className="text-sm font-bold text-trade-red-content text-balance">Danger Zone</h3>
                     </div>
 
                     <div className="divide-y divide-border/60">
@@ -731,7 +731,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                       {/* Wipe Trades Row */}
                       <div className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
-                          <span className="text-xs font-semibold text-rose-600 dark:text-rose-400">Clear All Trade Records</span>
+                          <span className="text-xs font-semibold text-trade-red-content">Clear All Trade Records</span>
                           <p className="text-[11px] text-text-muted mt-0.5 text-pretty">
                             Permanently wipes all journaled trades. Strategy profiles, balances, and rules are retained.
                           </p>
@@ -739,7 +739,7 @@ export const SettingsHub: React.FC<SettingsHubProps> = React.memo(({
                         <button
                           onClick={() => setIsClearConfirmOpen(true)}
                           aria-label="Permanently delete all journal trade records"
-                          className="py-1.5 px-3 rounded-xl bg-rose-500/12 border border-rose-500/25 text-rose-700 dark:text-rose-400 font-semibold text-xs hover:bg-rose-500 hover:text-white flex items-center gap-1.5 transition-colors shrink-0"
+                          className="py-1.5 px-3 rounded-xl bg-rose-500/12 border border-rose-500/25 text-trade-red-content font-semibold text-xs hover:bg-rose-500 hover:text-white flex items-center gap-1.5 transition-colors shrink-0"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                           Clear Trade Records

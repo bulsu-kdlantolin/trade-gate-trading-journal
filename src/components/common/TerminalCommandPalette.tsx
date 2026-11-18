@@ -307,7 +307,7 @@ export const TerminalCommandPalette: React.FC<TerminalCommandPaletteProps> = ({
       role="dialog"
       aria-modal="true"
       aria-label="Terminal Command Palette"
-      className="fixed inset-0 z-50 flex items-start justify-center pt-14 sm:pt-20 px-3 bg-black/75 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-14 sm:pt-20 px-3 bg-black/75 backdrop-blur-md animate-modal-backdrop"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           playModalClose();
@@ -317,12 +317,12 @@ export const TerminalCommandPalette: React.FC<TerminalCommandPaletteProps> = ({
     >
       <div
         ref={modalRef}
-        className="w-full max-w-xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150 flex flex-col max-h-[80vh]"
+        className="w-full max-w-xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden animate-modal-content flex flex-col max-h-[80vh]"
         onKeyDown={handleKeyDown}
       >
         {/* Search Input Bar */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border bg-canvas/40">
-          <Command className="w-4 h-4 text-brand shrink-0" />
+          <Command className="w-4 h-4 text-brand-content shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -407,7 +407,7 @@ export const TerminalCommandPalette: React.FC<TerminalCommandPaletteProps> = ({
                     )}
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className={`text-xs font-semibold truncate ${isSelected ? 'text-text-primary dark:text-brand font-bold' : ''}`}>
+                        <span className={`text-xs font-semibold truncate ${isSelected ? 'text-text-primary dark:text-brand-content font-bold' : ''}`}>
                           {item.title}
                         </span>
                         {item.badge && (
@@ -433,7 +433,7 @@ export const TerminalCommandPalette: React.FC<TerminalCommandPaletteProps> = ({
                         {item.shortcut}
                       </kbd>
                     )}
-                    {isSelected && <ChevronRight className="w-3.5 h-3.5 text-brand shrink-0" />}
+                    {isSelected && <ChevronRight className="w-3.5 h-3.5 text-brand-content shrink-0" />}
                   </div>
                 </button>
               );

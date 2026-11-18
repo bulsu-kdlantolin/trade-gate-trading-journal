@@ -64,9 +64,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         t.type === 'success' ? (
         <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
         ) : t.type === 'error' ? (
-        <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+        <AlertCircle className="w-5 h-5 text-trade-red-content shrink-0" />
         ) : t.type === 'warning' ? (
-        <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
+        <AlertTriangle className="w-5 h-5 text-brand-content shrink-0" />
         ) : (
         <Info className="w-5 h-5 text-blue-500 shrink-0" />
         );
@@ -83,7 +83,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return (
         <div
           key={t.id}
-          className={`pointer-events-auto relative overflow-hidden flex items-start gap-3 p-3.5 pb-4 rounded-xl bg-card border ${borderClass} shadow-xl backdrop-blur-md transition-all duration-200 animate-in fade-in slide-in-from-bottom-2`}
+          className={`pointer-events-auto relative overflow-hidden flex items-start gap-3 p-3.5 pb-4 rounded-xl bg-card border ${borderClass} shadow-xl backdrop-blur-md transition-all duration-200 animate-view-fade`}
         >
           {icon}
           <div className="flex-1 min-w-0">
@@ -98,7 +98,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             <X className="w-3.5 h-3.5" />
           </button>
 
-          {/* Moving Countdown Progress Bar */}
+          {/* Toast lifetime indicator; reduced-motion mode keeps it static. */}
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-border/50 overflow-hidden">
               <div
                 className={`h-full ${progressColor} animate-toast-progress`}

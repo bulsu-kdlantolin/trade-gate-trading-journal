@@ -110,7 +110,7 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
         </button>
 
         <div className="flex items-center gap-2.5 mb-4">
-          <Wallet className="w-5 h-5 text-brand shrink-0" />
+          <Wallet className="w-5 h-5 text-brand-content shrink-0" />
           <div>
             <h3 id="deposit-modal-title" className="text-sm font-bold text-text-primary text-balance">Capital Adjustment</h3>
             <p className="text-xs text-text-secondary">{strategy.name}</p>
@@ -152,7 +152,7 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
                 if (amountError) setAmountError(null);
               }}
               className={`relative z-10 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition-colors duration-200 active:scale-[0.98] ${actionType === 'deposit'
-                ? 'text-trade-green'
+                ? 'text-trade-green-content'
                 : 'text-text-muted hover:text-text-primary'
                 }`}
             >
@@ -167,7 +167,7 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
                 if (amountError) setAmountError(null);
               }}
               className={`relative z-10 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition-colors duration-200 active:scale-[0.98] ${actionType === 'withdraw'
-                ? 'text-trade-red'
+                ? 'text-trade-red-content'
                 : 'text-text-muted hover:text-text-primary'
                 }`}
             >
@@ -182,7 +182,7 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
                 if (amountError) setAmountError(null);
               }}
               className={`relative z-10 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition-colors duration-200 active:scale-[0.98] ${actionType === 'reset'
-                  ? 'text-text-primary dark:text-brand'
+                  ? 'text-text-primary dark:text-brand-content'
                   : 'text-text-muted hover:text-text-primary'
                   }`}
             >
@@ -221,7 +221,7 @@ export const DepositWithdrawModal: React.FC<DepositWithdrawModalProps> = ({
               />
             </div>
             {amountError && (
-                <p className="text-[11px] text-rose-600 dark:text-rose-400 font-medium mt-1.5 flex items-center gap-1.5 animate-fadeIn">
+                <p className="text-[11px] text-trade-red-content font-medium mt-1.5 flex items-center gap-1.5 animate-view-fade">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                   <span>{amountError}</span>
                 </p>

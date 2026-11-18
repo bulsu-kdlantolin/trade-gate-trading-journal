@@ -30,8 +30,8 @@ export function getGradeStyle(grade: TradeGrade | string): GradeStyleConfig {
       };
     case 'B+':
       return {
-        text: 'text-amber-700 dark:text-amber-400 font-bold',
-        badge: 'bg-amber-500/15 text-amber-700 dark:text-amber-400 font-semibold',
+        text: 'text-brand-content font-bold',
+        badge: 'bg-amber-500/15 text-brand-content font-semibold',
         progress: 'bg-amber-400',
       };
     case 'B':
@@ -43,8 +43,8 @@ export function getGradeStyle(grade: TradeGrade | string): GradeStyleConfig {
     case 'C':
     default:
       return {
-        text: 'text-rose-700 dark:text-rose-400 font-black',
-        badge: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 font-bold',
+        text: 'text-trade-red-content font-black',
+        badge: 'bg-rose-500/15 text-trade-red-content font-bold',
         progress: 'bg-rose-500',
       };
   }

@@ -445,15 +445,15 @@ export const CustomDateRangePicker: React.FC<CustomDateRangePickerProps> = ({
           : 'bg-canvas border-border text-text-secondary hover:text-text-primary hover:border-brand/40'
           }`}
       >
-          <CalendarIcon className="w-4 h-4 text-brand shrink-0" />
+          <CalendarIcon className="w-4 h-4 text-brand-content shrink-0" />
         <span className="font-mono text-xs sm:text-sm font-bold text-text-primary tracking-tight">
           {summaryText}
         </span>
-        <span className="px-2 py-0.5 rounded-md bg-brand/15 text-text-primary dark:text-brand font-mono text-xs font-bold shrink-0">
+        <span className="px-2 py-0.5 rounded-md bg-brand/15 text-text-primary dark:text-brand-content font-mono text-xs font-bold shrink-0">
           {daysCount}d
         </span>
         <ChevronDown
-          className={`w-4 h-4 text-text-muted transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180 text-brand' : ''
+          className={`w-4 h-4 text-text-muted transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180 text-brand-content' : ''
                 }`}
             />
     </button>
@@ -469,7 +469,7 @@ export const CustomDateRangePicker: React.FC<CustomDateRangePickerProps> = ({
               {/* Header Bar */}
                     <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-border">
                       <div className="flex items-center gap-2.5">
-                        <span className="w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
+                        <span className="w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand-content">
                           <Clock className="w-4 h-4" />
                         </span>
                         <div>
@@ -531,7 +531,7 @@ export const CustomDateRangePicker: React.FC<CustomDateRangePickerProps> = ({
                                       <button
                                         type="button"
                                         onClick={handleJumpToToday}
-                                        className="px-2.5 py-1 text-xs font-bold rounded-lg bg-canvas border border-border text-text-muted hover:text-brand transition-colors"
+                                        className="px-2.5 py-1 text-xs font-bold rounded-lg bg-canvas border border-border text-text-muted hover:text-brand-content transition-colors"
                                       >
                                         Today
                                       </button>
@@ -590,7 +590,7 @@ export const CustomDateRangePicker: React.FC<CustomDateRangePickerProps> = ({
                                             cellBgClass = 'bg-brand text-black font-bold shadow-xs rounded-r-xl';
                                             containerBg = 'bg-brand/15 rounded-r-xl';
                                           } else if (isInRange) {
-                                            cellBgClass = 'text-text-primary dark:text-brand font-semibold';
+                                            cellBgClass = 'text-text-primary dark:text-brand-content font-semibold';
                                             containerBg = 'bg-brand/15';
                                           }
 
@@ -612,7 +612,7 @@ export const CustomDateRangePicker: React.FC<CustomDateRangePickerProps> = ({
                                                 type="button"
                                                 onClick={() => handleDayClick(cell.dateKey)}
                         className={`w-9 h-8 sm:w-10 sm:h-9 text-xs sm:text-sm font-bold flex items-center justify-center transition-all ${cellBgClass} ${opacityClass} ${cell.isToday && !isStart && !isEnd && !isInRange
-                                                  ? 'rounded-full border-2 border-brand text-text-primary dark:text-brand font-black bg-brand/10 shadow-xs'
+                                                  ? 'rounded-full border-2 border-brand text-text-primary dark:text-brand-content font-black bg-brand/10 shadow-xs'
                                                   : ''
                                                   }`}
                                               >

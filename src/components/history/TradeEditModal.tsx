@@ -182,7 +182,7 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
         </button>
 
         <div className="flex items-center gap-2.5 mb-4">
-          <Edit3 className="w-5 h-5 text-brand shrink-0" />
+          <Edit3 className="w-5 h-5 text-brand-content shrink-0" />
           <div>
             <h3 id="trade-edit-modal-title" className="text-sm font-bold text-text-primary text-balance">Edit Trade Record</h3>
             <p className="text-xs text-text-secondary inline-flex items-center gap-1">
@@ -355,7 +355,7 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-card ${isSelected
                       ? isNone
                         ? 'bg-emerald-100 dark:bg-emerald-500/30 text-emerald-800 dark:text-emerald-200 font-bold shadow-xs hover:bg-emerald-200 dark:hover:bg-emerald-500/40'
-                        : 'bg-rose-100 dark:bg-rose-500/30 text-rose-800 dark:text-rose-200 font-bold shadow-xs hover:bg-rose-200 dark:hover:bg-rose-500/40'
+                        : 'bg-rose-100 dark:bg-rose-500/30 text-trade-red-content font-bold shadow-xs hover:bg-rose-200 dark:hover:bg-rose-500/40'
                       : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'
                       }`}
                   >
@@ -396,7 +396,7 @@ export const TradeEditModal: React.FC<TradeEditModalProps> = ({
                   playDangerAction();
                   setIsConfirmDeleteOpen(true);
                 }}
-                className="px-3 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-semibold text-trade-red-content hover:text-trade-red-content hover:bg-rose-500/10 rounded-xl transition-colors flex items-center gap-1.5"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 Delete Trade

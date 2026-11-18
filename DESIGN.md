@@ -4,6 +4,8 @@ description: Institutional cryptocurrency trading journal, execution gate, and p
 colors:
   primary: "#FCD535"
   primary-hover: "#F0B90B"
+  brand-foreground-light: "#805A00"
+  brand-foreground-dark: "#FCD535"
   canvas-dark: "#181A20"
   card-dark: "#1E2329"
   card-hover-dark: "#2B313A"
@@ -22,6 +24,11 @@ colors:
   text-muted-light: "#707A8A"
   bullish: "#0ECB81"
   bullish-light: "#02985B"
+  bullish-foreground-light: "#027A45"
+  bullish-foreground-dark: "#0ECB81"
+  bearish-foreground-light: "#B8273B"
+  bearish-foreground-dark: "#FF6B7E"
+  market-context: "#A855F7"
   bearish: "#F6465D"
   bearish-light: "#CF304A"
   session-asia: "#FFFFFF"
@@ -118,6 +125,7 @@ The palette is anchored by official Binance dark/light neutrals, punctuated by e
 
 ### Primary
 - **Binance Yellow** (`#FCD535` in dark / `#F0B90B` in light): The core brand energy, reserved for active navigation tabs, live strategy indicators, A+ setup tiers, and primary execution triggers.
+- **Brand Content Foreground** (`#805A00` light / `#FCD535` dark): Text, icons, caret, and focus indicators use the theme-specific foreground; bright yellow remains the action fill and accent.
 - **Binance Gold** (`#F0B90B`): Interactive hover state for primary yellow buttons and badges in dark mode; primary button in light mode.
 
 ### Neutral
@@ -131,7 +139,9 @@ The palette is anchored by official Binance dark/light neutrals, punctuated by e
 
 ### Semantic
 - **Binance Bullish Green** (`#0ECB81`): Winning trades, verified mandatory rules, and positive P&L returns.
+- **Bullish Content Foreground** (`#027A45` light / `#0ECB81` dark): Small positive-value text uses the theme-specific foreground for readable contrast while retaining green semantic meaning.
 - **Binance Bearish Red** (`#F6465D`): Discipline violations, stop losses, closed losses, and gate lock alerts.
+- **Bearish Content Foreground** (`#B8273B` light / `#FF6B7E` dark): Red status text and icons use theme-specific foregrounds to remain readable while preserving loss semantics.
 
 ### Operational Roles & Hierarchy
 - **Setup Confidence Tiers (Grades):**
@@ -159,6 +169,8 @@ The palette is anchored by official Binance dark/light neutrals, punctuated by e
 
 ### Named Rules
 **The 10% Amber Rule.** Amber Gold (`#F59E0B`) is an operational beacon. It must never coat more than 10% of any viewport. If everything glows gold, nothing stands out.  
+**The Semantic Foreground Rule.** Brand, bullish, and bearish text use theme-specific foreground tokens that maintain at least 4.5:1 contrast on their intended surfaces; bright semantic colors remain available for fills and accents.
+
 **The Strict Semantic Isolation Rule.** Emerald and Rose are reserved strictly for financial outcome and rule compliance. They are never used for decorative button borders or routine navigation.  
 **The Borderless Pill Standard.** Status badges, session pills, and category tags must never carry 1px borders. Use tonal background tinting (`bg-*/15 text-*`) to preserve clean typographic hierarchy without visual clutter.
 

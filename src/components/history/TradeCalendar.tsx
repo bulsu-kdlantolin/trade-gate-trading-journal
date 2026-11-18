@@ -186,14 +186,14 @@ interface TradeCalendarProps {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 card-glass rounded-2xl p-4">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2">
-              <CalendarIcon className="w-4 h-4 text-brand" />
+              <CalendarIcon className="w-4 h-4 text-brand-content" />
               <h3 className="text-sm font-bold text-text-primary">{monthName}</h3>
             </div>
 
                     {monthStats.totalTrades > 0 && (
                       <div className="hidden sm:flex items-center gap-2 font-mono text-xs pl-2 border-l border-border">
                         <span className="text-text-muted">Net:</span>
-                        <span className={`font-bold ${monthStats.totalPnl >= 0 ? 'text-trade-green' : 'text-trade-red'}`}>
+                        <span className={`font-bold ${monthStats.totalPnl >= 0 ? 'text-trade-green-content' : 'text-trade-red-content'}`}>
                           <CurrencyDisplay
                             amount={Math.round(monthStats.totalPnl)}
                             currency={baseCurrency}
@@ -318,7 +318,7 @@ interface TradeCalendarProps {
                         <div className="flex items-center justify-between">
                           <span
                             className={`text-xs sm:text-sm font-mono font-bold leading-none inline-flex items-center justify-center ${d.isToday
-                              ? 'w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 border-brand text-text-primary dark:text-brand bg-brand/15 font-extrabold shadow-xs'
+                              ? 'w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 border-brand text-text-primary dark:text-brand-content bg-brand/15 font-extrabold shadow-xs'
                               : d.isCurrentMonth
                                 ? 'text-text-primary w-6 h-6 sm:w-7 sm:h-7'
                                 : 'text-text-muted/60 w-6 h-6 sm:w-7 sm:h-7'
@@ -330,12 +330,12 @@ interface TradeCalendarProps {
                                 {hasTrades && (
                                   <div className="flex items-center gap-0.5 sm:gap-1 flex-wrap justify-end">
                                     {d.data!.wins > 0 && (
-                      <span className="inline-flex items-center text-[8.5px] sm:text-[9px] font-mono font-bold text-trade-green bg-emerald-500/15 px-1 py-0.2 sm:py-0.5 rounded">
+                      <span className="inline-flex items-center text-[8.5px] sm:text-[9px] font-mono font-bold text-trade-green-content bg-emerald-500/15 px-1 py-0.2 sm:py-0.5 rounded">
                         {d.data!.wins}W
                       </span>
                     )}
                     {d.data!.losses > 0 && (
-                      <span className="inline-flex items-center text-[8.5px] sm:text-[9px] font-mono font-bold text-trade-red bg-rose-500/15 px-1 py-0.2 sm:py-0.5 rounded">
+                      <span className="inline-flex items-center text-[8.5px] sm:text-[9px] font-mono font-bold text-trade-red-content bg-rose-500/15 px-1 py-0.2 sm:py-0.5 rounded">
                         {d.data!.losses}L
                       </span>
                                     )}
@@ -347,7 +347,7 @@ interface TradeCalendarProps {
                                     {hasTrades ? (
                                       <div className="space-y-1 text-right font-mono mt-auto pt-2">
                                         <div
-                                          className={`text-xs sm:text-sm md:text-base font-extrabold tabular-nums tracking-tight leading-tight ${isProfitable ? 'text-trade-green' : isLoss ? 'text-trade-red' : 'text-text-primary'
+                                          className={`text-xs sm:text-sm md:text-base font-extrabold tabular-nums tracking-tight leading-tight ${isProfitable ? 'text-trade-green-content' : isLoss ? 'text-trade-red-content' : 'text-text-primary'
                                             }`}
                                         >
                                           <CurrencyDisplay
@@ -362,7 +362,7 @@ interface TradeCalendarProps {
                                               <span className="hidden sm:inline">
                                                 {d.data!.trades.length} {d.data!.trades.length === 1 ? 'trade' : 'trades'} •{' '}
                                               </span>
-                                              <span className={`font-semibold ${d.data!.netR >= 0 ? 'text-trade-green/90' : 'text-trade-red/90'}`}>
+                                              <span className={`font-semibold ${d.data!.netR >= 0 ? 'text-trade-green-content/90' : 'text-trade-red-content/90'}`}>
                                                 {d.data!.netR >= 0 ? '+' : ''}{d.data!.netR.toFixed(1)}R
                                               </span>
                                             </div>
@@ -382,26 +382,26 @@ interface TradeCalendarProps {
                                             role="dialog"
                                             aria-modal="true"
                                             aria-label={`Trades for ${selectedDayKey}`}
-                                            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150"
+                                            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-modal-backdrop"
                                             onClick={() => {
                                               playModalClose();
                                               setSelectedDayKey(null);
                                             }}
                                           >
                                             <div
-                                              className="card-glass rounded-2xl p-5 space-y-3 w-full max-w-xl max-h-[85vh] overflow-y-auto shadow-2xl border border-border animate-in zoom-in-95 duration-150"
+                                              className="card-glass rounded-2xl p-5 space-y-3 w-full max-w-xl max-h-[85vh] overflow-y-auto shadow-2xl border border-border animate-modal-content"
                                               onClick={(e) => e.stopPropagation()}
                                             >
                                               <div className="flex items-center justify-between pb-3 border-b border-border">
                                                 <div className="flex items-center gap-2">
-                                                  <CalendarIcon className="w-4 h-4 text-brand" />
+                                                  <CalendarIcon className="w-4 h-4 text-brand-content" />
                                                   <h4 className="text-xs font-bold text-text-primary">
                                                     Trades for {selectedDayKey} ({selectedDayData.trades.length} {selectedDayData.trades.length === 1 ? 'execution' : 'executions'})
                                                   </h4>
                                                 </div>
                                                 <div className="flex items-center gap-2.5">
                                                   <span
-                                                    className={`font-mono text-xs font-bold inline-flex items-center gap-1 ${selectedDayData.netPnl >= 0 ? 'text-trade-green' : 'text-trade-red'
+                                                    className={`font-mono text-xs font-bold inline-flex items-center gap-1 ${selectedDayData.netPnl >= 0 ? 'text-trade-green-content' : 'text-trade-red-content'
                                                       }`}
                                                   >
                                                     <span>Net:</span>
@@ -467,7 +467,7 @@ interface TradeCalendarProps {
                       <div className="flex items-center gap-4">
                         <div className="text-right font-mono tabular-nums">
                           <span
-                            className={`font-bold block ${isWin ? 'text-trade-green' : isLoss ? 'text-trade-red' : 'text-text-primary'
+                            className={`font-bold block ${isWin ? 'text-trade-green-content' : isLoss ? 'text-trade-red-content' : 'text-text-primary'
                               }`}
                           >
                             {t.pnlDollar !== undefined ? (
@@ -507,7 +507,7 @@ interface TradeCalendarProps {
                                                                   playModalOpen();
                                                                   onEditTrade(t);
                                                                 }}
-                                                                className="p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-card transition-colors"
+                                                                className="p-1.5 rounded-lg text-text-muted hover:text-brand-content hover:bg-card transition-colors"
                                                                 title="Edit trade"
                                                               >
                                                                 <Edit className="w-3.5 h-3.5" />

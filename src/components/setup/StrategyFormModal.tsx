@@ -20,6 +20,8 @@ import {
   Plus,
   Trash2,
   GripVertical,
+  ChevronUp,
+  ChevronDown,
   ShieldCheck,
   Sparkles,
   Save,
@@ -231,6 +233,20 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
 
   // Draggable reordering
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [reorderAnnouncement, setReorderAnnouncement] = useState('');
+
+  const moveRule = (ruleId: string, direction: -1 | 1) => {
+    const currentIndex = rules.findIndex((rule) => rule.id === ruleId);
+    const nextIndex = currentIndex + direction;
+    if (currentIndex < 0 || nextIndex < 0 || nextIndex >= rules.length) return;
+
+    const reordered = [...rules];
+    const [rule] = reordered.splice(currentIndex, 1);
+    reordered.splice(nextIndex, 0, rule);
+    setRules(reordered);
+    setReorderAnnouncement(`${rule.label} moved to position ${nextIndex + 1} of ${reordered.length}.`);
+    playMicroTick();
+  };
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIndex(index);
@@ -256,6 +272,13 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
   };
 
   const handleDragEnd = () => {
+    if (draggedIndex !== null) {
+      const movedRule = rules[draggedIndex];
+      if (movedRule) {
+        const position = rules.findIndex((rule) => rule.id === movedRule.id) + 1;
+        setReorderAnnouncement(`${movedRule.label} moved to position ${position} of ${rules.length}.`);
+      }
+    }
     setDraggedIndex(null);
   };
 
@@ -381,7 +404,7 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
         <div className="bg-canvas border border-border rounded-xl p-3.5 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-brand" />
+              <Sparkles className="w-3.5 h-3.5 text-brand-content" />
               <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">
                 Strategy Avatar / Logo
               </span>
@@ -394,7 +417,7 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
                   setAvatarUrl('');
                   setUrlInput('');
                 }}
-                className="text-[11px] font-medium text-text-muted hover:text-rose-500 transition-colors inline-flex items-center gap-1"
+                className="text-[11px] font-medium text-text-muted hover:text-trade-red-content transition-colors inline-flex items-center gap-1"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Reset to Default</span>
@@ -422,7 +445,7 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
                   aria-label="Upload custom image"
                   className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity flex flex-col items-center justify-center text-white text-[10px] font-bold gap-1 cursor-pointer"
                 >
-                  <Camera className="w-4 h-4 text-brand" />
+                  <Camera className="w-4 h-4 text-brand-content" />
                   <span>Upload</span>
                 </button>
               </div>
@@ -446,7 +469,7 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
                     }}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-text-primary text-xs font-semibold hover:bg-card-hover transition-all"
                   >
-                    <Upload className="w-3.5 h-3.5 text-brand" />
+                    <Upload className="w-3.5 h-3.5 text-brand-content" />
                     <span>{isCompressing ? 'Compressing...' : 'Upload Image'}</span>
                   </button>
 
@@ -457,7 +480,7 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
                       setShowUrlInput(!showUrlInput);
                     }}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all ${showUrlInput
-                        ? 'border-brand bg-brand/10 text-brand'
+                        ? 'border-brand bg-brand/10 text-brand-content'
                         : 'border-border bg-card hover:border-brand/40 text-text-secondary hover:text-text-primary'
                       }`}
                   >
@@ -568,7 +591,7 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
                 }`}
             />
             {nameError && (
-              <p className="text-[11px] text-rose-600 dark:text-rose-400 font-medium mt-1 flex items-center gap-1">
+              <p className="text-[11px] text-trade-red-content font-medium mt-1 flex items-center gap-1">
                 <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                 <span>{nameError}</span>
               </p>
@@ -734,43 +757,50 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
           </div>
 
           {rulesError && (
-            <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2 text-rose-600 dark:text-rose-400 text-xs font-medium">
+            <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2 text-trade-red-content text-xs font-medium">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{rulesError}</span>
             </div>
           )}
 
           {/* Existing Rules List */}
-          < div className="space-y-1.5 max-h-56 overflow-y-auto" >
+          <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+            {reorderAnnouncement}
+          </p>
+          <div className="space-y-1.5 max-h-56 overflow-y-auto" role="list" aria-label="Checklist rules">
             {
               rules.map((rule, idx) => (
                 <div
                   key={rule.id}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, idx)}
                   onDragEnter={(e) => handleDragEnter(e, idx)}
                   onDragOver={handleDragOver}
                   onDragEnd={handleDragEnd}
-                  className={`flex items-center justify-between p-2 rounded-xl bg-canvas border text-xs gap-2 transition-all duration-200 ease-out select-none cursor-grab active:cursor-grabbing ${draggedIndex === idx
+                  role="listitem"
+                  aria-posinset={idx + 1}
+                  aria-setsize={rules.length}
+                  className={`flex flex-wrap sm:flex-nowrap items-center justify-between p-2 rounded-xl bg-canvas border text-xs gap-2 transition-all duration-200 ease-out select-none ${draggedIndex === idx
                     ? 'opacity-40 scale-[0.98] border-brand shadow-md ring-1 ring-brand/40 bg-brand/5'
                     : 'border-border hover:border-brand/40'
                     }`}
                 >
                   <div
-                    className="flex items-center gap-1 shrink-0 text-text-muted hover:text-text-primary p-0.5"
-                    title="Drag to reorder rule"
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, idx)}
+                    className="hidden sm:flex items-center gap-1 shrink-0 text-text-muted hover:text-text-primary p-1 cursor-grab active:cursor-grabbing"
+                    title={`Drag ${rule.label} to reorder`}
+                    aria-hidden="true"
                   >
                     <GripVertical className="w-3.5 h-3.5 shrink-0" />
                   </div>
 
-                  <span className="flex-1 font-medium text-text-primary truncate">
+                  <span className="min-w-0 flex-1 font-medium text-text-primary truncate">
                     {rule.label}
                   </span>
 
                   <span
                     className={`text-[9px] font-bold font-mono px-1.5 py-0.2 rounded shrink-0 ${rule.type === 'Mandatory'
-                      ? 'bg-rose-500/15 text-rose-700 dark:text-rose-400'
-                      : 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
+                      ? 'bg-rose-500/15 text-trade-red-content'
+                      : 'bg-amber-500/15 text-brand-content'
                       }`}
                   >
                     {rule.type === 'Mandatory' ? 'REQUIRED' : `+${rule.weight}`}
@@ -786,17 +816,36 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
                     </span>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeRule(rule.id);
-                    }}
-                    aria-label={`Remove rule "${rule.label}"`}
-                    className="min-w-[28px] min-h-[28px] sm:min-w-[24px] sm:min-h-[24px] p-1 flex items-center justify-center rounded text-text-muted hover:text-trade-red hover:bg-card-hover shrink-0 transition-colors"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="basis-full sm:basis-auto sm:ml-auto flex justify-end gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => moveRule(rule.id, -1)}
+                      disabled={idx === 0}
+                      aria-label={`Move "${rule.label}" up`}
+                      title="Move rule up"
+                      className="min-w-11 min-h-11 flex items-center justify-center rounded-lg text-text-muted hover:text-text-primary hover:bg-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-content disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronUp className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveRule(rule.id, 1)}
+                      disabled={idx === rules.length - 1}
+                      aria-label={`Move "${rule.label}" down`}
+                      title="Move rule down"
+                      className="min-w-11 min-h-11 flex items-center justify-center rounded-lg text-text-muted hover:text-text-primary hover:bg-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-content disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeRule(rule.id)}
+                      aria-label={`Remove rule "${rule.label}"`}
+                      className="min-w-11 min-h-11 flex items-center justify-center rounded-lg text-text-muted hover:text-trade-red-content hover:bg-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-content transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))}
           </div>
@@ -852,7 +901,7 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
             </div>
 
             {ruleInputError && (
-              <p className="text-[11px] text-rose-600 dark:text-rose-400 font-medium mt-1 flex items-center gap-1">
+              <p className="text-[11px] text-trade-red-content font-medium mt-1 flex items-center gap-1">
                 <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                 <span>{ruleInputError}</span>
               </p>
@@ -861,9 +910,9 @@ export const StrategyFormModal: React.FC<StrategyFormModalProps> = ({
 
           {/* Checklist Scoring Rationale / Gate Enforcement */}
           <div className="p-2.5 rounded-xl bg-canvas/60 border border-border/40 text-[11px] text-text-muted flex items-start gap-2">
-            <ShieldCheck className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+            <ShieldCheck className="w-4 h-4 text-brand-content shrink-0 mt-0.5" />
             <span className="leading-relaxed">
-              <strong className="text-text-primary">Gate Enforcement:</strong> Required rules must pass to unlock execution. Confluence points determine setup grade: <strong className="text-trade-green">Grade A</strong> (4+ pts), <strong className="text-amber-700 dark:text-amber-400">Grade B</strong> (2–3 pts), or <strong className="text-trade-red">Grade C</strong> (&lt;2 pts).
+              <strong className="text-text-primary">Gate Enforcement:</strong> Required rules must pass to unlock execution. Confluence points determine setup grade: <strong className="text-trade-green-content">Grade A</strong> (4+ pts), <strong className="text-brand-content">Grade B</strong> (2–3 pts), or <strong className="text-trade-red-content">Grade C</strong> (&lt;2 pts).
             </span>
           </div>
         </div>

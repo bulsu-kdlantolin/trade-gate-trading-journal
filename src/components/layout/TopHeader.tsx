@@ -70,7 +70,7 @@ const MarketClockSessionStatus: React.FC = React.memo(() => {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-text-muted/40" />
             )}
           </span>
-          <span className={`font-bold text-[11px] max-w-[72px] xs:max-w-none truncate ${activeSession ? 'text-text-primary' : 'text-red-500 dark:text-red-400'}`}>
+          <span className={`font-bold text-[11px] max-w-[72px] xs:max-w-none truncate ${activeSession ? 'text-text-primary' : 'text-trade-red-content'}`}>
             {activeSession ? activeSession.name : 'Closed'}
           </span>
         </div>
@@ -193,7 +193,7 @@ export const TopHeader: React.FC<TopHeaderProps> = React.memo(({
               </span>
               {getModeBadge(activeStrategy?.executionMode)}
               <ChevronDown
-                className={`w-3.5 h-3.5 text-text-muted shrink-0 transition-transform duration-200 ${isStratOpen ? 'rotate-180 text-brand' : ''
+                className={`w-3.5 h-3.5 text-text-muted shrink-0 transition-transform duration-200 ${isStratOpen ? 'rotate-180 text-brand-content' : ''
                   }`}
               />
             </button>
@@ -214,7 +214,7 @@ export const TopHeader: React.FC<TopHeaderProps> = React.memo(({
                     }}
                     title="Add Strategy"
                     aria-label="Add Strategy"
-                    className="min-w-[28px] min-h-[28px] relative after:absolute after:-inset-1.5 p-1 rounded-lg text-text-muted hover:text-brand hover:bg-card-hover transition-colors flex items-center justify-center touch-manipulation"
+                    className="min-w-[28px] min-h-[28px] relative after:absolute after:-inset-1.5 p-1 rounded-lg text-text-muted hover:text-brand-content hover:bg-card-hover transition-colors flex items-center justify-center touch-manipulation"
                   >
                     <Plus className="w-3.5 h-3.5" />
                   </button>
@@ -282,7 +282,7 @@ export const TopHeader: React.FC<TopHeaderProps> = React.memo(({
                               setIsStratOpen(false);
                             }}
                             className={`w-full flex items-center justify-between p-2 rounded-xl text-left transition-all ${isSelected
-                              ? 'bg-brand/15 border border-brand/40 text-text-primary dark:text-brand font-bold'
+                              ? 'bg-brand/15 border border-brand/40 text-text-primary dark:text-brand-content font-bold'
                               : 'hover:bg-card-hover text-text-secondary hover:text-text-primary'
                               }`}
                           >
@@ -298,7 +298,7 @@ export const TopHeader: React.FC<TopHeaderProps> = React.memo(({
                                 </span>
                               </div>
                             </div>
-                            {isSelected && <Check className="w-4 h-4 text-brand shrink-0 ml-2" />}
+                            {isSelected && <Check className="w-4 h-4 text-brand-content shrink-0 ml-2" />}
                           </button>
                         );
                       })
@@ -334,7 +334,7 @@ export const TopHeader: React.FC<TopHeaderProps> = React.memo(({
                 }}
                 title="Deposit or adjust capital"
                 aria-label="Deposit or adjust capital"
-                className="relative after:absolute after:-inset-2 p-1 rounded-lg text-brand hover:text-brand-hover hover:bg-card-hover transition-colors shrink-0"
+                className="relative after:absolute after:-inset-2 p-1 rounded-lg text-brand-content hover:text-brand-hover hover:bg-card-hover transition-colors shrink-0"
               >
                 <Plus className="w-4 h-4" />
               </button>

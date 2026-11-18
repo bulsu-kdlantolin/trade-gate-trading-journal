@@ -408,11 +408,11 @@ export function App() {
               aria-label={item.label}
               aria-current={isActive ? 'page' : undefined}
               className={`flex-1 flex flex-col items-center justify-center h-full py-1 min-h-[44px] transition-colors relative ${isActive
-                ? 'text-text-primary dark:text-brand font-bold'
+                ? 'text-text-primary dark:text-brand-content font-bold'
                 : 'text-text-muted hover:text-text-primary'
                 }`}
             >
-              <Icon className={`w-4 h-4 mb-0.5 ${isActive ? 'text-brand' : ''}`} />
+              <Icon className={`w-4 h-4 mb-0.5 ${isActive ? 'text-brand-content' : ''}`} />
                 <span className="text-xs leading-tight tracking-tight truncate max-w-[68px]">
                   {item.label}
                 </span>

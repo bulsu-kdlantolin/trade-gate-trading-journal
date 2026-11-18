@@ -33,7 +33,7 @@ export const AudioToggleButton: React.FC = () => {
       aria-label={enabled ? 'Mute audio telemetry' : 'Enable audio telemetry'}
       className={`relative p-1.5 rounded-xl transition-all cursor-pointer shrink-0 focus-visible:outline-brand select-none flex items-center justify-center ${
         enabled
-          ? 'text-brand hover:text-brand-hover hover:bg-brand/10'
+          ? 'text-brand-content hover:text-brand-hover hover:bg-brand/10'
           : 'text-text-muted hover:text-text-primary hover:bg-card-hover'
       }`}
     >

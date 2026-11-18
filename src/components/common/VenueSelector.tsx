@@ -169,7 +169,7 @@ export const VenueSelector: React.FC<VenueSelectorProps> = ({
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-brand/10 border border-brand/30 text-xs font-mono shadow-xs">
             <span className="text-[11px] text-text-muted uppercase font-bold tracking-wider">Active:</span>
             <VenueIcon venue={value} size="xs" />
-            <span className="font-bold text-text-primary dark:text-brand truncate max-w-[170px]">
+            <span className="font-bold text-text-primary dark:text-brand-content truncate max-w-[170px]">
               {value}
             </span>
             {!isPredefined && (
@@ -292,7 +292,7 @@ export const VenueSelector: React.FC<VenueSelectorProps> = ({
                   onClick={() => handleSelectVenue(venue.id)}
                   title={venue.description || venue.name}
                   className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all inline-flex items-center gap-2 group active:scale-[0.98] ${isSelected
-                    ? 'bg-brand/15 border-brand text-text-primary dark:text-brand font-bold ring-1 ring-brand/30 shadow-xs'
+                    ? 'bg-brand/15 border-brand text-text-primary dark:text-brand-content font-bold ring-1 ring-brand/30 shadow-xs'
                     : 'bg-canvas border-border text-text-secondary hover:text-text-primary hover:border-brand/40 shadow-2xs'
                     }`
                   }
@@ -307,7 +307,7 @@ export const VenueSelector: React.FC<VenueSelectorProps> = ({
                         </span>
                         )
                 }
-                        {isSelected && <Check className="w-3.5 h-3.5 text-brand shrink-0 ml-0.5" />}
+                        {isSelected && <Check className="w-3.5 h-3.5 text-brand-content shrink-0 ml-0.5" />}
                       </button>
                     );
           })}
@@ -320,7 +320,7 @@ export const VenueSelector: React.FC<VenueSelectorProps> = ({
                       setIsTypingCustom(true);
                       setActiveTab('custom');
                     }}
-                    className="px-3 py-1.5 rounded-xl border border-dashed border-border bg-canvas/60 text-text-muted hover:text-brand hover:border-brand/50 text-xs font-medium transition-all inline-flex items-center gap-1.5"
+                    className="px-3 py-1.5 rounded-xl border border-dashed border-border bg-canvas/60 text-text-muted hover:text-brand-content hover:border-brand/50 text-xs font-medium transition-all inline-flex items-center gap-1.5"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Other Platform...</span>
@@ -335,7 +335,7 @@ export const VenueSelector: React.FC<VenueSelectorProps> = ({
                 <div className="bg-canvas border border-brand/40 rounded-xl p-3.5 space-y-2.5 animate-dropdown shadow-xs">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-text-primary flex items-center gap-1.5">
-                      <Pencil className="w-3.5 h-3.5 text-brand" />
+                      <Pencil className="w-3.5 h-3.5 text-brand-content" />
                       <span>Custom Exchange, Venue, or Network</span>
                     </span>
                     <button
@@ -408,7 +408,7 @@ export const VenueSelector: React.FC<VenueSelectorProps> = ({
                             onChange(sug as VenueCustodyTag);
                             playMicroTick();
                           }}
-                          className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 min-h-[26px] rounded-md bg-card border border-border text-text-secondary hover:text-brand hover:border-brand/40 transition-colors shadow-2xs touch-manipulation"
+                          className="inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 min-h-[26px] rounded-md bg-card border border-border text-text-secondary hover:text-brand-content hover:border-brand/40 transition-colors shadow-2xs touch-manipulation"
                         >
                           <VenueIcon venue={sug} size="xs" />
                           <span>{sug}</span>

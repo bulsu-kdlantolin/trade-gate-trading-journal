@@ -177,7 +177,7 @@ export function AnimatedSelect<T extends string | number>({
 
         {/* Rotating Chevron */}
         <ChevronDown
-          className={`w-3.5 h-3.5 text-text-muted shrink-0 transition-transform duration-200 ease-out ml-1.5 ${isOpen ? 'rotate-180 text-brand' : ''
+          className={`w-3.5 h-3.5 text-text-muted shrink-0 transition-transform duration-200 ease-out ml-1.5 ${isOpen ? 'rotate-180 text-brand-content' : ''
             }`}
         />
       </button>
@@ -208,7 +208,7 @@ export function AnimatedSelect<T extends string | number>({
                     setIsOpen(false);
                   }}
                   className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors duration-100 min-w-0 ${isSelected
-                      ? 'bg-brand/15 text-text-primary dark:text-brand font-bold shadow-2xs'
+                      ? 'bg-brand/15 text-text-primary dark:text-brand-content font-bold shadow-2xs'
                       : 'text-text-secondary hover:text-text-primary hover:bg-card-hover'
                     }`}
                 >
@@ -223,7 +223,7 @@ export function AnimatedSelect<T extends string | number>({
                         {opt.badge}
                       </span>
                     )}
-                    {isSelected && <Check className="w-3.5 h-3.5 text-brand" />}
+                    {isSelected && <Check className="w-3.5 h-3.5 text-brand-content" />}
                   </div>
                 </button>
               );

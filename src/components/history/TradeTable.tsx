@@ -238,7 +238,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
           {/* Top Left: Title & Execution Mode */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-brand shrink-0" />
+              <BookOpen className="w-5 h-5 text-brand-content shrink-0" />
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-extrabold text-text-primary tracking-tight">
                   Entries &amp; Ledger
@@ -251,8 +251,8 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                 {activeStrategy && (
                   <span
                     className={`text-[11px] font-bold px-2 py-0.5 rounded-md uppercase font-mono ${activeStrategy.executionMode === 'futures'
-                      ? 'bg-blue-500/15 text-blue-400'
-                      : 'bg-emerald-500/15 text-emerald-400'
+                      ? 'bg-blue-500/15 text-blue-700 dark:text-blue-400'
+                      : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
                       }`}
                   >
                     {activeStrategy.executionMode === 'futures' ? 'Perps' : 'Spot'}
@@ -285,7 +285,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                 <button
                   onClick={() => { playMicroTick(); setTradeTypeFilter('futures'); setCurrentPage(1); }}
                   className={`relative z-10 py-1.5 px-2.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center active:scale-[0.98] ${tradeTypeFilter === 'futures'
-                    ? 'text-blue-400'
+                    ? 'text-blue-700 dark:text-blue-400'
                     : 'text-text-muted hover:text-text-primary'
                     }`}
                 >
@@ -294,7 +294,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                 <button
                   onClick={() => { playMicroTick(); setTradeTypeFilter('spot'); setCurrentPage(1); }}
                   className={`relative z-10 py-1.5 px-2.5 rounded-lg text-xs font-bold transition-colors duration-200 text-center active:scale-[0.98] ${tradeTypeFilter === 'spot'
-                    ? 'text-emerald-400'
+                    ? 'text-emerald-700 dark:text-emerald-400'
                     : 'text-text-muted hover:text-text-primary'
                     }`}
                 >
@@ -495,7 +495,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                       {trades.length === 0 ? (
                         <div className="max-w-sm mx-auto space-y-3">
                           <div className="w-10 h-10 rounded-2xl bg-canvas border border-border flex items-center justify-center text-text-muted mx-auto shadow-xs">
-                            <BookOpen className="w-5 h-5 text-brand" />
+                            <BookOpen className="w-5 h-5 text-brand-content" />
                           </div>
                           <h4 className="text-sm font-bold text-text-primary text-balance">No Trade Records in Ledger</h4>
                           <p className="text-xs text-text-muted leading-relaxed text-pretty max-w-xs mx-auto">
@@ -528,7 +528,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                             onClick={resetAllFilters}
                             className="px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-xs font-semibold text-text-primary transition-colors inline-flex items-center gap-1.5 shadow-xs"
                           >
-                            <RotateCcw className="w-3.5 h-3.5 text-brand" />
+                            <RotateCcw className="w-3.5 h-3.5 text-brand-content" />
                             Reset All Filters
                           </button>
                         </div>
@@ -573,8 +573,8 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                         <td className="py-3 px-3">
                           <span
                             className={`font-mono text-[11px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${isFut
-                              ? 'bg-blue-500/15 text-blue-400'
-                              : 'bg-emerald-500/15 text-emerald-400'
+                              ? 'bg-blue-500/15 text-blue-700 dark:text-blue-400'
+                              : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
                               }`}
                           >
                             {isFut ? 'PERP' : 'SPOT'}
@@ -605,7 +605,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                         <td className="py-3 px-3">
                           {isFut ? (
                             <span
-                              className={`flex items-center gap-1 font-bold text-xs ${t.direction === 'Long' ? 'text-trade-green' : 'text-trade-red'
+                              className={`flex items-center gap-1 font-bold text-xs ${t.direction === 'Long' ? 'text-trade-green-content' : 'text-trade-red-content'
                                 }`}
                             >
                               {t.direction === 'Long' ? (
@@ -675,12 +675,12 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                           {/* Net PnL ($) */}
                           <td className="py-3 px-3 text-right font-mono tabular-nums">
                             {isOpen ? (
-                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-400">
+                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-500/15 text-brand-content">
                                 ACTIVE
                               </span>
                             ) : (
                               <span
-                                className={`text-xs font-bold ${isWin ? 'text-trade-green' : isLoss ? 'text-trade-red' : 'text-text-primary'
+                                className={`text-xs font-bold ${isWin ? 'text-trade-green-content' : isLoss ? 'text-trade-red-content' : 'text-text-primary'
                                   }`}
                               >
                                 {t.pnlDollar !== undefined ? (
@@ -701,7 +701,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                           <td className="py-3 px-3 text-right font-mono tabular-nums">
                             {t.pnlR !== undefined ? (
                               <span
-                                className={`font-bold text-xs ${isWin ? 'text-trade-green' : isLoss ? 'text-trade-red' : 'text-text-secondary'
+                                className={`font-bold text-xs ${isWin ? 'text-trade-green-content' : isLoss ? 'text-trade-red-content' : 'text-text-secondary'
                                   }`}
                               >
                                 {t.pnlR >= 0 ? '+' : ''}
@@ -732,7 +732,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                               {t.mandatoryRulesPassed ? (
                                 <span
                                   title="Passed all mandatory strategy rules before execution"
-                                  className="flex items-center gap-1 text-[11px] font-bold text-trade-green bg-trade-green/15 px-2 py-0.5 rounded-md"
+                                  className="flex items-center gap-1 text-[11px] font-bold text-trade-green-content bg-trade-green/15 px-2 py-0.5 rounded-md"
                                 >
                                   <CheckCircle2 className="w-3 h-3" />
                                   Disciplined
@@ -740,7 +740,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                               ) : (
                                 <span
                                   title="Mandatory checklist rules were bypassed or broken"
-                                  className="flex items-center gap-1 text-[11px] font-bold text-rose-400 bg-rose-500/15 px-2 py-0.5 rounded-md"
+                                  className="flex items-center gap-1 text-[11px] font-bold text-trade-red-content bg-rose-500/15 px-2 py-0.5 rounded-md"
                                 >
                                   <AlertTriangle className="w-3 h-3" />
                                   Rule Violation
@@ -752,7 +752,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                                   err !== 'None' ? (
                                     <span
                                       key={err}
-                                      className="inline-flex items-center gap-1 text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-500/25 text-rose-800 dark:text-rose-200"
+                                      className="inline-flex items-center gap-1 text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-500/25 text-trade-red-content"
                                     >
                                       <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-rose-500" />
                                       {err}
@@ -780,7 +780,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                                 onClick={() => handleOpenEdit(t)}
                                 title="Edit trade record / Realize exit"
                                 aria-label={`Edit ${t.symbol} trade entry`}
-                                className="min-w-[32px] min-h-[32px] relative after:absolute after:-inset-2 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-card transition-colors touch-manipulation"
+                                className="min-w-[32px] min-h-[32px] relative after:absolute after:-inset-2 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand-content hover:bg-card transition-colors touch-manipulation"
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
@@ -790,7 +790,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                                 onClick={() => handleOpenShare(t)}
                                 title="Export verified trade performance card (PNG)"
                                 aria-label={`Share ${t.symbol} trade card`}
-                                className="min-w-[32px] min-h-[32px] relative after:absolute after:-inset-2 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-card transition-colors touch-manipulation"
+                                className="min-w-[32px] min-h-[32px] relative after:absolute after:-inset-2 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand-content hover:bg-card transition-colors touch-manipulation"
                               >
                                 <Share2 className="w-3.5 h-3.5" />
                               </button>
@@ -800,7 +800,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                                 onClick={() => handleDeleteClick(t.id, t.symbol)}
                                 title="Delete trade"
                                 aria-label={`Delete ${t.symbol} trade record`}
-                                className="min-w-[32px] min-h-[32px] relative after:absolute after:-inset-2 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-trade-red hover:bg-card transition-colors touch-manipulation"
+                                className="min-w-[32px] min-h-[32px] relative after:absolute after:-inset-2 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-trade-red-content hover:bg-card transition-colors touch-manipulation"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -821,7 +821,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                 {trades.length === 0 ? (
                   <div className="max-w-xs mx-auto space-y-3">
                     <div className="w-10 h-10 rounded-2xl bg-canvas border border-border flex items-center justify-center text-text-muted mx-auto shadow-xs">
-                      <BookOpen className="w-5 h-5 text-brand" />
+                      <BookOpen className="w-5 h-5 text-brand-content" />
                     </div>
                     <h4 className="text-sm font-bold text-text-primary text-balance">No Trade Records in Ledger</h4>
                     <p className="text-xs text-text-muted leading-relaxed text-pretty">
@@ -854,7 +854,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                       onClick={resetAllFilters}
                       className="px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-xs font-semibold text-text-primary transition-colors inline-flex items-center gap-1.5 shadow-xs"
                     >
-                      <RotateCcw className="w-3.5 h-3.5 text-brand" />
+                      <RotateCcw className="w-3.5 h-3.5 text-brand-content" />
                       Reset Filters
                     </button>
                   </div>
@@ -879,7 +879,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span className="font-mono font-bold text-text-primary text-xs truncate">{t.symbol}</span>
                               <span
-                                        className={`font-mono text-[11px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${isFut ? 'bg-blue-500/15 text-blue-400' : 'bg-emerald-500/15 text-emerald-400'
+                                        className={`font-mono text-[11px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${isFut ? 'bg-blue-500/15 text-blue-700 dark:text-blue-400' : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
                                   }`}
                               >
                                 {isFut ? 'PERP' : 'SPOT'}
@@ -905,13 +905,13 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
 
                         <div className="text-right font-mono tabular-nums shrink-0">
                           {isOpen ? (
-                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-400 inline-block">
+                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-500/15 text-brand-content inline-block">
                                 ACTIVE
                               </span>
                               ) : (
                               <>
                                 <span
-                                  className={`text-xs font-bold block ${isWin ? 'text-trade-green' : isLoss ? 'text-trade-red' : 'text-text-primary'
+                                  className={`text-xs font-bold block ${isWin ? 'text-trade-green-content' : isLoss ? 'text-trade-red-content' : 'text-text-primary'
                                     }`}
                                 >
                                   {t.pnlDollar !== undefined ? (
@@ -927,7 +927,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                                 </span>
                                 {t.pnlR !== undefined && (
                                   <span
-                                          className={`text-[11px] font-bold block mt-0.5 ${isWin ? 'text-trade-green' : isLoss ? 'text-trade-red' : 'text-text-muted'
+                                          className={`text-[11px] font-bold block mt-0.5 ${isWin ? 'text-trade-green-content' : isLoss ? 'text-trade-red-content' : 'text-text-muted'
                                       }`}
                                   >
                                     {t.pnlR >= 0 ? '+' : ''}{t.pnlR}R
@@ -969,7 +969,7 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {isFut ? (
                               <span
-                                      className={`inline-flex items-center gap-0.5 font-bold text-[11px] ${t.direction === 'Long' ? 'text-trade-green' : 'text-trade-red'
+                                      className={`inline-flex items-center gap-0.5 font-bold text-[11px] ${t.direction === 'Long' ? 'text-trade-green-content' : 'text-trade-red-content'
                                   }`}
                               >
                                 {t.direction === 'Long' ? (
@@ -1006,11 +1006,11 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                               </span>
 
                             {t.mandatoryRulesPassed ? (
-                                <span className="text-[11px] font-bold text-trade-green bg-trade-green/15 px-2 py-0.5 rounded flex items-center gap-0.5">
+                                <span className="text-[11px] font-bold text-trade-green-content bg-trade-green/15 px-2 py-0.5 rounded flex items-center gap-0.5">
                                   <CheckCircle2 className="w-2.5 h-2.5" /> Pass
                                 </span>
                                 ) : (
-                                  <span className="text-[11px] font-bold text-rose-400 bg-rose-500/15 px-2 py-0.5 rounded flex items-center gap-0.5">
+                                  <span className="text-[11px] font-bold text-trade-red-content bg-rose-500/15 px-2 py-0.5 rounded flex items-center gap-0.5">
                                     <AlertTriangle className="w-2.5 h-2.5" /> Violation
                                   </span>
                                   )}
@@ -1027,21 +1027,21 @@ export const TradeTable: React.FC<TradeTableProps> = React.memo(({
                                   <button
                                     onClick={() => handleOpenEdit(t)}
                                     aria-label={`Edit ${t.symbol} trade entry`}
-                                    className="min-w-[36px] min-h-[36px] relative after:absolute after:-inset-1 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-card transition-colors touch-manipulation"
+                                    className="min-w-[36px] min-h-[36px] relative after:absolute after:-inset-1 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand-content hover:bg-card transition-colors touch-manipulation"
                                   >
                                     <Edit2 className="w-4 h-4" />
                                   </button>
                                   <button
                                     onClick={() => handleOpenShare(t)}
                                     aria-label={`Share ${t.symbol} trade card`}
-                                    className="min-w-[36px] min-h-[36px] relative after:absolute after:-inset-1 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand hover:bg-card transition-colors touch-manipulation"
+                                    className="min-w-[36px] min-h-[36px] relative after:absolute after:-inset-1 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-brand-content hover:bg-card transition-colors touch-manipulation"
                                   >
                                     <Share2 className="w-4 h-4" />
                                   </button>
                                   <button
                                     onClick={() => handleDeleteClick(t.id, t.symbol)}
                                     aria-label={`Delete ${t.symbol} trade record`}
-                                    className="min-w-[36px] min-h-[36px] relative after:absolute after:-inset-1 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-trade-red hover:bg-card transition-colors touch-manipulation"
+                                    className="min-w-[36px] min-h-[36px] relative after:absolute after:-inset-1 flex items-center justify-center p-1.5 rounded-lg text-text-muted hover:text-trade-red-content hover:bg-card transition-colors touch-manipulation"
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </button>

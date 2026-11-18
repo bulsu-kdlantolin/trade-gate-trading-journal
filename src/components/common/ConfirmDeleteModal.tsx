@@ -66,7 +66,7 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
         </button>
 
         <div className="flex items-start gap-3.5 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shrink-0 mt-0.5">
+          <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-trade-red-content shrink-0 mt-0.5">
             <AlertTriangle className="w-5 h-5" />
           </div>
           <div>

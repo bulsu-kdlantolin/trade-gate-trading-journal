@@ -21,14 +21,14 @@ export const SESSION_STYLES: Record<string, SessionStyleConfig> = {
     badge: 'bg-blue-500/15 text-blue-700 dark:text-blue-400 font-semibold',
   },
   'NY AM': {
-    active: 'bg-red-500/20 text-red-800 dark:text-red-300 border border-red-500/40 font-bold shadow-xs',
+    active: 'bg-red-500/20 text-trade-red-content border border-red-500/40 font-bold shadow-xs',
     dot: 'bg-red-500',
-    badge: 'bg-red-500/15 text-red-700 dark:text-red-400 font-semibold',
+    badge: 'bg-red-500/15 text-trade-red-content font-semibold',
   },
   'NY PM': {
-    active: 'bg-red-400/20 text-red-700 dark:text-red-200 border border-red-400/40 font-bold shadow-xs',
+    active: 'bg-red-400/20 text-trade-red-content border border-red-400/40 font-bold shadow-xs',
     dot: 'bg-red-400',
-    badge: 'bg-red-400/15 text-red-600 dark:text-red-300 font-semibold',
+    badge: 'bg-red-400/15 text-trade-red-content font-semibold',
   },
 };
 
@@ -51,9 +51,9 @@ export function getRuleCategoryStyle(category?: string): string {
     case 'HTF Bias':
       return 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 font-semibold';
     case 'Execution':
-      return 'bg-amber-500/15 text-amber-800 dark:text-amber-300 font-semibold';
+      return 'bg-amber-500/15 text-brand-content font-semibold';
     case 'Risk':
-      return 'bg-rose-500/15 text-rose-700 dark:text-rose-300 font-semibold';
+      return 'bg-rose-500/15 text-trade-red-content font-semibold';
     case 'Market Context':
       return 'bg-purple-500/15 text-purple-700 dark:text-purple-300 font-semibold';
     case 'On-Chain':
@@ -74,7 +74,7 @@ export function getSpotActionStyle(action?: string): string {
     case 'DCA ADD':
       return 'bg-teal-500/15 text-teal-700 dark:text-teal-300 font-semibold';
     case 'PARTIAL TP':
-      return 'bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold';
+      return 'bg-amber-500/15 text-brand-content font-semibold';
     case 'FULL EXIT':
       return 'bg-blue-500/15 text-blue-700 dark:text-blue-300 font-semibold';
     default:

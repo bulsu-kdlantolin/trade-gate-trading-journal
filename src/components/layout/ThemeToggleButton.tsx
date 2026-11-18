@@ -154,7 +154,7 @@ return (
     {/* Rotating Sun / Moon icon with spring momentum */}
     <span key={iconSpinKey} className="inline-flex items-center justify-center animate-theme-icon">
       {isDark ? (
-        <Sun className="w-4 h-4 text-amber-400 filter drop-shadow-[0_0_7px_rgba(251,191,36,0.55)]" />
+        <Sun className="w-4 h-4 text-brand-content filter drop-shadow-[0_0_7px_rgba(251,191,36,0.55)]" />
       ) : (
         <Moon className="w-4 h-4 text-indigo-600 dark:text-indigo-400 filter drop-shadow-[0_0_6px_rgba(99,102,241,0.45)]" />
       )}

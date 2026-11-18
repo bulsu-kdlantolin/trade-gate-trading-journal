@@ -167,7 +167,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = React.memo(
       {/* Empty States Handling */}
       {trades.length === 0 ? (
         <div className="card-glass rounded-2xl p-12 text-center max-w-md mx-auto space-y-3.5 shadow-xs">
-          <div className="w-12 h-12 rounded-2xl bg-canvas border border-border flex items-center justify-center text-brand mx-auto shadow-xs">
+          <div className="w-12 h-12 rounded-2xl bg-canvas border border-border flex items-center justify-center text-brand-content mx-auto shadow-xs">
             <TrendingUp className="w-6 h-6" />
           </div>
           <h3 className="text-sm font-bold text-text-primary text-balance">No Analytics Available Yet</h3>
@@ -190,7 +190,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = React.memo(
       ) : filteredTrades.length === 0 ? (
         <div className="card-glass rounded-2xl p-8 text-center max-w-md mx-auto space-y-3 shadow-xs">
           <div className="w-10 h-10 rounded-2xl bg-canvas border border-border flex items-center justify-center text-text-muted mx-auto shadow-xs">
-            <Calendar className="w-5 h-5 text-brand" />
+            <Calendar className="w-5 h-5 text-brand-content" />
           </div>
           <h4 className="text-sm font-bold text-text-primary text-balance">No Trades in Selected Timeframe</h4>
           <p className="text-xs text-text-muted leading-relaxed text-pretty max-w-sm mx-auto">
@@ -212,14 +212,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = React.memo(
               <div className="flex items-center justify-between text-text-muted mb-2">
                 <span className="text-[10px] uppercase font-bold tracking-wider">Net Realized P&L</span>
                 {isNetPositive ? (
-                  <TrendingUp className="w-4 h-4 text-trade-green" />
+                  <TrendingUp className="w-4 h-4 text-trade-green-content" />
                 ) : (
-                  <TrendingDown className="w-4 h-4 text-trade-red" />
+                  <TrendingDown className="w-4 h-4 text-trade-red-content" />
                 )}
               </div>
               <div>
                 <p
-                  className={`text-xl font-extrabold font-mono tabular-nums inline-flex items-center gap-1.5 ${isNetPositive ? 'text-trade-green' : 'text-trade-red'
+                  className={`text-xl font-extrabold font-mono tabular-nums inline-flex items-center gap-1.5 ${isNetPositive ? 'text-trade-green-content' : 'text-trade-red-content'
                     }`}
                 >
                   <CurrencyDisplay
@@ -239,11 +239,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = React.memo(
             <div className="card-glass rounded-2xl p-4 flex flex-col justify-between">
               <div className="flex items-center justify-between text-text-muted mb-2">
                 <span className="text-[10px] uppercase font-bold tracking-wider">Win Rate</span>
-                <Target className="w-4 h-4 text-brand" />
+                <Target className="w-4 h-4 text-brand-content" />
               </div>
               <div>
                 <p
-                  className={`text-xl font-extrabold font-mono tabular-nums ${metrics.winRate >= 50 && metrics.closedTrades > 0 ? 'text-trade-green' : 'text-text-primary'
+                  className={`text-xl font-extrabold font-mono tabular-nums ${metrics.winRate >= 50 && metrics.closedTrades > 0 ? 'text-trade-green-content' : 'text-text-primary'
                     }`}
                 >
                   {metrics.winRate}%
@@ -258,10 +258,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = React.memo(
             <div className="card-glass rounded-2xl p-4 flex flex-col justify-between">
               <div className="flex items-center justify-between text-text-muted mb-2">
                 <span className="text-[10px] uppercase font-bold tracking-wider">Discipline Rate</span>
-                <ShieldCheck className="w-4 h-4 text-trade-green" />
+                <ShieldCheck className="w-4 h-4 text-trade-green-content" />
               </div>
               <div>
-                <p className="text-xl font-extrabold font-mono tabular-nums text-trade-green">
+                <p className="text-xl font-extrabold font-mono tabular-nums text-trade-green-content">
                   {metrics.adherenceRate}%
                 </p>
                 <p className="text-[10px] text-text-muted mt-0.5">
@@ -274,10 +274,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = React.memo(
             <div className="card-glass rounded-2xl p-4 flex flex-col justify-between">
               <div className="flex items-center justify-between text-text-muted mb-2">
                 <span className="text-[10px] uppercase font-bold tracking-wider">A+ Setup Win Rate</span>
-                <Sparkles className="w-4 h-4 text-brand" />
+                <Sparkles className="w-4 h-4 text-brand-content" />
               </div>
               <div>
-                  <p className="text-xl font-extrabold font-mono tabular-nums text-text-primary dark:text-brand">
+                  <p className="text-xl font-extrabold font-mono tabular-nums text-text-primary dark:text-brand-content">
                     {metrics.gradeAWinRate}%
                   </p>
                   <p className="text-[10px] text-text-muted font-mono mt-0.5">
@@ -295,11 +295,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = React.memo(
               <div>
                 <p
                   className={`text-xl font-extrabold font-mono tabular-nums ${metrics.profitFactor >= 1.5
-                    ? 'text-trade-green'
+                    ? 'text-trade-green-content'
                     : metrics.profitFactor >= 1.0
                       ? 'text-text-primary'
                       : metrics.losses > 0
-                        ? 'text-trade-red'
+                        ? 'text-trade-red-content'
                         : 'text-text-primary'
                     }`}
                 >
@@ -315,7 +315,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = React.memo(
             <div className="card-glass rounded-2xl p-4 flex flex-col justify-between">
               <div className="flex items-center justify-between text-text-muted mb-2">
                 <span className="text-[10px] uppercase font-bold tracking-wider">Active Spot Bags</span>
-                <Coins className="w-4 h-4 text-amber-500" />
+                <Coins className="w-4 h-4 text-brand-content" />
               </div>
               <div>
                 <p className="text-xl font-extrabold font-mono tabular-nums text-text-primary inline-flex items-center gap-1.5">
@@ -341,7 +341,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = React.memo(
             <div className="card-glass rounded-2xl p-5 space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-border">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-brand" />
+                  <Sparkles className="w-4 h-4 text-brand-content" />
                   <h4 className="text-xs font-bold uppercase tracking-wider text-text-primary text-balance">
                     Setup Grade Win Rates
                   </h4>
@@ -409,7 +409,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = React.memo(
                         </div>
                       </div>
                       <div className="text-right font-mono tabular-nums">
-                        <span className={`font-bold block ${isWin ? 'text-trade-green' : 'text-trade-red'}`}>
+                        <span className={`font-bold block ${isWin ? 'text-trade-green-content' : 'text-trade-red-content'}`}>
                           <CurrencyDisplay
                             amount={item.netPnl}
                             currency={activeStrategy?.baseCurrency}
@@ -429,7 +429,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = React.memo(
             <div className="card-glass rounded-2xl p-5 space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-border">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-trade-red" />
+                  <AlertTriangle className="w-4 h-4 text-trade-red-content" />
                   <h4 className="text-xs font-bold uppercase tracking-wider text-text-primary text-balance">
                     Discipline Mistake Cost
                   </h4>
@@ -449,12 +449,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = React.memo(
                       className="flex items-center justify-between text-xs p-2 rounded-xl bg-canvas border border-border"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-trade-red">
+                        <span className="text-xs font-mono font-bold text-trade-red-content">
                           {m.count}x
                         </span>
                         <span className="font-medium text-text-primary">{m.tag}</span>
                       </div>
-                      <span className="font-mono font-bold text-trade-red tabular-nums inline-flex items-center gap-0.5">
+                      <span className="font-mono font-bold text-trade-red-content tabular-nums inline-flex items-center gap-0.5">
                         <CurrencyDisplay
                           amount={-m.totalLoss}
                           currency={activeStrategy?.baseCurrency}

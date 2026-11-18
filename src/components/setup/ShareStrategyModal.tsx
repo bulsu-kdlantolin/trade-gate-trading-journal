@@ -288,7 +288,7 @@ export const ShareStrategyModal: React.FC<ShareStrategyModalProps> = ({ strategy
             onClick={handleCopyMarkdown}
             className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-card-hover border border-border text-text-primary hover:bg-card-hover/80 flex items-center gap-1.5 transition-colors"
           >
-            {hasCopiedMd ? <Check className="w-3.5 h-3.5 text-trade-green" /> : <FileText className="w-3.5 h-3.5" />}
+            {hasCopiedMd ? <Check className="w-3.5 h-3.5 text-trade-green-content" /> : <FileText className="w-3.5 h-3.5" />}
             {hasCopiedMd ? 'Copied MD!' : 'Copy Markdown'}
           </button>
           <button

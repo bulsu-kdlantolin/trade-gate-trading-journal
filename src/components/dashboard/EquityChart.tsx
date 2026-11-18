@@ -103,9 +103,8 @@ interface ChartPoint {
     const latestVal = chartData[chartData.length - 1]?.value || 0;
     const isPositive = latestVal >= 0;
 
-    // Visual stroke and fill colors based on Dark vs Light theme (Binance Palette)
-    const strokeColor = isPositive ? '#0ECB81' : '#F6465D';
-    const fillColor = isPositive ? (isDark ? 'rgba(14, 203, 129, 0.15)' : 'rgba(14, 203, 129, 0.12)') : (isDark ? 'rgba(246, 70, 93, 0.15)' : 'rgba(246, 70, 93, 0.12)');
+    // Semantic foregrounds keep the chart line visible in both themes.
+    const strokeColor = isPositive ? 'var(--tg-bullish-foreground)' : 'var(--tg-bearish-foreground)';
     const gridColor = isDark ? '#2B313A' : '#EAECEF';
 
     return (
@@ -118,7 +117,7 @@ interface ChartPoint {
                 Cumulative Growth Curve
               </span>
               <span
-                className={`flex items-center gap-1 text-xs font-mono font-bold ${isPositive ? 'text-trade-green' : 'text-trade-red'
+                className={`flex items-center gap-1 text-xs font-mono font-bold ${isPositive ? 'text-trade-green-content' : 'text-trade-red-content'
                   }`}
               >
                 {isPositive ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
@@ -207,7 +206,7 @@ interface ChartPoint {
                       return (
                         <div className="bg-card border border-border p-2.5 rounded-xl shadow-xl text-xs space-y-1 font-mono">
                           <p className="font-bold text-text-primary font-sans">{data.symbol} ({data.dateStr})</p>
-                          <p className={`flex items-center gap-1 font-mono ${data.value >= 0 ? 'text-trade-green' : 'text-trade-red'}`}>
+                          <p className={`flex items-center gap-1 font-mono ${data.value >= 0 ? 'text-trade-green-content' : 'text-trade-red-content'}`}>
                             <span>Net Cumulative:</span>
                             {chartMode === 'dollar' ? (
                               <CurrencyDisplay amount={data.cumulativeDollar} currency={baseCurrency} size="xs" />

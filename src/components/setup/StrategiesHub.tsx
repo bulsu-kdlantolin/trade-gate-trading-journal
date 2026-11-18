@@ -100,7 +100,7 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = React.memo(({
       <div className="card-glass rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <Sliders className="w-5 h-5 text-brand" />
+            <Sliders className="w-5 h-5 text-brand-content" />
             <h3 className="text-base font-extrabold text-text-primary">
               Crypto Strategy Profiles
             </h3>
@@ -124,7 +124,7 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = React.memo(({
       {/* Strategy Profile Cards Grid */}
       {strategies.length === 0 ? (
         <div className="card-glass rounded-2xl p-12 text-center max-w-md mx-auto space-y-3 shadow-xs">
-          <div className="w-12 h-12 rounded-2xl bg-canvas border border-border flex items-center justify-center text-brand mx-auto shadow-xs">
+          <div className="w-12 h-12 rounded-2xl bg-canvas border border-border flex items-center justify-center text-brand-content mx-auto shadow-xs">
             <Sliders className="w-6 h-6" />
           </div>
           <h4 className="text-sm font-bold text-text-primary text-balance">No Strategy Profiles Found</h4>
@@ -193,7 +193,7 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = React.memo(({
                     <span className="text-[11px] font-medium text-text-muted uppercase tracking-wider block">
                       Base Capital
                     </span>
-                    <span className="font-mono font-bold text-sm text-trade-green block mt-0.5 tabular-nums">
+                    <span className="font-mono font-bold text-sm text-trade-green-content block mt-0.5 tabular-nums">
                       {isCryptoCurrency(strat.baseCurrency) ? (
                         <span className="inline-flex items-center justify-center gap-1">
                           <CryptoIcon symbol={strat.baseCurrency} size="xs" />
@@ -263,8 +263,8 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = React.memo(({
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-trade-green">
-                      <Check className="w-3.5 h-3.5 text-trade-green" />
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-trade-green-content">
+                      <Check className="w-3.5 h-3.5 text-trade-green-content" />
                       Active Playbook
                     </span>
                   )}
@@ -272,7 +272,7 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = React.memo(({
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => handleOpenShare(strat)}
-                      className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-brand hover:bg-card-hover border border-transparent hover:border-border flex items-center gap-1.5 transition-colors"
+                      className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-brand-content hover:bg-card-hover border border-transparent hover:border-border flex items-center gap-1.5 transition-colors"
                     >
                       <Share2 className="w-3.5 h-3.5" />
                       <span>Share Playbook</span>
@@ -286,7 +286,7 @@ export const StrategiesHub: React.FC<StrategiesHubProps> = React.memo(({
                     </button>
                     <button
                       onClick={() => handleDeleteClick(strat)}
-                      className="p-1.5 rounded-xl text-text-muted hover:text-trade-red hover:bg-card-hover transition-colors"
+                      className="p-1.5 rounded-xl text-text-muted hover:text-trade-red-content hover:bg-card-hover transition-colors"
                       title="Delete Profile"
                       aria-label={`Delete ${strat.name} strategy profile`}
                     >

@@ -106,7 +106,7 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
                 aria-label="Share trade performance card"
                 className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-card-hover border border-border text-text-secondary hover:text-text-primary hover:border-brand/40 flex items-center gap-1.5 transition-colors"
               >
-                <Share2 className="w-3.5 h-3.5 text-brand" />
+                <Share2 className="w-3.5 h-3.5 text-brand-content" />
                 <span>Share Card</span>
               </button>
             )}
@@ -130,7 +130,7 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
                 <CurrencyBadge currency={baseCurrency} />
               </span>
               <p
-                className={`text-base font-bold font-mono tabular-nums mt-0.5 ${isWin ? 'text-trade-green' : isLoss ? 'text-trade-red' : 'text-text-primary'
+                className={`text-base font-bold font-mono tabular-nums mt-0.5 ${isWin ? 'text-trade-green-content' : isLoss ? 'text-trade-red-content' : 'text-text-primary'
                   }`}
               >
                 {trade.pnlDollar !== undefined ? (
@@ -149,7 +149,7 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
             <div className="bg-canvas border border-border rounded-xl p-3">
               <span className="text-[10px] uppercase font-bold text-text-muted">R-Multiple / ROI</span>
               <p
-                className={`text-base font-bold font-mono tabular-nums mt-0.5 ${isWin ? 'text-trade-green' : isLoss ? 'text-trade-red' : 'text-text-primary'
+                className={`text-base font-bold font-mono tabular-nums mt-0.5 ${isWin ? 'text-trade-green-content' : isLoss ? 'text-trade-red-content' : 'text-text-primary'
                   }`}
               >
                 {trade.pnlR !== undefined
@@ -164,7 +164,7 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
               <span className="text-[10px] uppercase font-bold text-text-muted">Direction / Action</span>
               <div className="text-sm font-bold mt-0.5">
                 {isFut ? (
-                  <span className={trade.direction === 'Long' ? 'text-trade-green' : 'text-trade-red'}>
+                  <span className={trade.direction === 'Long' ? 'text-trade-green-content' : 'text-trade-red-content'}>
                     {trade.direction} ({trade.marginType})
                   </span>
                 ) : isSp ? (
@@ -182,13 +182,13 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
               <div className="flex items-center gap-1.5 mt-0.5">
                 {trade.mandatoryRulesPassed ? (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-trade-green" />
-                    <span className="text-xs font-bold text-trade-green">Passed</span>
+                    <CheckCircle2 className="w-4 h-4 text-trade-green-content" />
+                    <span className="text-xs font-bold text-trade-green-content">Passed</span>
                   </>
                 ) : (
                   <>
-                    <AlertTriangle className="w-4 h-4 text-trade-red" />
-                    <span className="text-xs font-bold text-trade-red">Violated</span>
+                    <AlertTriangle className="w-4 h-4 text-trade-red-content" />
+                    <span className="text-xs font-bold text-trade-red-content">Violated</span>
                   </>
                 )}
               </div>
@@ -210,11 +210,11 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
                 <>
                   <div>
                     <span className="text-text-muted">Stop Loss:</span>
-                    <p className="font-mono tabular-nums font-bold text-trade-red">${trade.stopLossPrice}</p>
+                    <p className="font-mono tabular-nums font-bold text-trade-red-content">${trade.stopLossPrice}</p>
                   </div>
                   <div>
                     <span className="text-text-muted">Take Profit:</span>
-                    <p className="font-mono tabular-nums font-bold text-trade-green">${trade.takeProfitPrice}</p>
+                    <p className="font-mono tabular-nums font-bold text-trade-green-content">${trade.takeProfitPrice}</p>
                   </div>
                   <div>
                     <span className="text-text-muted">Token Size:</span>
@@ -226,7 +226,7 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
                   </div>
                   <div>
                     <span className="text-text-muted">Est. Liquidation:</span>
-                    <p className="font-mono tabular-nums text-amber-500 font-semibold">${trade.estLiquidationPrice}</p>
+                    <p className="font-mono tabular-nums text-brand-content font-semibold">${trade.estLiquidationPrice}</p>
                   </div>
                 </>
               )}
@@ -247,7 +247,7 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
                   </div>
                   <div>
                     <span className="text-text-muted">Target Sell Price:</span>
-                    <p className="font-mono tabular-nums font-bold text-trade-green">${trade.targetSellPrice}</p>
+                    <p className="font-mono tabular-nums font-bold text-trade-green-content">${trade.targetSellPrice}</p>
                   </div>
                   <div>
                     <span className="text-text-muted">Custody / Venue:</span>
@@ -290,7 +290,7 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
                       </span>
                     </div>
                     {r.isMandatory && (
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-700 dark:text-rose-400">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-rose-500/15 text-trade-red-content">
                         Required
                       </span>
                     )}
@@ -310,9 +310,9 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsZoomed(!isZoomed)}
-                  className="text-xs font-semibold text-text-primary dark:text-brand hover:underline flex items-center gap-1"
+                  className="text-xs font-semibold text-text-primary dark:text-brand-content hover:underline flex items-center gap-1"
                 >
-                  <ZoomIn className="w-3.5 h-3.5 text-brand" />
+                  <ZoomIn className="w-3.5 h-3.5 text-brand-content" />
                   {isZoomed ? 'Shrink' : 'Enlarge'}
                 </button>
               </div>
@@ -323,7 +323,7 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
               >
                 {imageError ? (
                   <div className="p-8 text-center text-text-muted text-xs space-y-1">
-                    <AlertTriangle className="w-5 h-5 text-brand mx-auto mb-1.5" />
+                    <AlertTriangle className="w-5 h-5 text-brand-content mx-auto mb-1.5" />
                     <p className="font-semibold text-text-secondary">Unable to display chart image</p>
                     <p className="text-[10px] text-text-muted">The screenshot link or file could not be rendered.</p>
                   </div>
@@ -356,7 +356,7 @@ export const TradeDetailModal: React.FC<TradeDetailModalProps> = ({
                         key={err}
                         className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg font-bold shadow-xs ${isNone
                           ? 'bg-emerald-100 dark:bg-emerald-500/30 text-emerald-800 dark:text-emerald-200'
-                          : 'bg-rose-100 dark:bg-rose-500/30 text-rose-800 dark:text-rose-200'
+                          : 'bg-rose-100 dark:bg-rose-500/30 text-trade-red-content'
                           }`}
                       >
                         <span

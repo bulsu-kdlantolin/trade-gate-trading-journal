@@ -250,6 +250,7 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
           />
           <button
             type="button"
+            aria-pressed={activeExecutionType === 'futures'}
             onClick={() => {
               playMicroTick();
               setActiveExecutionType('futures');
@@ -263,6 +264,7 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
           </button>
           <button
             type="button"
+            aria-pressed={activeExecutionType === 'spot'}
             onClick={() => {
               playMicroTick();
               setActiveExecutionType('spot');
@@ -299,14 +301,14 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                   PERP
                 </span>
                 {getPrice(futuresSymbol) ? (
-                  <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400 tabular-nums inline-flex items-center gap-1">
+                  <span className="font-mono font-bold text-xs text-trade-green-content dark:text-emerald-400 tabular-nums inline-flex items-center gap-1">
                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     ${formatLivePrice(futuresSymbol)}
                   </span>
                 ) : null}
               </div>
               <ChevronDown
-                className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isAssetDropdownOpen ? 'rotate-180 text-brand' : ''
+                className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isAssetDropdownOpen ? 'rotate-180 text-brand-content' : ''
                   }`}
               />
             </div>
@@ -344,10 +346,10 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                     onClick={() => setActiveCategoryFilter('Favorites')}
                     className={`min-h-[28px] inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-colors touch-manipulation ${activeCategoryFilter === 'Favorites'
                       ? 'bg-amber-400 text-black font-bold'
-                      : 'bg-canvas text-text-muted hover:text-amber-400'
+                      : 'bg-canvas text-text-muted hover:text-brand-content'
                       }`}
                   >
-                    <Star className={`w-3.5 h-3.5 ${favoriteTickers.length > 0 ? 'fill-amber-400 text-amber-400' : ''}`} />
+                    <Star className={`w-3.5 h-3.5 ${favoriteTickers.length > 0 ? 'fill-brand-content text-brand-content' : ''}`} />
                     Favorites ({favoriteTickers.length})
                   </button>
                 </div>
@@ -378,10 +380,10 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                               }}
                               title={isFav ? `Remove ${asset.baseTicker} from favorites` : `Star ${asset.baseTicker} as favorite`}
                               aria-label={isFav ? `Remove ${asset.baseTicker} from favorites` : `Star ${asset.baseTicker} as favorite`}
-                              className="p-1 rounded-md text-text-muted hover:text-amber-400 transition-colors shrink-0"
+                              className="p-1 rounded-md text-text-muted hover:text-brand-content transition-colors shrink-0"
                             >
                               <Star
-                                className={`w-3.5 h-3.5 transition-colors ${isFav ? 'text-amber-400 fill-amber-400' : 'text-text-muted group-hover:text-amber-300'
+                                className={`w-3.5 h-3.5 transition-colors ${isFav ? 'text-brand-content fill-brand-content' : 'text-text-muted group-hover:text-brand-content'
                                   }`}
                               />
                             </button>
@@ -398,7 +400,7 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                             </div>
                           </div>
                           <div className="flex items-center gap-2 shrink-0 pl-2">
-                            <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400 tabular-nums">
+                            <span className="font-mono font-bold text-xs text-trade-green-content dark:text-emerald-400 tabular-nums">
                               ${formatLivePrice(asset.baseTicker)}
                             </span>
                             <span className="text-[10px] font-mono font-bold text-text-muted">
@@ -425,13 +427,14 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
+                  aria-pressed={direction === 'Long'}
                   onClick={() => {
                     playDirectionToggle('Long');
                     setDirection('Long');
                   }}
                   className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold border transition-all ${direction === 'Long'
-                    ? 'bg-trade-green/15 border-trade-green text-trade-green ring-1 ring-trade-green/30 shadow-xs'
-                    : 'bg-canvas border-border text-text-muted hover:border-trade-green/40 hover:text-trade-green'
+                    ? 'bg-trade-green/15 border-trade-green text-trade-green-content ring-1 ring-trade-green/30 shadow-xs'
+                    : 'bg-canvas border-border text-text-muted hover:border-trade-green/40 hover:text-trade-green-content'
                     }`}
                 >
                   <ArrowUpRight className="w-4 h-4" />
@@ -439,13 +442,14 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                 </button>
                 <button
                   type="button"
+                  aria-pressed={direction === 'Short'}
                   onClick={() => {
                     playDirectionToggle('Short');
                     setDirection('Short');
                   }}
                   className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold border transition-all ${direction === 'Short'
-                    ? 'bg-rose-500/15 border-rose-500 text-rose-500 ring-1 ring-rose-500/30 shadow-xs'
-                    : 'bg-canvas border-border text-text-muted hover:border-rose-500/40 hover:text-rose-500'
+                    ? 'bg-rose-500/15 border-rose-500 text-trade-red-content ring-1 ring-rose-500/30 shadow-xs'
+                    : 'bg-canvas border-border text-text-muted hover:border-rose-500/40 hover:text-trade-red-content'
                     }`}
                 >
                   <ArrowDownRight className="w-4 h-4" />
@@ -466,6 +470,7 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                 />
                 <button
                   type="button"
+                  aria-pressed={marginType === 'Isolated'}
                   onClick={() => {
                     playMicroTick();
                     setMarginType('Isolated');
@@ -479,6 +484,7 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                 </button>
                 <button
                   type="button"
+                  aria-pressed={marginType === 'Cross'}
                   onClick={() => {
                     playMicroTick();
                     setMarginType('Cross');
@@ -500,19 +506,20 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
               <label htmlFor="custom-leverage-input" className="text-xs font-medium text-text-secondary">
                 Leverage
               </label>
-              <span className="font-mono font-bold text-xs text-brand">{leverage}x</span>
+              <span className="font-mono font-bold text-xs text-brand-content">{leverage}x</span>
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
               {LEVERAGE_PRESETS.map((lev) => (
                 <button
                   key={lev}
                   type="button"
+                  aria-pressed={leverage === lev}
                   onClick={() => {
                     playMicroTick();
                     setLeverage(lev);
                   }}
                   className={`px-3 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all ${leverage === lev
-                    ? 'bg-brand/15 border-brand text-brand ring-1 ring-brand/30 shadow-xs'
+                    ? 'bg-brand/15 border-brand text-brand-content ring-1 ring-brand/30 shadow-xs'
                     : 'bg-canvas border-border text-text-muted hover:border-brand/40 hover:text-text-primary'
                     }`}
                 >
@@ -573,11 +580,12 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                 onFocus={() => onClearValidationError?.('stopLossPrice')}
                 placeholder="0.00"
                 aria-invalid={isSlInverted || hasValidationError('stopLossPrice')}
-                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isSlInverted || hasValidationError('stopLossPrice') ? 'border-rose-500 text-rose-300' : 'border-border'
+                aria-describedby={isSlInverted ? 'futures-stop-loss-error' : undefined}
+                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isSlInverted || hasValidationError('stopLossPrice') ? 'border-rose-500 text-trade-red-content' : 'border-border'
                   }`}
               />
               {isSlInverted && (
-                <p className="text-[11px] text-rose-400 font-medium mt-1">
+                <p id="futures-stop-loss-error" className="text-[11px] text-trade-red-content font-medium mt-1">
                   SL must be {direction === 'Long' ? 'below' : 'above'} Entry
                 </p>
               )}
@@ -596,11 +604,13 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                 value={takeProfitPrice || ''}
                 onChange={(e) => setTakeProfitPrice(Math.max(0, parseFloat(e.target.value) || 0))}
                 placeholder="0.00"
-                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isTpInverted ? 'border-rose-500 text-rose-300' : 'border-border'
+                aria-invalid={isTpInverted}
+                aria-describedby={isTpInverted ? 'futures-take-profit-error' : undefined}
+                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isTpInverted ? 'border-rose-500 text-trade-red-content' : 'border-border'
                   }`}
               />
               {isTpInverted && (
-                <p className="text-[11px] text-rose-400 font-medium mt-1">
+                <p id="futures-take-profit-error" className="text-[11px] text-trade-red-content font-medium mt-1">
                   TP must be {direction === 'Long' ? 'above' : 'below'} Entry
                 </p>
               )}
@@ -642,7 +652,7 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
 
             <div>
               <span className="text-[11px] text-text-muted uppercase font-bold tracking-wider block">Risk Amount</span>
-              <span className="font-mono font-black text-base text-rose-400 tabular-nums inline-flex items-center gap-1 mt-0.5">
+              <span className="font-mono font-black text-base text-trade-red-content tabular-nums inline-flex items-center gap-1 mt-0.5">
                 {isCryptoCurrency(strategy.baseCurrency) ? (
                   <>
                     <CryptoIcon symbol={strategy.baseCurrency} size="xs" />
@@ -657,7 +667,7 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
 
             <div>
               <span className="text-[11px] text-text-muted uppercase font-bold tracking-wider block">Target R:R</span>
-              <span className="font-mono font-black text-base text-trade-green tabular-nums block mt-0.5">
+              <span className="font-mono font-black text-base text-trade-green-content tabular-nums block mt-0.5">
                 {futuresMetrics.targetRiskReward > 0 ? `1 : ${futuresMetrics.targetRiskReward.toFixed(2)}R` : '—'}
               </span>
             </div>
@@ -665,7 +675,7 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
             <div>
               <span className="text-[11px] text-text-muted uppercase font-bold tracking-wider block">Est. Liquidation</span>
               <span
-                className={`font-mono font-black text-base tabular-nums inline-flex items-center gap-1 mt-0.5 ${isLiquidationBeforeSL ? 'text-rose-500' : 'text-amber-500'
+                className={`font-mono font-black text-base tabular-nums inline-flex items-center gap-1 mt-0.5 ${isLiquidationBeforeSL ? 'text-trade-red-content' : 'text-brand-content'
                   }`}
               >
                 {futuresMetrics.estLiquidationPrice > 0 ? (
@@ -705,15 +715,15 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
 
           {/* Liquidation Safety Warning */}
           {isLiquidationBeforeSL && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-start gap-2.5">
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500" />
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-trade-red-content text-xs flex items-start gap-2.5">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-trade-red-content" />
               <div className="space-y-0.5">
                 <span className="font-bold uppercase tracking-wider text-[11px] block text-balance">
                   Liquidation Precedes Stop Loss
                 </span>
                 <p className="text-[11px] text-text-secondary leading-relaxed text-pretty">
                   At {leverage}x leverage, estimated liquidation is{' '}
-                  <strong className="text-rose-400 font-mono tabular-nums inline-flex items-center gap-0.5">
+                  <strong className="text-trade-red-content font-mono tabular-nums inline-flex items-center gap-0.5">
                     {isCryptoCurrency(strategy.baseCurrency) ? (
                       <>
                         <CryptoIcon symbol={strategy.baseCurrency} size="xs" />
@@ -760,18 +770,18 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                 <span className="font-mono font-bold text-xs sm:text-sm text-text-primary">
                   {spotSymbol || 'Select Spot Asset'}
                 </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono">
+                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/15 text-trade-green-content dark:text-emerald-400 font-mono">
                   SPOT
                 </span>
                 {getPrice(spotSymbol) ? (
-                  <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400 tabular-nums inline-flex items-center gap-1">
+                  <span className="font-mono font-bold text-xs text-trade-green-content dark:text-emerald-400 tabular-nums inline-flex items-center gap-1">
                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     ${formatLivePrice(spotSymbol)}
                   </span>
                 ) : null}
               </div>
               <ChevronDown
-                className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isAssetDropdownOpen ? 'rotate-180 text-brand' : ''
+                className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isAssetDropdownOpen ? 'rotate-180 text-brand-content' : ''
                   }`}
               />
             </div>
@@ -809,10 +819,10 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                     onClick={() => setActiveCategoryFilter('Favorites')}
                     className={`min-h-[28px] inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-colors touch-manipulation ${activeCategoryFilter === 'Favorites'
                       ? 'bg-amber-400 text-black font-bold'
-                      : 'bg-canvas text-text-muted hover:text-amber-400'
+                      : 'bg-canvas text-text-muted hover:text-brand-content'
                       }`}
                   >
-                    <Star className={`w-3.5 h-3.5 ${favoriteTickers.length > 0 ? 'fill-amber-400 text-amber-400' : ''}`} />
+                    <Star className={`w-3.5 h-3.5 ${favoriteTickers.length > 0 ? 'fill-brand-content text-brand-content' : ''}`} />
                     Favorites ({favoriteTickers.length})
                   </button>
                 </div>
@@ -843,10 +853,10 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                               }}
                               title={isFav ? `Remove ${asset.baseTicker} from favorites` : `Star ${asset.baseTicker} as favorite`}
                               aria-label={isFav ? `Remove ${asset.baseTicker} from favorites` : `Star ${asset.baseTicker} as favorite`}
-                              className="p-1 rounded-md text-text-muted hover:text-amber-400 transition-colors shrink-0"
+                              className="p-1 rounded-md text-text-muted hover:text-brand-content transition-colors shrink-0"
                             >
                               <Star
-                                className={`w-3.5 h-3.5 transition-colors ${isFav ? 'text-amber-400 fill-amber-400' : 'text-text-muted group-hover:text-amber-300'
+                                className={`w-3.5 h-3.5 transition-colors ${isFav ? 'text-brand-content fill-brand-content' : 'text-text-muted group-hover:text-brand-content'
                                   }`}
                               />
                             </button>
@@ -863,7 +873,7 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                             </div>
                           </div>
                           <div className="flex items-center gap-2 shrink-0 pl-2">
-                            <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400 tabular-nums">
+                            <span className="font-mono font-bold text-xs text-trade-green-content dark:text-emerald-400 tabular-nums">
                               ${formatLivePrice(asset.baseTicker)}
                             </span>
                             <span className="text-[10px] font-mono font-bold text-text-muted">
@@ -890,13 +900,14 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                 <button
                   key={action}
                   type="button"
+                  aria-pressed={spotAction === action}
                   onClick={() => {
                     playMicroTick();
                     setSpotAction(action);
                   }}
                   className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center truncate ${spotAction === action
-                    ? 'bg-emerald-500/15 border-emerald-500 text-emerald-400 ring-1 ring-emerald-500/30 shadow-xs'
-                    : 'bg-canvas border-border text-text-muted hover:border-emerald-500/40 hover:text-emerald-400'
+                    ? 'bg-emerald-500/15 border-emerald-500 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/30 shadow-xs'
+                    : 'bg-canvas border-border text-text-muted hover:border-emerald-500/40 hover:text-emerald-700 dark:hover:text-emerald-400'
                     }`}
                 >
                   {action}
@@ -966,11 +977,13 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                 value={spotTargetSellPrice || ''}
                 onChange={(e) => setSpotTargetSellPrice(Math.max(0, parseFloat(e.target.value) || 0))}
                 placeholder="0.00"
-                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isSpotTargetInverted ? 'border-rose-500 text-rose-300' : 'border-border'
+                aria-invalid={isSpotTargetInverted}
+                aria-describedby={isSpotTargetInverted ? 'spot-target-sell-error' : undefined}
+                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isSpotTargetInverted ? 'border-rose-500 text-trade-red-content' : 'border-border'
                   }`}
               />
               {isSpotTargetInverted && (
-                <p className="text-[11px] text-rose-400 font-medium mt-1">
+                <p id="spot-target-sell-error" className="text-[11px] text-trade-red-content font-medium mt-1">
                   Target must be above Entry
                 </p>
               )}
@@ -990,11 +1003,13 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
                 value={spotStopLossPrice || ''}
                 onChange={(e) => setSpotStopLossPrice(Math.max(0, parseFloat(e.target.value) || 0))}
                 placeholder="0.00"
-                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isSpotSlInverted ? 'border-rose-500 text-rose-300' : 'border-border'
+                aria-invalid={isSpotSlInverted}
+                aria-describedby={isSpotSlInverted ? 'spot-stop-loss-error' : undefined}
+                className={`w-full bg-canvas border rounded-xl px-3 py-2 text-xs font-mono font-bold text-text-primary focus:border-brand transition-colors ${isSpotSlInverted ? 'border-rose-500 text-trade-red-content' : 'border-border'
                   }`}
               />
               {isSpotSlInverted && (
-                <p className="text-[11px] text-rose-400 font-medium mt-1">
+                <p id="spot-stop-loss-error" className="text-[11px] text-trade-red-content font-medium mt-1">
                   Invalidation SL must be below Entry
                 </p>
               )}
@@ -1030,14 +1045,14 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
 
             <div>
               <span className="text-[11px] text-text-muted uppercase font-bold tracking-wider block">Portfolio Weight</span>
-              <span className="font-mono font-black text-base text-brand tabular-nums block mt-0.5">
+              <span className="font-mono font-black text-base text-brand-content tabular-nums block mt-0.5">
                 {spotMetrics.portfolioWeightPct}%
               </span>
             </div>
 
             <div>
               <span className="text-[11px] text-text-muted uppercase font-bold tracking-wider block">Projected ROI</span>
-              <span className="font-mono font-black text-base text-trade-green tabular-nums block mt-0.5">
+              <span className="font-mono font-black text-base text-trade-green-content tabular-nums block mt-0.5">
                 +{spotMetrics.projectedRoiPct}%
               </span>
             </div>
@@ -1051,7 +1066,7 @@ export const TradeEntryForm: React.FC<TradeEntryFormProps> = React.memo(({
 
             <div className="col-span-2 sm:col-span-4 pt-2.5 border-t border-border flex items-center justify-between">
               <span className="text-[11px] text-text-muted uppercase font-bold tracking-wider">Target R:R Ratio</span>
-              <span className="font-mono font-black text-sm text-trade-green tabular-nums">
+              <span className="font-mono font-black text-sm text-trade-green-content tabular-nums">
                 {spotMetrics.targetRiskReward ? `1 : ${spotMetrics.targetRiskReward}R` : 'Uncapped / Open Target'}
               </span>
             </div>

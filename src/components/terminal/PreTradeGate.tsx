@@ -763,7 +763,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
   if (!strategy) {
     return (
       <div className="card-glass rounded-2xl p-12 text-center max-w-lg mx-auto">
-        <ShieldCheck className="w-12 h-12 text-brand mx-auto mb-3 opacity-80" />
+        <ShieldCheck className="w-12 h-12 text-brand-content mx-auto mb-3 opacity-80" />
         <h3 className="text-base font-bold text-text-primary mb-1">Select or Create a Trading Strategy</h3>
         <p className="text-xs text-text-secondary mb-5 leading-relaxed">
           The Pre-Trade Gate requires an active strategy profile to calculate risk limits, enforce mandatory execution rules, and compute confluence grades before orders can be logged.
@@ -809,8 +809,8 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
             <div className="flex items-center justify-between pb-3.5 border-b border-border shrink-0">
               <div className="flex items-center gap-3 min-w-0">
                 <div className={`flex items-center justify-center shrink-0 ${mandatoryPassed
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-brand'
+                  ? 'text-trade-green-content dark:text-emerald-400'
+                  : 'text-brand-content'
                   }`}>
                   {mandatoryPassed ? <Unlock className="w-5 h-5" /> : <Lock className="w-5 h-5 animate-pulse" />}
                 </div>
@@ -861,11 +861,11 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
               >
                 <div className="flex items-center gap-2 text-xs">
                   {mandatoryPassed ? (
-                    <span className="flex items-center gap-1.5 font-bold text-trade-green">
+                    <span className="flex items-center gap-1.5 font-bold text-trade-green-content">
                       <Unlock className="w-4 h-4" /> Gate Cleared &amp; Unlocked
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1.5 font-bold text-rose-600 dark:text-rose-400">
+                    <span className="flex items-center gap-1.5 font-bold text-trade-red-content">
                       <Lock className="w-4 h-4" /> Gate Locked — Verification Required
                     </span>
                   )}
@@ -884,12 +884,12 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                     title={allRulesChecked ? 'Uncheck All Rules' : 'Check All Rules'}
                     aria-label={allRulesChecked ? 'Uncheck All Rules' : 'Check All Rules'}
                     className={`p-1 rounded-md transition-colors ${allRulesChecked
-                      ? 'text-trade-green hover:bg-trade-green/10'
+                      ? 'text-trade-green-content hover:bg-trade-green/10'
                       : 'text-text-muted hover:text-text-primary hover:bg-card'
                       }`}
                   >
                     {allRulesChecked ? (
-                      <CheckCheck className="w-4 h-4 text-trade-green" />
+                      <CheckCheck className="w-4 h-4 text-trade-green-content" />
                     ) : (
                       <Check className="w-4 h-4" />
                     )}
@@ -937,7 +937,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                     <button
                       type="button"
                       onClick={onNavigateToProfiles}
-                      className="mt-1 px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-xs font-semibold text-text-primary dark:text-brand hover:text-brand transition-colors"
+                      className="mt-1 px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-xs font-semibold text-text-primary dark:text-brand-content hover:text-brand-content transition-colors"
                     >
                       Configure Strategy Rules
                     </button>
@@ -967,7 +967,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                       >
                         <span aria-hidden="true" className="mt-0.5 shrink-0 transition-colors pointer-events-none">
                           {isChecked ? (
-                            <CheckSquare className="w-4 h-4 text-trade-green animate-check-pop" />
+                            <CheckSquare className="w-4 h-4 text-trade-green-content animate-check-pop" />
                           ) : (
                             <Square className="w-4 h-4 text-text-muted group-hover:text-text-primary" />
                           )}
@@ -983,7 +983,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                                 <span
                                 className={`inline-flex items-center justify-center text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase font-mono tracking-wider min-h-[22px] ${isChecked
                                     ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
-                                    : 'bg-rose-500/15 text-rose-700 dark:text-rose-400'
+                                    : 'bg-rose-500/15 text-trade-red-content'
                                     }`}
                                 >
                                   REQUIRED
@@ -1009,7 +1009,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
             {/* Modal Footer / Unlock Action */ }
                     < div className="pt-3 border-t border-border shrink-0 space-y-2" >
                       {!mandatoryPassed && uncheckedMandatoryRules.length > 0 && (
-                        <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-400 text-xs flex items-start gap-2">
+                        <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-trade-red-content text-xs flex items-start gap-2">
                           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                           <div>
                             <p className="font-bold text-[11px] uppercase tracking-wider">Required Invalidation Incomplete</p>
@@ -1050,7 +1050,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                             <button
                               type="button"
                               onClick={handleOverrideGate}
-                              className="text-[11px] font-mono text-text-muted hover:text-rose-600 dark:hover:text-rose-400 underline decoration-rose-500/30 hover:decoration-rose-500 transition-colors"
+                              className="text-[11px] font-mono text-text-muted hover:text-trade-red-content underline decoration-rose-500/30 hover:decoration-rose-500 transition-colors"
                             >
                               Override Gate as Discipline Violation (Logs as Grade C Violation)
                             </button>
@@ -1076,8 +1076,8 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                       </span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-text-muted mt-0.5">
-                    <span className="flex items-center gap-1 text-trade-green font-semibold">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-trade-green" /> Gate Cleared &amp; Unlocked
+                    <span className="flex items-center gap-1 text-trade-green-content font-semibold">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-trade-green-content" /> Gate Cleared &amp; Unlocked
                     </span>
                     <span>•</span>
                     <span className="font-mono">
@@ -1095,9 +1095,9 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                 <button
                   type="button"
                   onClick={() => setIsGateModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-xs font-semibold text-text-primary hover:text-brand transition-all shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card border border-border hover:border-brand/40 text-xs font-semibold text-text-primary hover:text-brand-content transition-all shadow-xs"
                 >
-                  <Key className="w-3.5 h-3.5 text-brand" />
+                  <Key className="w-3.5 h-3.5 text-brand-content" />
                   <span>Review Checklist ({checkedRulesCount}/{totalRulesCount})</span>
                 </button>
               </div>
@@ -1110,7 +1110,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                 <div className="card-glass rounded-2xl p-4 sm:p-5 space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-border">
                     <div className="flex items-center gap-2">
-                      <Sliders className="w-4 h-4 text-brand" />
+                      <Sliders className="w-4 h-4 text-brand-content" />
                       <h4 className="text-xs font-bold uppercase tracking-wider text-text-primary">
                         Execution &amp; Sizing Parameters
                       </h4>
@@ -1168,7 +1168,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                 <div className="card-glass rounded-2xl p-4 sm:p-5 space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-border">
                     <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-brand" />
+                      <FileText className="w-4 h-4 text-brand-content" />
                       <h4 className="text-xs font-bold uppercase tracking-wider text-text-primary">
                         Context, Documentation &amp; Submission
                       </h4>
@@ -1191,6 +1191,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                           <button
                             key={tf}
                             type="button"
+                            aria-pressed={timeframe === tf}
                             onClick={() => {
                               playMicroTick();
                               setTimeframe(tf);
@@ -1228,6 +1229,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                               <button
                                 key={sess}
                                 type="button"
+                                aria-pressed={isSelected}
                                 onClick={() => {
                                   playMicroTick();
                                   setSession(sess);
@@ -1266,6 +1268,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                       />
                       <button
                         type="button"
+                        aria-pressed={entryOutcome === 'Active'}
                         onClick={() => {
                           playMicroTick();
                           setEntryOutcome('Active');
@@ -1279,12 +1282,13 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                       </button>
                       <button
                         type="button"
+                        aria-pressed={entryOutcome === 'Win'}
                         onClick={() => {
                           playMicroTick();
                           setEntryOutcome('Win');
                         }}
                         className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Win'
-                          ? 'text-white bg-trade-green sm:bg-transparent shadow-xs sm:shadow-none'
+                          ? 'text-black bg-trade-green sm:bg-transparent shadow-xs sm:shadow-none'
                           : 'text-text-muted hover:text-text-primary'
                           }`}
                       >
@@ -1292,12 +1296,13 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                       </button>
                       <button
                         type="button"
+                        aria-pressed={entryOutcome === 'Loss'}
                         onClick={() => {
                           playMicroTick();
                           setEntryOutcome('Loss');
                         }}
                         className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Loss'
-                          ? 'text-white bg-trade-red sm:bg-transparent shadow-xs sm:shadow-none'
+                          ? 'text-white dark:text-black bg-trade-red sm:bg-transparent shadow-xs sm:shadow-none'
                           : 'text-text-muted hover:text-text-primary'
                           }`}
                       >
@@ -1305,12 +1310,13 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                       </button>
                       <button
                         type="button"
+                        aria-pressed={entryOutcome === 'Breakeven'}
                         onClick={() => {
                           playMicroTick();
                           setEntryOutcome('Breakeven');
                         }}
                         className={`relative z-10 py-1.5 text-xs font-bold rounded-lg transition-colors duration-200 active:scale-[0.98] text-center ${entryOutcome === 'Breakeven'
-                          ? 'text-white bg-blue-500 sm:bg-transparent shadow-xs sm:shadow-none'
+                          ? 'text-black bg-blue-500 sm:bg-transparent shadow-xs sm:shadow-none'
                           : 'text-text-muted hover:text-text-primary'
                           }`}
                       >
@@ -1349,9 +1355,9 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                           <span className="text-[11px] text-text-muted uppercase font-bold">Outcome Mode</span>
                           <span
                             className={`text-xs font-bold font-mono mt-0.5 ${entryOutcome === 'Win'
-                              ? 'text-trade-green'
+                              ? 'text-trade-green-content'
                               : entryOutcome === 'Loss'
-                                ? 'text-trade-red'
+                                ? 'text-trade-red-content'
                                 : 'text-text-primary'
                               }`}
                           >
@@ -1470,7 +1476,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-card ${isSelected
                               ? isNone
                                 ? 'bg-emerald-100 dark:bg-emerald-500/30 text-emerald-800 dark:text-emerald-200 font-bold shadow-xs hover:bg-emerald-200 dark:hover:bg-emerald-500/40'
-                                : 'bg-rose-100 dark:bg-rose-500/30 text-rose-800 dark:text-rose-200 font-bold shadow-xs hover:bg-rose-200 dark:hover:bg-rose-500/40'
+                                : 'bg-rose-100 dark:bg-rose-500/30 text-trade-red-content font-bold shadow-xs hover:bg-rose-200 dark:hover:bg-rose-500/40'
                               : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'
                               }`}
                           >
@@ -1547,7 +1553,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                         <button
                           type="button"
                           onClick={() => executeLogTrade(true)}
-                          className="inline-flex items-center justify-center min-h-[32px] px-3 py-1.5 rounded-lg text-[11px] font-mono text-text-muted hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all touch-manipulation cursor-pointer"
+                          className="inline-flex items-center justify-center min-h-[32px] px-3 py-1.5 rounded-lg text-[11px] font-mono text-text-muted hover:text-trade-red-content hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all touch-manipulation cursor-pointer"
                           title="Record an executed trade where rules were broken (logged as Grade C Violation)"
                         >
                           Record as Discipline Violation Override
@@ -1567,7 +1573,7 @@ export const PreTradeGate: React.FC<PreTradeGateProps> = React.memo(({
                 role="dialog"
                 aria-modal="true"
                 aria-label="Enlarged chart preview"
-                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150 cursor-pointer"
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-modal-backdrop cursor-pointer"
                 onClick={() => setIsZoomModalOpen(false)}
               >
                 <div

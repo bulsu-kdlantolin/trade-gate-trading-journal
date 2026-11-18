@@ -23,14 +23,17 @@
     /* Binance Muted Grey Text (WCAG AA >= 4.8:1 compliant) */
     --tg-brand: #F0B90B;
     /* Binance Signature Gold/Yellow */
+    --tg-brand-foreground: #805A00;
     --tg-brand-hover: #D9A006;
     --tg-brand-muted: rgba(240, 185, 11, 0.12);
     --tg-bullish: #02985B;
     /* Binance Signature Bullish Green (High Contrast for Light Mode) */
+    --tg-bullish-foreground: #027A45;
     --tg-bullish-hover: #088052;
     --tg-bullish-bg: rgba(2, 152, 91, 0.10);
     --tg-bearish: #CF304A;
     /* Binance Signature Bearish Red (High Contrast for Light Mode) */
+    --tg-bearish-foreground: #B8273B;
     --tg-bearish-hover: #B8273B;
     --tg-bearish-bg: rgba(207, 48, 74, 0.10);
   }
@@ -55,14 +58,17 @@
     /* Binance Muted/Placeholder Text (WCAG AA >= 4.65:1 compliant) */
     --tg-brand: #FCD535;
     /* Binance Primary Bright Yellow */
+    --tg-brand-foreground: #FCD535;
     --tg-brand-hover: #F0B90B;
     --tg-brand-muted: rgba(252, 213, 53, 0.15);
     --tg-bullish: #0ECB81;
     /* Binance Signature Bullish Green */
+    --tg-bullish-foreground: #0ECB81;
     --tg-bullish-hover: #22E297;
     --tg-bullish-bg: rgba(14, 203, 129, 0.12);
     --tg-bearish: #F6465D;
     /* Binance Signature Bearish Red */
+    --tg-bearish-foreground: #FF6B7E;
     --tg-bearish-hover: #FF6B7E;
     --tg-bearish-bg: rgba(246, 70, 93, 0.12);
   }
@@ -149,7 +155,7 @@ textarea:-webkit-autofill:focus {
   -webkit-text-fill-color: var(--tg-text-primary) !important;
   box-shadow: 0 0 0 1000px var(--tg-canvas) inset !important;
   transition: background-color 5000s ease-in-out 0s !important;
-  caret-color: var(--tg-brand) !important;
+  caret-color: var(--tg-brand-foreground) !important;
 }
 
 input:focus,
@@ -172,7 +178,7 @@ select:focus-visible {
   outline: none !important;
   border-width: 1px !important;
   border-style: solid !important;
-  border-color: var(--tg-brand) !important;
+  border-color: var(--tg-brand-foreground) !important;
   box-shadow: none !important;
 }
 
@@ -181,7 +187,7 @@ button:focus-visible,
 [role="tab"]:focus-visible,
 [role="option"]:focus-visible,
 a:focus-visible {
-  outline: 2px solid var(--tg-brand) !important;
+  outline: 2px solid var(--tg-brand-foreground) !important;
   outline-offset: 2px !important;
 }
 
@@ -368,31 +374,36 @@ a:focus:not(:focus-visible) {
       transform: none !important;
     }
 
+    .animate-pulse,
+    .animate-ping,
+    .animate-spin {
+      animation: none !important;
+    }
+
     .animate-dropdown,
     .animate-modal-backdrop,
     .animate-modal-content,
+    .animate-gate-unlock,
+    .animate-receipt-in,
+    .animate-badge-pop,
+    .animate-view-fade,
+    .animate-check-pop {
+      animation: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+      transition: opacity 0.1s ease-out !important;
+    }
 
-      .animate-gate-unlock,
-      .animate-receipt-in,
-      .animate-badge-pop,
-      .animate-view-fade,
-      .animate-check-pop {
-        animation: none !important;
-        transform: none !important;
-        opacity: 1 !important;
-        transition: opacity 0.1s ease-out !important;
-      }
-
-
-      /* Keep linear progress countdown bar visible */
-      .animate-toast-progress {
-        animation-duration: 0.001s !important;
-      }
+    /* Keep the toast progress state truthful without continuous motion */
+    .animate-toast-progress {
+      animation: none !important;
+      width: 100% !important;
+    }
     }
 
     /* High-Contrast Accessible Focus Indicators (WCAG 2.1 SC 2.4.7) */
     .tg-focus-ring:focus-visible {
-      outline: 2px solid var(--tg-brand) !important;
+      outline: 2px solid var(--tg-brand-foreground) !important;
       outline-offset: 2px !important;
     }
 
@@ -428,7 +439,7 @@ a:focus:not(:focus-visible) {
 
     /* Modern Subtle Focus Ring */
     *:focus-visible {
-      outline: 2px solid var(--tg-brand);
+      outline: 2px solid var(--tg-brand-foreground);
       outline-offset: 1px;
     }
 
@@ -441,7 +452,7 @@ a:focus:not(:focus-visible) {
     /* Focused Brand Caret */
     input,
     textarea {
-      caret-color: var(--tg-brand);
+      caret-color: var(--tg-brand-foreground);
     }
 
     /* Glass & Card Effects */

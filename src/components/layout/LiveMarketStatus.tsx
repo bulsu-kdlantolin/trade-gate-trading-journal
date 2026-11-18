@@ -81,10 +81,10 @@ export const LiveMarketStatus: React.FC<{ className?: string }> = ({ className =
         disabled={isRefreshing}
         title="Refresh live prices & exchange rates now"
         aria-label="Refresh live prices"
-        className="p-0.5 rounded text-text-muted hover:text-brand hover:bg-card transition-colors disabled:opacity-50"
+        className="p-0.5 rounded text-text-muted hover:text-brand-content hover:bg-card transition-colors disabled:opacity-50"
       >
         <RotateCcw
-          className={`w-3 h-3 ${isRefreshing ? 'animate-spin text-brand' : ''}`}
+          className={`w-3 h-3 ${isRefreshing ? 'animate-spin text-brand-content' : ''}`}
         />
       </button>
     </div>

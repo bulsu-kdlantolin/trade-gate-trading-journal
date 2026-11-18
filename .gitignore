@@ -13,6 +13,7 @@ dist-ssr
 *.local
 
 # Editor directories and files
+.vscode
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -25,5 +26,7 @@ dist-ssr
 
 # AI Agent & Tooling caches
 .agent/
+.agents/
+.codex
 .impeccable/
 

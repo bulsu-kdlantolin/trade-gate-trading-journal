@@ -313,7 +313,7 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
         <div className="card-glass rounded-2xl p-4 flex flex-col justify-between shadow-xs">
           <div className="flex items-center justify-between text-text-muted mb-2">
             <span className="text-[11px] uppercase font-bold tracking-wider">Spot Holdings Value</span>
-            <Wallet className="w-4 h-4 text-brand" />
+            <Wallet className="w-4 h-4 text-brand-content" />
           </div>
           <div>
             <p className="text-xl sm:text-2xl font-black font-mono tabular-nums text-text-primary tracking-tight">
@@ -355,14 +355,14 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
             <div className="flex items-center justify-between text-text-muted mb-2">
               <span className="text-[11px] uppercase font-bold tracking-wider">Unrealized PnL</span>
               {isNetPositive ? (
-                <TrendingUp className="w-4 h-4 text-trade-green" />
+                <TrendingUp className="w-4 h-4 text-trade-green-content" />
               ) : (
-                <TrendingDown className="w-4 h-4 text-trade-red" />
+                <TrendingDown className="w-4 h-4 text-trade-red-content" />
               )}
             </div>
             <div>
               <p
-                className={`text-xl sm:text-2xl font-black font-mono tabular-nums tracking-tight flex items-center gap-1 ${isNetPositive ? 'text-trade-green' : 'text-trade-red'
+                className={`text-xl sm:text-2xl font-black font-mono tabular-nums tracking-tight flex items-center gap-1 ${isNetPositive ? 'text-trade-green-content' : 'text-trade-red-content'
                   }`}
               >
                 {isNetPositive ? (
@@ -378,7 +378,7 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
                 />
               </p>
               <span
-              className={`text-[11px] font-mono font-bold block mt-1 ${isNetPositive ? 'text-trade-green' : 'text-trade-red'
+              className={`text-[11px] font-mono font-bold block mt-1 ${isNetPositive ? 'text-trade-green-content' : 'text-trade-red-content'
                   }`}
               >
                 {portfolioSummary.totalUnrealizedPnlPct >= 0 ? '+' : ''}
@@ -391,7 +391,7 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
           <div className="card-glass rounded-2xl p-4 flex flex-col justify-between shadow-xs">
             <div className="flex items-center justify-between text-text-muted mb-2">
               <span className="text-[11px] uppercase font-bold tracking-wider">Portfolio Breadth</span>
-              <Layers className="w-4 h-4 text-brand" />
+              <Layers className="w-4 h-4 text-brand-content" />
             </div>
             <div>
               <p className="text-xl sm:text-2xl font-black font-mono tabular-nums text-text-primary tracking-tight">
@@ -491,9 +491,9 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
               disabled={isRefreshing}
               title="Refresh continuous live market prices"
               aria-label="Refresh live crypto prices"
-              className="p-1.5 rounded-xl bg-canvas border border-border hover:border-brand/40 text-text-muted hover:text-brand transition-colors disabled:opacity-50"
+              className="p-1.5 rounded-xl bg-canvas border border-border hover:border-brand/40 text-text-muted hover:text-brand-content transition-colors disabled:opacity-50"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand-content' : ''}`} />
             </button>
           </div>
         </div >
@@ -503,7 +503,7 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
           openSpotTrades.length === 0 ? (
             /* Empty State */
             <div className="card-glass rounded-2xl p-12 text-center max-w-md mx-auto space-y-3.5 shadow-xs">
-              <div className="w-12 h-12 rounded-2xl bg-canvas border border-border flex items-center justify-center text-brand mx-auto shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-canvas border border-border flex items-center justify-center text-brand-content mx-auto shadow-xs">
                 <Coins className="w-6 h-6" />
               </div>
               <h3 className="text-sm font-bold text-text-primary text-balance">No Active Spot Holdings</h3>
@@ -531,7 +531,7 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
               <button
                 type="button"
                 onClick={() => { setSearchQuery(''); setVenueFilter('all'); }}
-                className="px-3 py-1 rounded-xl bg-card border border-border text-xs text-brand font-semibold hover:border-brand/40 transition-colors"
+                className="px-3 py-1 rounded-xl bg-card border border-border text-xs text-brand-content font-semibold hover:border-brand/40 transition-colors"
               >
                 Clear Filters
               </button>
@@ -630,7 +630,7 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
                             Floating PnL
                           </span>
                           <span
-                            className={`font-black text-xs sm:text-sm tabular-nums block mt-0.5 ${isPos ? 'text-trade-green' : 'text-trade-red'
+                            className={`font-black text-xs sm:text-sm tabular-nums block mt-0.5 ${isPos ? 'text-trade-green-content' : 'text-trade-red-content'
                               }`}
                           >
                             {isPos ? '+' : ''}
@@ -641,7 +641,7 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
                             />
                           </span>
                           <span
-                            className={`text-[10px] font-bold block ${isPos ? 'text-trade-green' : 'text-trade-red'}`}
+                            className={`text-[10px] font-bold block ${isPos ? 'text-trade-green-content' : 'text-trade-red-content'}`}
                           >
                             {isPos ? '+' : ''}{asset.unrealizedPnlPct.toFixed(2)}%
                           </span>
@@ -689,7 +689,7 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
 
                     {/* Expanded Individual Purchase Tranches (if accordion open) */}
                     {isExpanded && asset.tranches.length > 1 && (
-                      <div className="bg-canvas/60 border-t border-border p-4 space-y-2.5 animate-in fade-in duration-150">
+                      <div className="bg-canvas/60 border-t border-border p-4 space-y-2.5 animate-view-fade">
                         <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wider block">
                           Individual Purchase Tranches ({asset.tranches.length})
                         </span>
@@ -700,7 +700,7 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
                               className="p-3 rounded-xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                             >
                               <div className="flex items-center gap-3">
-                                <span className="w-5 h-5 rounded-full bg-brand/15 text-text-primary dark:text-brand font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
+                                <span className="w-5 h-5 rounded-full bg-brand/15 text-text-primary dark:text-brand-content font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
                                   #{idx + 1}
                                 </span>
                                 <div>
@@ -736,7 +736,7 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
                                 <button
                                   type="button"
                                   onClick={() => handleOpenExitModal(t)}
-                                  className="px-2.5 py-1 rounded-lg bg-brand/15 border border-brand/40 text-text-primary dark:text-brand hover:bg-brand hover:text-black font-bold text-[11px] transition-all"
+                                  className="px-2.5 py-1 rounded-lg bg-brand/15 border border-brand/40 text-text-primary dark:text-brand-content hover:bg-brand hover:text-black font-bold text-[11px] transition-all"
                                 >
                                   Exit Tranche
                                 </button>
@@ -820,11 +820,11 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
                       </div>
                       <div>
                         <span className="text-[10px] font-sans text-text-muted uppercase block">Unrealized PnL</span>
-                        <span className={`font-black ${isPos ? 'text-trade-green' : 'text-trade-red'}`}>
+                        <span className={`font-black ${isPos ? 'text-trade-green-content' : 'text-trade-red-content'}`}>
                           {isPos ? '+' : ''}
                           <CurrencyDisplay amount={pnl} currency={activeStrategy?.baseCurrency} showSign={true} />
                         </span>
-                        <span className={`text-[10px] font-bold block ${isPos ? 'text-trade-green' : 'text-trade-red'}`}>
+                        <span className={`text-[10px] font-bold block ${isPos ? 'text-trade-green-content' : 'text-trade-red-content'}`}>
                           {isPos ? '+' : ''}{pnlPct.toFixed(2)}%
                         </span>
                       </div>
@@ -862,11 +862,11 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
               role="dialog"
               aria-modal="true"
               aria-labelledby="spot-exit-modal-title"
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150"
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-modal-backdrop"
               onClick={() => { playModalClose(); setTradeToExit(null); }}
             >
               <div
-                className="w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl p-5 space-y-4 animate-in zoom-in-95 duration-150"
+                className="w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl p-5 space-y-4 animate-modal-content"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Header */}
@@ -911,7 +911,7 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
                   </div>
                   <div>
                     <span className="text-[10px] font-sans text-text-muted block">Target TP</span>
-                    <span className="font-bold text-brand">
+                    <span className="font-bold text-brand-content">
                       {tradeToExit.targetSellPrice ? (
                         <CurrencyDisplay amount={tradeToExit.targetSellPrice} currency={activeStrategy?.baseCurrency} />
                       ) : (
@@ -943,7 +943,7 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
                         const live = getPrice(tradeToExit.symbol);
                         if (live) setExitPriceInput(String(live));
                       }}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono font-bold text-brand hover:underline px-1.5 py-0.5 rounded bg-brand/10"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono font-bold text-brand-content hover:underline px-1.5 py-0.5 rounded bg-brand/10"
                     >
                       Use Live Price (${formatLivePrice(tradeToExit.symbol)})
                     </button>
@@ -963,11 +963,11 @@ export const SpotCurrentHoldings: React.FC<SpotCurrentHoldingsProps> = React.mem
                     <div className="p-3 rounded-xl bg-canvas border border-border flex items-center justify-between text-xs font-mono">
                       <span className="text-text-muted">Realized PnL:</span>
                       <div className="text-right">
-                        <span className={`font-black text-sm block ${isProfit ? 'text-trade-green' : 'text-trade-red'}`}>
+                        <span className={`font-black text-sm block ${isProfit ? 'text-trade-green-content' : 'text-trade-red-content'}`}>
                           {isProfit ? '+' : ''}
                           <CurrencyDisplay amount={realized} currency={activeStrategy?.baseCurrency} showSign={true} />
                         </span>
-                        <span className={`text-[10px] font-bold block ${isProfit ? 'text-trade-green' : 'text-trade-red'}`}>
+                        <span className={`text-[10px] font-bold block ${isProfit ? 'text-trade-green-content' : 'text-trade-red-content'}`}>
                           {isProfit ? '+' : ''}{realizedPct.toFixed(2)}%
                         </span>
                       </div>

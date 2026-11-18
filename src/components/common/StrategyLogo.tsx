@@ -30,7 +30,7 @@ export const STRATEGY_PRESET_BADGES: StrategyLogoPreset[] = [
     description: 'ICT / Killzone / Scalping',
     icon: Zap,
     bgClass: 'bg-amber-500/15 border-amber-500/30',
-    textClass: 'text-amber-600 dark:text-amber-400',
+    textClass: 'text-brand-content',
   },
   {
     id: 'preset:target',
@@ -46,7 +46,7 @@ export const STRATEGY_PRESET_BADGES: StrategyLogoPreset[] = [
     description: 'Breakouts / Momentum / Hot Coins',
     icon: Flame,
     bgClass: 'bg-rose-500/15 border-rose-500/30',
-    textClass: 'text-rose-600 dark:text-rose-400',
+    textClass: 'text-trade-red-content',
   },
   {
     id: 'preset:vault',
@@ -54,7 +54,7 @@ export const STRATEGY_PRESET_BADGES: StrategyLogoPreset[] = [
     description: 'HTF Spot / Bag Building / Risk Gate',
     icon: Shield,
     bgClass: 'bg-emerald-500/15 border-emerald-500/30',
-    textClass: 'text-emerald-600 dark:text-emerald-400',
+    textClass: 'text-trade-green-content dark:text-emerald-400',
   },
   {
     id: 'preset:rocket',
@@ -187,7 +187,7 @@ export const StrategyLogo: React.FC<StrategyLogoProps> = ({
       case 'spot':
         return 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400';
       case 'hybrid':
-        return 'bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-400';
+        return 'bg-amber-500/15 border border-amber-500/30 text-brand-content';
       case 'futures':
       default:
         return 'bg-blue-500/15 border border-blue-500/30 text-blue-700 dark:text-blue-400';

@@ -24,6 +24,7 @@ const config: Config = {
 
         brand: {
           DEFAULT: "var(--tg-brand)",
+          content: "var(--tg-brand-foreground)",
           hover: "var(--tg-brand-hover)",
           muted: "var(--tg-brand-muted)",
           yellow: "#FCD535",
@@ -31,9 +32,11 @@ const config: Config = {
         },
         trade: {
           green: "var(--tg-bullish)",
+          "green-content": "var(--tg-bullish-foreground)",
           "green-hover": "var(--tg-bullish-hover)",
           "green-bg": "var(--tg-bullish-bg)",
           red: "var(--tg-bearish)",
+          "red-content": "var(--tg-bearish-foreground)",
           "red-hover": "var(--tg-bearish-hover)",
           "red-bg": "var(--tg-bearish-bg)",
         },
